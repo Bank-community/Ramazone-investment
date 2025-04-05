@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RMZ Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --warning: #f8961e;
+    --info: #4895ef;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --red: #e63946;
+    --black: #1a1a1a;
+    --yellow: #ffd166;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    line-height: 1.5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Password Protection Styles */
+  .login-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .login-container h2 {
+    color: var(--primary);
+    margin-bottom: 20px;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+
+  .login-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 10px;
+    transition: background 0.3s;
+  }
+
+  .login-btn:hover {
+    background: var(--secondary);
+  }
+
+  .error-message {
+    color: var(--danger);
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* Dashboard Styles */
+  .container {
+    display: none;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px; /* Increased margin for better visibility */
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .header h1 {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.8rem; /* Increased font size */
+  }
+
+  /* Compact Cards */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    text-align: center; /* Center the content */
+    cursor: pointer; /* Indicate it's clickable */
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+  }
+
+  .card h3 {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+
+  .card .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .notification-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .notification-card i {
+    font-size: 2rem;
+    color: var(--warning);
+    margin-bottom: 10px;
+  }
+
+  .notification-card span {
+    font-size: 1rem;
+    color: var(--dark);
+    font-weight: 500;
+  }
+
+  /* Shares Info Cards */
+  .shares-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .shares-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+
+  .shares-card h3 {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+
+  .shares-card .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .total-shares {
+    color: var(--black);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .available-shares {
+    color: var(--red);
+    background: linear-gradient(135deg, #ffefba 0%, #ffffff 100%);
+  }
+
+  .add-member-card {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .add-member-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+
+  .add-member-card i {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+
+  .add-member-card h3 {
+    color: var(--dark);
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+
+  /* Notification Update Section */
+  .notification-update-section {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+
+  .notification-update-section h2 {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .notification-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--dark);
+  }
+
+  .notification-form input[type="text"],
+  .notification-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+
+  .notification-form textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .notification-form button {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+  }
+
+  .notification-form button:hover {
+    background: var(--info);
+  }
+
+  .search-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--secondary);
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  /* Users Section */
+  .users-section {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .section-header h2 {
+    color: var(--primary);
+    font-size: 1.2rem;
+  }
+
+  .toggle-users {
+    background: var(--light);
+    color: var(--primary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+
+  /* Compact User List */
+  .user-list {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    list-style: none;
+  }
+
+  .user-list.show {
+    display: grid;
+  }
+
+  .user-item {
+    background: var(--light);
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+  }
+
+  .user-item:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  /* Search and Filter Row */
+  .search-filter-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+
+  .search-filter-row input,
+  .search-filter-row select {
+    flex: 1;
+    min-width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+
+  /* Add Member Button */
+  .add-member-btn {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+  }
+
+  /* Profile Picture Preview */
+  .profile-pic-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .profile-pic-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .profile-pic-preview i {
+    font-size: 2rem;
+    color: var(--gray);
+  }
+
+  /* User Details Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    background: white;
+    margin: 30px auto;
+    max-width: 600px;
+    width: 95%;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modal-header h2 {
+    color: var(--primary);
+    font-size: 1.3rem;
+  }
+
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--gray);
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: var(--gray);
+    color: white;
+  }
+
+  .history-list {
+    margin-top: 15px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--light);
+    border-radius: 5px;
+    font-size: 0.85rem;
+  }
+
+  .history-item {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .history-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .shares-container {
+      grid-template-columns: 1fr;
+    }
+
+    .search-filter-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .add-member-btn {
+      margin-left: 0;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-group {
+      flex-direction: column;
+    }
+
+    .btn-group button {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .user-list {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+  }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<div id="loginScreen" class="login-container">
+  <h2>Admin Panel Access</h2>
+  <p>Please enter the 6-digit password to continue</p>
+  <input type="password" id="passwordInput" class="login-input" placeholder="Enter password" maxlength="6" inputmode="numeric">
+  <button class="login-btn" onclick="checkPassword()">Submit</button>
+  <p id="errorMsg" class="error-message">Incorrect password. Please try again.</p>
+</div>
+
+<div class="container" id="dashboard">
+  <header class="header">
+    <h1>RMZ Admin Dashboard</h1>
+    <p>Manage members, shares, and transactions</p>
+  </header>
+
+  <div class="shares-container">
+    <div class="shares-card total-shares">
+      <h3>Total Shares</h3>
+      <div class="value" id="totalSharesValue">1000</div>
+    </div>
+
+    <div class="shares-card available-shares">
+      <h3>Available Shares</h3>
+      <div class="value" id="availableSharesValue">1000</div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="card">
+      <h3>Total Members</h3>
+      <div class="value" id="totalUsers">0</div>
+    </div>
+
+    <div class="card">
+      <h3>Shares Sold</h3>
+      <div class="value" id="totalShares">0</div>
+    </div>
+
+    <div class="add-member-card" onclick="showAddMemberForm()">
+      <i class="fas fa-user-plus"></i>
+      <h3>Add New Member</h3>
+    </div>
+
+    <div class="card notification-card" onclick="toggleNotificationSection()">
+      <i class="fas fa-bell"></i>
+      <span>Manage Notifications</span>
+    </div>
+  </div>
+
+  <section id="notificationSection" class="notification-update-section" style="display: none;">
+    <h2>Update Notifications</h2>
+    <div class="notification-form">
+      <label for="notificationHeadline">Headline:</label>
+      <input type="text" id="notificationHeadline" placeholder="Enter headline">
+      <label for="notificationSummary">Summary Text:</label>
+      <textarea id="notificationSummary" placeholder="Enter summary text"></textarea>
+      <label for="notificationLink">Link (Optional):</label>
+      <input type="text" id="notificationLink" placeholder="Enter link URL">
+      <label for="notificationImageLink">Image Link (Optional):</label>
+      <input type="text" id="notificationImageLink" placeholder="Enter image URL">
+      <button onclick="saveNotification()">Update Notification</button>
+      <p id="notificationStatus" style="margin-top: 10px; display: none;"></p>
+
+      <h3>Previous Notifications</h3>
+      <ul id="previousNotifications"></ul>
+    </div>
+  </section>
+
+  <div class="search-filter-row">
+    <input type="text" id="searchBox" class="search-input" placeholder="Search by ID, name or mobile">
+    <select id="filterShares" class="search-input">
+      <option value="">All Shares</option>
+      <option value="0-10">0-10 Shares</option>
+      <option value="11-30">11-30 Shares</option>
+      <option value="31-50">31-50 Shares</option>
+      <option value="51-100">51-100 Shares</option>
+    </select>
+    <button class="btn btn-primary" onclick="searchAndFilter()">Apply</button>
+  </div>
+
+  <section class="users-section">
+    <div class="section-header">
+      <h2>All Members</h2>
+      <button class="toggle-users" onclick="toggleUserList()">Show/Hide</button>
+    </div>
+
+    <ul class="user-list" id="userList"></ul>
+  </section>
+</div>
+
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Member Details</h2>
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+    </div>
+
+    <div class="profile-pic-container">
+      <div class="profile-pic-preview" id="profilePicPreview">
+        <i class="fas fa-user"></i>
+      </div>
+      <input type="text" id="editProfilePic" class="form-control" placeholder="Profile picture URL">
+    </div>
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="editName" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="editEmail" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Mobile</label>
+      <input type="text" id="editMobile" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Shares</label>
+      <input type="number" id="editShares" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Created At</label>
+      <p id="createdAt">-</p>
+    </div>
+
+    <div class="form-group">
+      <label>Last Login</label>
+      <p id="lastLogin">-</p>
+    </div>
+
+    <div class="form-group">
+      <label>Transaction History</label>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="saveUser()">Save Changes</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      <button class="btn btn-danger" onclick="deleteUser()">Delete Member</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="addMemberModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Member</h2>
+      <button class="close-modal" onclick="closeAddModal()">&times;</button>
+    </div>
+
+    <div class="profile-pic-container">
+      <div class="profile-pic-preview" id="newProfilePicPreview">
+        <i class="fas fa-user"></i>
+      </div>
+      <input type="text" id="newUserProfilePic" class="form-control" placeholder="Profile picture URL">
+    </div>
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="newUserName" class="form-control" placeholder="Enter full name" required>
+    </div>
+
+    <div class="form-group">
+      <label>Mobile Number</label>
+      <input type="tel" id="newUserMobile" class="form-control" placeholder="Enter mobile number" required>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="newUserEmail" class="form-control" placeholder="Enter email address" required>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="newUserPassword" class="form-control" placeholder="Set login password" required>
+    </div>
+
+    <div class="form-group">
+      <label>Initial Shares</label>
+      <input type="number" id="newUserShares" class="form-control" value="0" required>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="addNewMember()">Add Member</button>
+      <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc",
+    authDomain: "re-sh-51ff6.firebaseapp.com",
+    databaseURL: "https://re-sh-51ff6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "re-sh-51ff6",
+    storageBucket: "re-sh-51ff6.firebasestorage.app",
+    messagingSenderId: "870340778217",
+    appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
+    measurementId: "G-E3884F19J2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  let currentUserId = '';
+  const TOTAL_SHARES = 1000;
+  const MAX_NOTIFICATIONS = 3;
+
+  // Password Protection
+  const ADMIN_PASSWORD = "753690"; // Hardcoded password as requested
+
+  function checkPassword() {
+    const enteredPassword = document.getElementById('passwordInput').value;
+    const errorMsg = document.getElementById('errorMsg');
+
+    if (enteredPassword === ADMIN_PASSWORD) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadDashboard();
+      loadNotifications(); // Load existing notifications
+    } else {
+      errorMsg.style.display = 'block';
+      document.getElementById('passwordInput').value = '';
+      setTimeout(() => {
+        errorMsg.style.display = 'none';
+      }, 3000);
+    }
+  }
+
+  // Allow pressing Enter to submit password
+  document.getElementById('passwordInput').addEventListener('keyup', function(event) {
+    if (event.key === 'Enter') {
+      checkPassword();
+    }
+  });
+
+  function formatDateTime(isoString) {
+    if (!isoString) return "N/A";
+    const dateObj = new Date(isoString);
+    return dateObj.toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function updateProfilePicPreview(inputId, previewId) {
+    const url = document.getElementById(inputId).value;
+    const preview = document.getElementById(previewId);
+
+    if (url) {
+      preview.innerHTML = `<img src="${url}" alt="Profile" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      preview.innerHTML = '<i class="fas fa-user"></i>';
+    }
+  }
+
+  function loadDashboard() {
+    db.ref('users').once('value', snapshot => {
+      const data = snapshot.val();
+      let totalUsers = 0;
+      let totalSharesSold = 0;
+      let html = '';
+
+      if (data) {
+        for (const id in data) {
+          totalUsers++;
+          totalSharesSold += parseInt(data[id].shares || 0);
+          html += `<li class="user-item" onclick="loadUserData('${id}')">${id}</li>`;
+        }
+      } else {
+        html = '<li>No members found</li>';
+      }
+
+      document.getElementById('totalUsers').innerText = totalUsers;
+      document.getElementById('totalShares').innerText = totalSharesSold;
+      document.getElementById('availableSharesValue').innerText = TOTAL_SHARES - totalSharesSold;
+      document.getElementById('userList').innerHTML = html;
+    });
+  }
+
+  function toggleUserList() {
+    const userList = document.getElementById('userList');
+    userList.classList.toggle('show');
+  }
+
+  function searchAndFilter() {
+    const searchTerm = document.getElementById('searchBox').value.trim().toLowerCase();
+    const shareFilter = document.getElementById('filterShares').value;
+
+    db.ref('users').once('value', snapshot => {
+      const data = snapshot.val();
+      let html = '';
+      let filteredCount = 0;
+      let totalSharesSold = 0;
+
+      if (data) {
+        for (const id in data) {
+          const user = data[id];
+          const userName = user.name ? user.name.toLowerCase() : '';
+          const userMobile = user.mobile ? user.mobile.toLowerCase() : '';
+          const userShares = parseInt(user.shares || 0);
+
+          // Check search term
+          const matchesSearch = searchTerm === '' ||
+                               id.toLowerCase().includes(searchTerm) ||
+                               userName.includes(searchTerm) ||
+                               userMobile.includes(searchTerm);
+
+          // Check share filter
+          let matchesFilter = true;
+          if (shareFilter !== '') {
+            if (shareFilter === '0-10') {
+              matchesFilter = userShares >= 0 && userShares <= 10;
+            } else if (shareFilter === '11-30') {
+              matchesFilter = userShares >= 11 && userShares <= 30;
+            } else if (shareFilter === '31-50') {
+              matchesFilter = userShares >= 31 && userShares <= 50;
+            } else if (shareFilter === '51-100') {
+              matchesFilter = userShares >= 51 && userShares <= 100;
+            }
+          }
+
+          if (matchesSearch && matchesFilter) {
+            filteredCount++;
+            totalSharesSold += userShares;
+            html += `<li class="user-item" onclick="loadUserData('${id}')">${id}</li>`;
+          }
+        }
+      }
+
+      if (html === '') {
+        html = '<li>No matching members found</li>';
+      }
+
+      document.getElementById('userList').innerHTML = html;
+      document.getElementById('totalUsers').innerText = filteredCount;
+      document.getElementById('totalShares').innerText = totalSharesSold;
+      document.getElementById('availableSharesValue').innerText = TOTAL_SHARES - totalSharesSold;
+      document.getElementById('userList').classList.add('show');
+    });
+  }
+
+  function loadUserData(id) {
+    db.ref('users/' + id).once('value', snap => {
+      if (!snap.exists()) {
+        alert("Member not found.");
+        return;
+      }
+
+      const user = snap.val();
+      currentUserId = id;
+
+      // Update modal title
+      document.getElementById('modalTitle').textContent = `Member: ${id}`;
+
+      // Fill form fields
+      document.getElementById('editName').value = user.name || '';
+      document.getElementById('editEmail').value = user.email || '';
+      document.getElementById('editMobile').value = user.mobile || '';
+      document.getElementById('editShares').value = user.shares || 0;
+      document.getElementById('editProfilePic').value = user.profilePic || '';
+      document.getElementById('createdAt').textContent = formatDateTime(user.createdAt);
+      document.getElementById('lastLogin').textContent = formatDateTime(user.lastLogin);
+
+      // Update profile picture preview
+      updateProfilePicPreview('editProfilePic', 'profilePicPreview');
+
+      // Build history list
+      let historyHtml = '';
+      if (user.history) {
+        Object.values(user.history).forEach(tx => {
+          historyHtml += `
+            <div class="history-item">
+              <strong>${formatDateTime(tx.date)}</strong><br>
+              ${tx.shares} shares - ${tx.note || 'No description'}
+            </div>
+          `;
+        });
+      } else {
+        historyHtml = '<div class="history-item">No transaction history</div>';
+      }
+      document.getElementById('historyList').innerHTML = historyHtml;
+
+      // Show modal
+      document.getElementById('userModal').style.display = 'block';
+    });
+  }
+
+  function saveUser() {
+    const updated = {
+      name: document.getElementById('editName').value,
+      email: document.getElementById('editEmail').value,
+      mobile: document.getElementById('editMobile').value,
+      shares: parseInt(document.getElementById('editShares').value),
+      profilePic: document.getElementById('editProfilePic').value,
+      updatedAt: new Date().toISOString()
+    };
+
+    db.ref('users/' + currentUserId).update(updated).then(() => {
+      alert("Member updated successfully!");
+      loadDashboard();
+      closeModal();
+    }).catch(error => {
+      alert("Error updating member: " + error.message);
+    });
+  }
+
+  async function deleteUser() {
+    if (!confirm(`Are you sure you want to permanently delete member ${currentUserId}?`)) {
+      return;
+    }
+
+    try {
+      // Get user email before deleting
+      const userSnapshot = await db.ref('users/' + currentUserId).once('value');
+      const userData = userSnapshot.val();
+      const userEmail = userData.email;
+
+      // Delete from Authentication
+      try {
+        const user = await auth.getUserByEmail(userEmail);
+        await auth.deleteUser(user.uid);
+      } catch (authError) {
+        console.warn("Could not delete auth user:", authError.message);
+      }
+
+      // Delete from Realtime Database
+      await db.ref('users/' + currentUserId).remove();
+
+      alert("Member deleted successfully from both systems!");
+      loadDashboard();
+      closeModal();
+    } catch (error) {
+      alert("Error deleting member: " + error.message);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+    currentUserId = '';
+  }
+
+  function showAddMemberForm() {
+    // Clear form fields
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserMobile').value = '';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserShares').value = '0';
+    document.getElementById('newUserProfilePic').value = '';
+
+    // Reset profile picture preview
+    document.getElementById('newProfilePicPreview').innerHTML = '<i class="fas fa-user"></i>';
+
+    // Show modal
+    document.getElementById('addMemberModal').style.display = 'block';
+  }
+
+  function closeAddModal() {
+    document.getElementById('addMemberModal').style.display = 'none';
+  }
+
+  async function addNewMember() {
+    const name = document.getElementById('newUserName').value.trim();
+    const mobile = document.getElementById('newUserMobile').value.trim();
+    const email = document.getElementById('newUserEmail').value.trim();
+    const password = document.getElementById('newUserPassword').value;
+    const shares = parseInt(document.getElementById('newUserShares').value) || 0;
+    const profilePic = document.getElementById('newUserProfilePic').value.trim();
+    const now = new Date().toISOString();
+
+    if (!name || !mobile || !email || !password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      // Check if email already exists in auth
+      const methods = await auth.fetchSignInMethodsForEmail(email);
+      if (methods.length > 0) {
+        alert("This email is already registered");
+        return;
+      }
+
+      // Create user in Authentication
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const uid = userCredential.user.uid;
+
+      // Get next RMZ ID from counter
+      const counterRef = db.ref('counter/userCount');
+      const snapshot = await counterRef.once('value');
+      let userCount = snapshot.exists() ? snapshot.val() : 0;
+      userCount += 1;
+      const rmzID = "RMZ" + String(userCount).padStart(4, '0');
+
+      // Create user in Realtime Database
+      const newUser = {
+        name: name,
+        mobile: mobile,
+        email: email,
+        shares: shares,
+        profilePic: profilePic || '',
+        rmzID: rmzID,
+        uid: uid, // Store auth UID for reference
+        createdAt: now,
+        lastLogin: now,
+        history: {
+          t1: {
+            date: now.split("T")[0],
+            shares: shares,
+            note: "Initial share registration"
+          }
+        }
+      };
+
+      await db.ref('users/' + rmzID).set(newUser);
+      await counterRef.set(userCount);
+
+      alert(`Member added successfully with ID: ${rmzID}`);
+      closeAddModal();
+      loadDashboard();
+    } catch (error) {
+      alert("Error adding member: " + error.message);
+    }
+  }
+
+  function toggleNotificationSection() {
+    const notificationSection = document.getElementById('notificationSection');
+    notificationSection.style.display = notificationSection.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function saveNotification() {
+    const headline = document.getElementById('notificationHeadline').value;
+    const summary = document.getElementById('notificationSummary').value;
+    const link = document.getElementById('notificationLink').value;
+    const imageLink = document.getElementById('notificationImageLink').value;
+    const statusMsg = document.getElementById('notificationStatus');
+    const previousNotificationsList = document.getElementById('previousNotifications');
+
+    const newNotification = {
+      headline: headline,
+      summary: summary,
+      link: link,
+      imageLink: imageLink,
+      timestamp: firebase.database.ServerValue.TIMESTAMP // Add timestamp for ordering
+    };
+
+    db.ref('notifications').push(newNotification)
+      .then(() => {
+        statusMsg.textContent = "Notification updated successfully!";
+        statusMsg.style.color = "green";
+        statusMsg.style.display = "block";
+        setTimeout(() => {
+          statusMsg.style.display = "none";
+        }, 3000);
+        loadNotifications(); // Reload notifications after saving
+      })
+      .catch((error) => {
+        statusMsg.textContent = "Error updating notification: " + error.message;
+        statusMsg.style.color = "red";
+        statusMsg.style.display = "block";
+      });
+  }
+
+  function loadNotifications() {
+    const previousNotificationsList = document.getElementById('previousNotifications');
+    previousNotificationsList.innerHTML = ''; // Clear previous list
+
+    db.ref('notifications')
+      .orderByChild('timestamp')
+      .limitToLast(MAX_NOTIFICATIONS)
+      .once('value', snapshot => {
+        const notifications = snapshot.val();
+        const notificationArray = [];
+
+        if (notifications) {
+          for (const key in notifications) {
+            notificationArray.push({ id: key, ...notifications[key] });
+          }
+
+          // Display the latest notification in the form
+          if (notificationArray.length > 0) {
+            const latestNotification = notificationArray[notificationArray.length - 1];
+            document.getElementById('notificationHeadline').value = latestNotification.headline || '';
+            document.getElementById('notificationSummary').value = latestNotification.summary || '';
+            document.getElementById('notificationLink').value = latestNotification.link || '';
+            document.getElementById('notificationImageLink').value = latestNotification.imageLink || '';
+          }
+
+          // Display previous notifications in the list
+          notificationArray.slice(0, notificationArray.length -1).forEach(notification => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <strong>${notification.headline || 'No Headline'}</strong><br>
+              ${notification.summary ? notification.summary.substring(0, 50) + '...' : 'No summary'}
+            `;
+            previousNotificationsList.appendChild(listItem);
+          });
+        } else {
+          previousNotificationsList.innerHTML = '<li>No previous notifications found.</li>';
+        }
+      });
+  }
+
+  // Close modal when clicking outside content
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+      closeModal();
+      closeAddModal();
+    }
+  }
+
+  // Initialize profile picture preview updates
+  document.getElementById('editProfilePic').addEventListener('input', function() {
+    updateProfilePicPreview('editProfilePic', 'profilePicPreview');
+  });
+
+  document.getElementById('newUserProfilePic').addEventListener('input', function() {
+    updateProfilePicPreview('newUserProfilePic', 'newProfilePicPreview');
+  });
+</script>
+</body>
+</html>
