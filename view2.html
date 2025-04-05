@@ -1,0 +1,1590 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RMZ Investment Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #4895ef;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Login Page Styles */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f7fa;
+    }
+
+    .login-form {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-form h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .login-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+
+    .login-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .forgot-password {
+      display: block;
+      margin-top: 10px;
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: var(--danger);
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Dashboard Styles */
+    .dashboard {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    /* Advertisement Banner with Slider */
+    .ad-banner {
+      width: 100%;
+      height: 150px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ad-slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      opacity: 0;
+      transition: opacity .5s ease-in-out;
+    }
+
+    .ad-slide.active {
+      opacity: 1;
+    }
+
+    .ad-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Top Investors Card - Enhanced */
+    .top-investors {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .top-investors h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .top-investors h2 i {
+      margin-right: 10px;
+      color: var(--warning);
+    }
+
+    .investor-list {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .investor-card {
+      flex: 1;
+      min-width: 250px;
+      background: var(--light);
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .investor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .investor-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-right: 15px;
+      overflow: hidden;
+    }
+
+    .investor-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .investor-details {
+      flex: 1;
+    }
+
+    .investor-rank {
+      font-size: 0.8rem;
+      color: white;
+      background: var(--warning);
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    .investor-name {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .investor-shares {
+      color: var(--gray);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .investor-shares i {
+      margin-right: 5px;
+      color: var(--success);
+    }
+
+    /* Top Investor Card Specific Styles */
+    .investor-card.golden-card {
+      background: linear-gradient(to right, #FFD700, #FF8C00);
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .investor-card.golden-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(-45deg) translate(0, -50%);
+      animation: shine 3s infinite;
+    }
+
+    .investor-card.silver-card {
+      background: linear-gradient(to right, #C0C0C0, #A9A9A9);
+      color: #333;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .investor-card.silver-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(-45deg) translate(0, -50%);
+      animation: shine 3s infinite;
+    }
+
+    .investor-card.green-card {
+      background: linear-gradient(to right, #008000, #3CB371);
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .investor-card.green-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(-45deg) translate(0, -50%);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: rotate(-45deg) translate(0, -50%); }
+      100% { transform: rotate(-45deg) translate(100%, -50%); }
+    }
+
+    /* User Profile Card - Enhanced */
+    .profile-card {
+      background: linear-gradient(135deg, #8A2BE2, #DDA0DD);
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative; /* For positioning the menu */
+      overflow: hidden;
+    }
+
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(-45deg) translate(0, -50%);
+      animation: shine 3s infinite;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 2.5rem;
+      margin-right: 20px;
+      overflow: hidden;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-details {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: inherit; /* Inherit color from profile-card */
+    }
+
+    .profile-id {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: inherit; /* Inherit color from profile-card */
+    }
+
+    /* Menu Button Style */
+    .menu-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 5px;
+      transition: color 0.3s;
+    }
+
+    .menu-button:hover {
+      color: var(--light-gray);
+    }
+
+    .menu-dropdown {
+      position: absolute;
+      top: 40px;
+      right: 10px;
+      background-color: white;
+      border: 1px solid var(--light-gray);
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+      display: none;
+      width: 150px;
+    }
+
+    .menu-dropdown.open {
+      display: block;
+    }
+
+    .menu-dropdown button {
+      display: block;
+      width: 100%;
+      padding: 10px 15px;
+      text-align: left;
+      border: none;
+      background: none;
+      color: var(--dark);
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .menu-dropdown button:hover {
+      background-color: var(--light-gray);
+    }
+
+    /* Notifications Modal Styles */
+    #notificationsModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .notification-popup {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .notification-popup h2 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .notification-popup p {
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .notification-link-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    /* Shares Chart */
+    .shares-chart {
+      background: white;
+      border-radius: 5px;
+      padding: 0px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .shares-chart h2 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .shares-chart h2 i {
+      margin-right: 10px;
+      color: var(--info);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    /* Return Percentage Cards */
+    .return-percentage-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      overflow-x: auto; /* For smaller screens */
+      padding-bottom: 10px; /* To see the full shadow if any */
+    }
+
+    .return-card {
+      background: #f0e68c; /* Initial light yellow */
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .return-card.year-1 {
+      background: #fffacd; /* Light yellow */
+    }
+
+    .return-card.year-2 {
+      background: #eee8aa; /* Slightly darker yellow */
+    }
+
+    .return-card.year-3 {
+      background: #e0e080; /* Medium yellow */
+    }
+
+    .return-card.year-4 {
+      background: #ffd700; /* Golden yellow */
+    }
+
+    .return-card.year-5 {
+      background: #ffb347; /* Darker golden yellow */
+    }
+
+    .return-card h3 {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .return-card .percentage {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--success);
+      margin-bottom: 5px;
+    }
+
+    .return-card .amount {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    /* Shares Summary */
+    .shares-summary {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .shares-summary h2 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .shares-summary h2 i {
+      margin-right: 10px;
+      color: var(--success);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .summary-card {
+      background: #aed9e0; /* Light blue */
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .summary-card .title {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 5px;
+    }
+
+    .summary-card .value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .progress-container {
+      margin-top: 15px;
+      height: 8px;
+      background: var(--light-gray);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* Footer Styles */
+    .dashboard > footer {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .footer-card {
+      flex: 1;
+      margin: 5px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-card i {
+      font-size: 1.2rem;
+    }
+
+    .ramazone-store {
+      background-color: red;
+    }
+
+    .whatsapp-chat {
+      background-color: green;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .investor-list {
+        flex-direction: column;
+      }
+
+      .investor-card {
+        min-width: 100%;
+      }
+
+      .profile-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+
+      .profile-details {
+        text-align: center;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dashboard > footer {
+        flex-direction: column;
+      }
+
+      .footer-card {
+        margin: 10px 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Loading States */
+    .loading {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-container">
+  <div class="login-form">
+    <h2>RMZ Investor Login</h2>
+    <input type="email" id="loginEmail" class="login-input" placeholder="Enter your email" required>
+    <input type="password" id="loginPassword" class="login-input" placeholder="Enter your password" required>
+    <button class="login-btn" onclick="loginUser()">Login</button>
+    <a class="forgot-password" onclick="showForgotPassword()">Forgot Password?</a>
+    <p id="loginError" class="error-message">Invalid email or password</p>
+  </div>
+</div>
+
+<div id="forgotPasswordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center;">
+  <div style="background:white; padding:30px; border-radius:10px; width:90%; max-width:400px;">
+    <h2 style="color:#4361ee; margin-bottom:20px;">Reset Password</h2>
+    <input type="email" id="resetEmail" placeholder="Enter your email" style="width:100%; padding:12px 15px; margin-bottom:15px; border:1px solid #ddd; border-radius:5px;">
+    <button onclick="sendPasswordReset()" style="background:#4361ee; color:white; border:none; padding:12px 20px; border-radius:5px; cursor:pointer; width:100%;">Send Reset Link</button>
+    <button onclick="hideForgotPassword()" style="background:#6c757d; color:white; border:none; padding:12px 20px; border-radius:5px; cursor:pointer; width:100%; margin-top:10px;">Cancel</button>
+    <p id="resetMessage" style="margin-top:15px; display:none;"></p>
+  </div>
+</div>
+
+<div id="notificationsModal" style="display:none;">
+  <div class="notification-popup">
+    <button class="close-modal-btn" onclick="closeNotificationsModal()">&times;</button>
+    <h2 id="notificationHeadline"></h2>
+    <p id="notificationSummary"></p>
+    <a id="notificationLink" href="#" target="_blank" class="notification-link-btn">Click Here</a>
+  </div>
+</div>
+
+<div id="changePasswordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center;">
+  <div style="background:white; padding:30px; border-radius:10px; width:90%; max-width:400px; position: relative;">
+    <button class="close-modal-btn" onclick="closeChangePasswordModal()">&times;</button>
+    <h2 style="color:#4361ee; margin-bottom:20px;">Change Password</h2>
+    <input type="password" id="currentPassword" placeholder="Current Password" style="width:100%; padding:12px 15px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+    <input type="password" id="newPassword" placeholder="New Password" style="width:100%; padding:12px 15px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+    <input type="password" id="confirmNewPassword" placeholder="Confirm New Password" style="width:100%; padding:12px 15px; margin-bottom:15px; border:1px solid #ddd; border-radius:5px;">
+    <button onclick="updatePassword()" style="background:#4361ee; color:white; border:none; padding:12px 20px; border-radius:5px; cursor:pointer; width:100%;">Change Password</button>
+    <p id="passwordChangeMessage" style="margin-top:15px; display:none;"></p>
+  </div>
+</div>
+
+<div id="dashboard" class="dashboard">
+  <div class="ad-banner">
+    <div class="ad-slide active">
+      <a href="https://example.com/link1" target="_blank">
+        <img src="https://i.postimg.cc/3J367fQT/20250405-105443.png">
+      </a>
+    </div>
+    <div class="ad-slide">
+      <a href="https://example.com/link2" target="_blank">
+        <img src="https://i.postimg.cc/13XyR31s/20250405-111536.png">
+      </a>
+    </div>
+    <div class="ad-slide">
+      <a href="https://example.com/link3" target="_blank">
+        <img src="https://i.postimg.cc/SxgjVPkN/20250405-111107.jpg">
+      </a>
+    </div>
+  </div>
+
+  <div class="top-investors">
+    <h2><i class="fas fa-trophy"></i> Top Investors</h2>
+    <div class="investor-list" id="topInvestors">
+      <div class="investor-card loading">
+        <div class="investor-avatar"></div>
+        <div class="investor-details">
+          <div class="investor-rank">#1</div>
+          <div class="investor-name">Loading...</div>
+          <div class="investor-shares">
+            <i class="fas fa-coins"></i>
+            0 Shares (₹0)
+          </div>
+        </div>
+      </div>
+      <div class="investor-card loading">
+        <div class="investor-avatar"></div>
+        <div class="investor-details">
+          <div class="investor-rank">#2</div>
+          <div class="investor-name">Loading...</div>
+          <div class="investor-shares">
+            <i class="fas fa-coins"></i>
+            0 Shares (₹0)
+          </div>
+        </div>
+      </div>
+      <div class="investor-card loading">
+        <div class="investor-avatar"></div>
+        <div class="investor-details">
+          <div class="investor-rank">#3</div>
+          <div class="investor-name">Loading...</div>
+          <div class="investor-shares">
+            <i class="fas fa-coins"></i>
+            0 Shares (₹0)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-card" id="userProfile">
+    <button class="menu-button" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-dropdown" id="profileMenu">
+      <button onclick="showNotificationsModal()">Notifications</button>
+      <button onclick="showChangePasswordModal()">Change Password</button>
+      <button onclick="logoutUser()">Logout</button>
+    </div>
+    <div class="profile-avatar loading"></div>
+    <div class="profile-details">
+      <div class="profile-name loading" style="width: 200px; height: 28px; margin-bottom: 10px;"></div>
+      <div class="profile-id loading" style="width: 150px; height: 18px; margin-bottom: 15px;"></div>
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-label">Shares</div>
+          <div class="stat-value" id="userShares">Loading...</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Investment</div>
+          <div class="stat-value" id="userInvestment">Loading...</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Member Since</div>
+          <div class="stat-value" id="memberSince">Loading...</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Last Login</div>
+          <div class="stat-value" id="lastLogin">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shares-chart">
+    <h2><i class="fas fa-chart-bar"></i> Shares Distribution</h2>
+    <div class="chart-container">
+      <canvas id="sharesChart"></canvas>
+    </div>
+  </div>
+
+  <div class="return-percentage-container" id="returnPercentageCards">
+    </div>
+
+  <div class="shares-summary">
+    <h2><i class="fas fa-chart-pie"></i> Shares Overview</h2>
+    <div class="summary-grid">
+      <div class="summary-card" id="soldSharesCard">
+        <div class="title">Sold Shares</div>
+        <div class="value loading">...</div>
+        <div class="progress-container" id="soldProgress">
+          <div class="progress-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="summary-card" id="availableSharesCard">
+        <div class="title">Available Shares</div>
+        <div class="value loading">...</div>
+        <div class="progress-container" id="availableProgress">
+          <div class="progress-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="title">Total Investors</div>
+        <div class="value loading" id="totalInvestors">...</div>
+      </div>
+      <div class="summary-card">
+        <div class="title">Total Shares</div>
+        <div class="value">1000</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <a href="https://ramazone.store.shoopy.in" target="_blank" class="footer-card ramazone-store">
+      <i class="fas fa-store"></i> Ramazone Store
+    </a>
+    <a href="https://wa.me/917903698180" target="_blank" class="footer-card whatsapp-chat">
+      <i class="fab fa-whatsapp"></i> WhatsApp Chat
+    </a>
+  </footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc",
+    authDomain: "re-sh-51ff6.firebaseapp.com",
+    databaseURL: "https://re-sh-51ff6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "re-sh-51ff6",
+    storageBucket: "re-sh-51ff6.firebasestorage.app",
+    messagingSenderId: "870340778217",
+    appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
+    measurementId: "G-E3884F19J2"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  // Global variables
+  let currentUser = null;
+  let sharesChart = null;
+  let adInterval = null;
+  let usersRef = null;
+  let notificationsRef = null;
+
+  // Function to toggle the profile menu
+  function toggleMenu() {
+    const menu = document.getElementById('profileMenu');
+    menu.classList.toggle('open');
+  }
+
+  // Logout function
+  function logoutUser() {
+    auth.signOut().then(() => {
+      // Sign-out successful.
+      currentUser = null;
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      if (adInterval) {
+        clearInterval(adInterval);
+      }
+    }).catch((error) => {
+      // An error happened.
+      console.error("Logout error:", error);
+      // Optionally show an error message to the user
+    });
+  }
+
+  // Function to show the notifications modal
+  function showNotificationsModal() {
+    document.getElementById('profileMenu').classList.remove('open');
+    document.getElementById('notificationsModal').style.display = 'flex';
+    loadNotifications();
+  }
+
+  // Function to close the notifications modal
+  function closeNotificationsModal() {
+    document.getElementById('notificationsModal').style.display = 'none';
+  }
+
+  // Function to load notifications from Firebase
+  function loadNotifications() {
+    if (!notificationsRef) {
+      notificationsRef = db.ref('notifications');
+    }
+    notificationsRef.limitToLast(1).once('value', (snapshot) => { // Assuming you want the latest notification
+      snapshot.forEach((childSnapshot) => {
+        const notification = childSnapshot.val();
+        document.getElementById('notificationHeadline').textContent = notification.headline || 'Notification';
+        document.getElementById('notificationSummary').textContent = notification.summary || '';
+        const linkElement = document.getElementById('notificationLink');
+        linkElement.href = notification.link || '#';
+        linkElement.style.display = notification.link ? 'inline-block' : 'none';
+      });
+      if (!snapshot.exists()) {
+        document.getElementById('notificationHeadline').textContent = 'No New Notifications';
+        document.getElementById('notificationSummary').textContent = '';
+        document.getElementById('notificationLink').style.display = 'none';
+      }
+    });
+  }
+
+  // Function to show the change password modal
+  function showChangePasswordModal() {
+    document.getElementById('profileMenu').classList.remove('open');
+    document.getElementById('changePasswordModal').style.display = 'flex';
+  }
+
+  // Function to close the change password modal
+  function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'none';
+    document.getElementById('passwordChangeMessage').style.display = 'none';
+  }
+
+  // Function to update the user's password
+  function updatePassword() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    const messageElement = document.getElementById('passwordChangeMessage');
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      messageElement.textContent = 'Please fill in all fields.';
+      messageElement.style.color = 'red';
+      messageElement.style.display = 'block';
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      messageElement.textContent = 'New passwords do not match.';
+      messageElement.style.color = 'red';
+      messageElement.style.display = 'block';
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      messageElement.textContent = 'New password must be at least 6 characters long.';
+      messageElement.style.color = 'red';
+      messageElement.style.display = 'block';
+      return;
+    }
+
+    const user = auth.currentUser;
+
+    if (user) {
+      // Re-authenticate user (more secure approach)
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+      user.reauthenticateWithCredential(credential)
+        .then(() => {
+          user.updatePassword(newPassword)
+            .then(() => {
+              messageElement.textContent = 'Password updated successfully!';
+              messageElement.style.color = 'green';
+              messageElement.style.display = 'block';
+              setTimeout(() => closeChangePasswordModal(), 3000);
+            }).catch((error) => {
+              messageElement.textContent = 'Error updating password: ' + error.message;
+              messageElement.style.color = 'red';
+              messageElement.style.display = 'block';
+            });
+        }).catch((error) => {
+          messageElement.textContent = 'Incorrect current password.';
+          messageElement.style.color = 'red';
+          messageElement.style.display = 'block';
+        });
+    } else {
+      messageElement.textContent = 'No user logged in.';
+      messageElement.style.color = 'red';
+      messageElement.style.display = 'block';
+    }
+  }
+
+  // Login function with enhanced error handling
+  function loginUser() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorMsg = document.getElementById('loginError');
+
+    // Basic validation
+    if (!email || !password) {
+      errorMsg.textContent = "Please enter both email and password";
+      errorMsg.style.display = 'block';
+      setTimeout(() => { errorMsg.style.display = 'none'; }, 3000);
+      return;
+    }
+
+    // Show loading state
+    const loginBtn = document.querySelector('.login-btn');
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        currentUser = userCredential.user;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        // Set up real-time listener
+        setupRealtimeListener();
+        startAdSlider();
+
+        // Update last login time
+        updateLastLogin(email);
+      })
+      .catch((error) => {
+        let errorMessage = "Login failed. Please try again.";
+        switch(error.code) {
+          case "auth/user-not-found":
+            errorMessage = "No account found with this email.";
+            break;
+          case "auth/wrong-password":
+            errorMessage = "Incorrect password.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage = "Too many attempts. Account temporarily locked.";
+            break;
+        }
+        errorMsg.textContent = errorMessage;
+        errorMsg.style.display = 'block';
+        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+      })
+      .finally(() => {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      });
+  }
+
+  // Set up real-time database listener
+  function setupRealtimeListener() {
+    // Remove previous listener if exists
+    if (usersRef) {
+      usersRef.off();
+    }
+
+    usersRef = db.ref('users');
+    usersRef.on('value', (snapshot) => {
+      loadDashboardData();
+    }, (error) => {
+      console.error("Error fetching users data:", error);
+      // Optionally display an error message to the user
+    });
+  }
+
+  // Update last login time
+  function updateLastLogin(email) {
+    db.ref('users').orderByChild('email').equalTo(email).once('value')
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const updates = {};
+          snapshot.forEach((childSnapshot) => {
+            updates['users/' + childSnapshot.key + '/lastLogin'] = new Date().toISOString();
+          });
+          db.ref().update(updates).catch(error => console.error("Error updating last login:", error));
+        }
+      }).catch(error => console.error("Error finding user by email:", error));
+  }
+
+  // Forgot password functions
+  function showForgotPassword() {
+    document.getElementById('forgotPasswordModal').style.display = 'flex';
+  }
+
+  function hideForgotPassword() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+    document.getElementById('resetMessage').style.display = 'none';
+  }
+
+  function sendPasswordReset() {
+    const email = document.getElementById('resetEmail').value;
+    const message = document.getElementById('resetMessage');
+
+    if (!email) {
+      message.textContent = "Please enter your email";
+      message.style.color = "red";
+      message.style.display = "block";
+      return;
+    }
+
+    const resetBtn = document.querySelector('#forgotPasswordModal button:first-of-type');
+    resetBtn.disabled = true;
+    resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+    auth.sendPasswordResetEmail(email)
+      .then(() => {
+        message.textContent = "Password reset email sent! Check your inbox.";
+        message.style.color = "green";
+        message.style.display = "block";
+      })
+      .catch((error) => {
+        message.textContent = error.message;
+        message.style.color = "red";
+        message.style.display = "block";
+      })
+      .finally(() => {
+        resetBtn.disabled = false;
+        resetBtn.textContent = 'Send Reset Link';
+      });
+  }
+
+  // Advertisement Slider
+  function startAdSlider() {
+    const slides = document.querySelectorAll('.ad-slide');
+    let currentSlide = 0;
+
+    // Clear existing interval if any
+    if (adInterval) {
+      clearInterval(adInterval);
+    }
+
+    // Show first slide
+    slides[currentSlide].classList.add('active');
+
+    adInterval = setInterval(() => {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 3000); // Change every 3 seconds
+  }
+
+  // Load all dashboard data
+  function loadDashboardData() {
+    db.ref('users').once('value')
+      .then((snapshot) => {
+        const allUsers = [];
+        snapshot.forEach((childSnapshot) => {
+          const user = childSnapshot.val();
+          user.id = childSnapshot.key;
+          allUsers.push(user);
+        });
+
+        // Process all data from single snapshot
+        displayTopInvestors(allUsers);
+
+        // Find and display current user
+        const currentUserData = allUsers.find(user => user.email === currentUser?.email);
+        if (currentUserData) {
+          displayUserProfile(currentUserData);
+          displayReturnPercentageCards(currentUserData.shares); // Display return cards
+        } else {
+          console.warn("Current user data not found in the fetched list.");
+          // Optionally handle the case where current user's data is not available
+        }
+
+        updateSharesChart(allUsers);
+        updateSharesSummary(allUsers);
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+        // Show error to user - consider a more user-friendly display
+        document.getElementById('profileName').textContent = "Error loading data";
+        // Remove loading states from sections that might be affected
+        document.querySelectorAll('#topInvestors .loading').forEach(el => el.classList.remove('loading'));
+        document.querySelectorAll('#userProfile .loading').forEach(el => el.classList.remove('loading'));
+        document.querySelectorAll('.shares-summary .loading').forEach(el => el.classList.remove('loading'));
+        document.getElementById('returnPercentageCards').innerHTML = '<div class="error-message">Failed to load return data.</div>';
+      });
+  }
+
+    // Display year-wise return percentage cards
+  function displayReturnPercentageCards(userShares) {
+    const container = document.getElementById('returnPercentageCards');
+    container.innerHTML = ''; // Clear previous cards
+    const sharePrice = 100;
+
+    const returns = [
+      { years: 1, percentage: 8 },
+      { years: 2, percentage: 20 },
+      { years: 3, percentage: 50 },
+      { years: 4, percentage: 75 },
+      { years: 5, percentage: 110 }
+    ];
+
+    returns.forEach(ret => {
+      const card = document.createElement('div');
+      card.className = 'return-card';
+      card.classList.add(`year-${ret.years}`); // Add class for year-specific styling
+      const investmentAmount = userShares * sharePrice;
+      const returnAmount = (investmentAmount * ret.percentage) / 100;
+      const totalAmount = investmentAmount + returnAmount;
+      card.innerHTML = `
+        <h3>${ret.years} Year</h3>
+        <div class="percentage">${ret.percentage}%</div>
+        <div class="amount">₹${totalAmount.toFixed(2)}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+
+    // Display top 3 investors with enhanced design
+  function displayTopInvestors(allUsers) {
+    const container = document.getElementById('topInvestors');
+
+    // Remove loading states
+    container.querySelectorAll('.loading').forEach(el => {
+      el.classList.remove('loading');
+    });
+
+    // Sort by shares (descending) and take top 3
+    const topInvestors = [...allUsers]
+      .sort((a, b) => (b.shares || 0) - (a.shares || 0))
+      .slice(0, 3);
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    topInvestors.forEach((investor, index) => {
+      const investorCard = document.createElement('div');
+      investorCard.className = 'investor-card';
+
+      // Apply specific class based on rank
+      if (index === 0) {
+        investorCard.classList.add('golden-card');
+      } else if (index === 1) {
+        investorCard.classList.add('silver-card');
+      } else if (index === 2) {
+        investorCard.classList.add('green-card');
+      }
+
+      // Use profilePic if available, otherwise use name initial
+      const avatarContent = investor.profilePic ?
+        `<img src="${investor.profilePic}" alt="${investor.name || 'Investor'}" onerror="this.parentElement.innerHTML='${investor.name ? investor.name.charAt(0).toUpperCase() : '?'}'">` :
+        (investor.name ? investor.name.charAt(0).toUpperCase() : '?');
+
+      investorCard.innerHTML = `
+        <div class="investor-avatar">
+          ${avatarContent}
+        </div>
+        <div class="investor-details">
+          <div class="investor-rank">#${index + 1}</div>
+          <div class="investor-name">${investor.name || 'Anonymous'}</div>
+          <div class="investor-shares">
+            <i class="fas fa-coins"></i>
+            ${investor.shares || 0} Shares (₹${(investor.shares || 0) * 100})
+          </div>
+        </div>
+      `;
+      container.appendChild(investorCard);
+    });
+
+    // Fill remaining slots if less than 3 investors
+    for (let i = topInvestors.length; i < 3; i++) {
+      const investorCard = document.createElement('div');
+      investorCard.className = 'investor-card';
+      investorCard.innerHTML = `
+        <div class="investor-avatar">?</div>
+        <div class="investor-details">
+          <div class="investor-rank">#${i + 1}</div>
+          <div class="investor-name">Not Available</div>
+          <div class="investor-shares">
+            <i class="fas fa-coins"></i>
+            0 Shares (₹0)
+          </div>
+        </div>
+      `;
+      container.appendChild(investorCard);
+    }
+  }
+
+
+
+
+  // Display user profile with enhanced design
+  function displayUserProfile(user) {
+    const profileCard = document.getElementById('userProfile');
+    // Remove loading states
+    profileCard.querySelectorAll('.loading').forEach(el => {
+      el.classList.remove('loading');
+    });
+
+    document.querySelector('#userProfile .profile-name').textContent = user.name || 'Anonymous';
+    document.querySelector('#userProfile .profile-id').textContent = `RMZID: ${user.rmzID || '-----'}`;
+    document.getElementById('userShares').textContent = user.shares || 0;
+    document.getElementById('userInvestment').textContent = `₹${(user.shares || 0) * 100}`;
+    document.getElementById('memberSince').textContent = formatDate(user.createdAt);
+    document.getElementById('lastLogin').textContent = formatDate(user.lastLogin || user.createdAt);
+
+    // Set profile image - using profilePic field from Firebase
+    const profileAvatar = document.querySelector('.profile-avatar');
+
+    if (user.profilePic) {
+      profileAvatar.innerHTML = `<img src="${user.profilePic}" alt="${user.name || 'Profile'}" onerror="handleProfileImageError(this)">`;
+    } else {
+      profileAvatar.innerHTML = user.name ? user.name.charAt(0).toUpperCase() : '?';
+      profileAvatar.style.backgroundColor = getAvatarBackgroundColor(user.name); // Add a simple color generation
+      profileAvatar.style.color = 'white';
+      profileAvatar.style.fontWeight = 'bold';
+      profileAvatar.style.fontSize = '2.5rem';
+      profileAvatar.style.display = 'flex';
+      profileAvatar.style.alignItems = 'center';
+      profileAvatar.style.justifyContent = 'center';
+    }
+  }
+
+  // Simple function to generate a background color for the avatar
+  function getAvatarBackgroundColor(name) {
+    if (!name) return '#4361ee';
+    const charCode = name.charCodeAt(0);
+    const hue = charCode % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+  }
+
+  // Handle profile image loading errors
+  function handleProfileImageError(img) {
+    const parent = img.parentElement;
+    const name = img.alt;
+    parent.innerHTML = name ? name.charAt(0).toUpperCase() : '?';
+    parent.style.backgroundColor = getAvatarBackgroundColor(name);
+    parent.style.color = 'white';
+    parent.style.fontWeight = 'bold';
+    parent.style.fontSize = '2.5rem';
+    parent.style.display = 'flex';
+    parent.style.alignItems = 'center';
+    parent.style.justifyContent = 'center';
+  }
+
+  // Update shares chart
+  function updateSharesChart(users) {
+    // Sort users by shares (descending)
+    users.sort((a, b) => (b.shares || 0) - (a.shares || 0));
+
+    // Get top 5 investors for chart
+    const topInvestors = users.slice(0, 9);
+    const labels = topInvestors.map(user => user.name || 'Anonymous');
+    const sharesData = topInvestors.map(user => user.shares || 0);
+    const investmentData = sharesData.map(shares => shares * 100);
+
+    const ctx = document.getElementById('sharesChart').getContext('2d');
+
+    // Destroy previous chart if exists
+    if (sharesChart) {
+      sharesChart.destroy();
+    }
+
+    sharesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Shares Held',
+            data: sharesData,
+            backgroundColor: 'rgba(67, 97, 238, 0.7)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Investment (₹)',
+            data: investmentData,
+            backgroundColor: 'rgba(76, 201, 240, 0.7)',
+            borderColor: 'rgba(76, 201, 240, 1)',
+            borderWidth: 1,
+            type: 'line',
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Shares'
+            }
+          },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Investment Amount (₹)'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.datasetIndex === 0) {
+                  label += context.raw + ' shares';
+                } else {
+                  label += '₹' + context.raw;
+                }
+                return label;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+// Update shares summary with progress bars
+  function updateSharesSummary(users) {
+    const totalShares = 1000; // As per your requirement
+    let soldShares = 0;
+
+    users.forEach(user => {
+      soldShares += user.shares || 0;
+    });
+
+    const availableShares = totalShares - soldShares;
+    const soldPercentage = (soldShares / totalShares) * 100;
+    const availablePercentage = 100 - soldPercentage;
+
+    // Remove loading states
+    document.querySelector('#soldSharesCard .value').classList.remove('loading');
+    document.querySelector('#availableSharesCard .value').classList.remove('loading');
+    document.querySelector('#totalInvestors').classList.remove('loading');
+
+    document.querySelector('#soldSharesCard .value').textContent = soldShares;
+    document.querySelector('#availableSharesCard .value').textContent = availableShares;
+    document.getElementById('totalInvestors').textContent = users.length;
+
+    // Update progress bars
+    document.querySelector('#soldProgress .progress-bar').style.width = `${soldPercentage}%`;
+    document.querySelector('#availableProgress .progress-bar').style.width = `${availablePercentage}%`;
+  }
+
+  // Helper function to format date
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' };
+    return date.toLocaleDateString('en-US', options);
+  }
+
+  // Initial authentication state check
+  auth.onAuthStateChanged((user) => {
+    document.getElementById('changePasswordModal').style.display = 'none'; // Ensure password modal is hidden on load
+    if (user) {
+      currentUser = user;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      setupRealtimeListener();
+      startAdSlider();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+      if (adInterval) {
+        clearInterval(adInterval);
+      }
+    }
+  });
+  // [Rest of the functions remain the same]
+</script>
+</body>
+</html>
