@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -37,7 +37,7 @@
 
     /* Login Page Styles */
     .login-container {
-      display: flex;
+      display: flex; /* Changed from none to flex by default */
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -106,7 +106,7 @@
 
     /* Dashboard Styles */
     .dashboard {
-      display: none;
+      display: none; /* Initially hidden, shown after login */
       max-width: 1200px;
       margin: 0 auto;
       padding: 10px;
@@ -140,167 +140,162 @@
       object-fit: cover;
     }
 
-    /* Top Investors Card - Enhanced */
-    .top-investors {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
+/* ======= Updated CSS for Top Investors Card ======= */
 
-    .top-investors h2 {
-      color: var(--primary);
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-    }
+/* Container for the whole Top Investors section */
+.top-investors {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
 
-    .top-investors h2 i {
-      margin-right: 10px;
-      color: var(--warning);
-    }
+/* Heading for the section */
+.top-investors h2 {
+  color: var(--primary);
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+}
 
-    .investor-list {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
+.top-investors h2 i {
+  margin-right: 10px;
+  color: var(--warning); /* Trophy icon color */
+}
 
-    .investor-card {
-      flex: 1;
-      min-width: 250px;
-      background: var(--light);
-      padding: 15px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
+/* Flex container for the list of investor cards */
+.investor-list {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+}
 
-    .investor-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
+/* Base styles for EACH investor card */
+.investor-card {
+  flex: 1; /* Allows cards to grow and fill space */
+  min-width: 250px; /* Minimum width before wrapping */
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative; /* Needed for potential absolute positioning inside */
+  overflow: hidden; /* Clips content like background image */
+  color: white; /* Default text color set to white for background images */
 
-    .investor-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background-color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 1.5rem;
-      margin-right: 15px;
-      overflow: hidden;
-    }
+  /* Common background properties (applied to all cards) */
+  background-size: cover; /* Scale image to cover the card */
+  background-position: center; /* Center the image */
 
-    .investor-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+  /* REMOVED the single background-image here, will be set per card below */
+  /* background-image: url('...'); */
+}
 
-    .investor-details {
-      flex: 1;
-    }
+/* Hover effect for cards */
+.investor-card:hover {
+  transform: translateY(-5px); /* Lift card slightly */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Darker shadow on hover */
+}
 
-    .investor-rank {
-      font-size: 0.8rem;
-      color: white;
-      background: var(--warning);
-      padding: 2px 8px;
-      border-radius: 10px;
-      display: inline-block;
-      margin-bottom: 5px;
-    }
+/* Text shadow for readability on ALL cards */
+.investor-card .investor-details,
+.investor-card .investor-avatar {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Dark shadow for contrast */
+}
 
-    .investor-name {
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
+/* === Individual Background Images for Top 3 Cards === */
+/* Uses :nth-child() to target the 1st, 2nd, and 3rd card in the list */
 
-    .investor-shares {
-      color: var(--gray);
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-    }
+.investor-list .investor-card:nth-child(1) {
+  /* Background for the #1 Ranked Investor */
+  background-image: url('https://i.postimg.cc/W19PngLL/image-search-1743881691568.jpg'); /* Replace with your desired image URL for Rank 1 (e.g., gold theme) */
+}
 
-    .investor-shares i {
-      margin-right: 5px;
-      color: var(--success);
-    }
+.investor-list .investor-card:nth-child(2) {
+  /* Background for the #2 Ranked Investor */
+  background-image: url('https://i.postimg.cc/8zvhdBrs/1743882273499.jpg'); /* Replace with your desired image URL for Rank 2 (e.g., silver theme) */
+}
 
-    /* Top Investor Card Specific Styles */
-    .investor-card.golden-card {
-      background: linear-gradient(to right, #FFD700, #FF8C00);
-      color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
-    }
+.investor-list .investor-card:nth-child(3) {
+  /* Background for the #3 Ranked Investor */
+  background-image: url('https://i.postimg.cc/KzTSxWKx/image-search-1743881642421.jpg'); /* Replace with your desired image URL for Rank 3 (e.g., bronze theme) */
+}
 
-    .investor-card.golden-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: rotate(-45deg) translate(0, -50%);
-      animation: shine 3s infinite;
-    }
+/* Styles for the investor's avatar (circle) */
+.investor-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* Make it a circle */
+  background-color: rgba(67, 97, 238, 0.5); /* Fallback/overlay color (semi-transparent) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-right: 15px;
+  overflow: hidden; /* Hide parts of image that overflow the circle */
+  border: 2px solid rgba(255, 255, 255, 0.5); /* Optional subtle white border */
+  flex-shrink: 0; /* Prevent avatar from shrinking */
+}
 
-    .investor-card.silver-card {
-      background: linear-gradient(to right, #C0C0C0, #A9A9A9);
-      color: #333;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
-    }
+/* Style for the image inside the avatar */
+.investor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the area, cropping if necessary */
+}
 
-    .investor-card.silver-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.15);
-      transform: rotate(-45deg) translate(0, -50%);
-      animation: shine 3s infinite;
-    }
+/* Container for text details (name, rank, shares) */
+.investor-details {
+  flex: 1; /* Takes remaining space */
+}
 
-    .investor-card.green-card {
-      background: linear-gradient(to right, #008000, #3CB371);
-      color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
-    }
+/* Style for the rank badge (e.g., #1) */
+.investor-rank {
+  font-size: 0.8rem;
+  color: white;
+  background: var(--warning); /* Orange background */
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block; /* Allows background and padding */
+  margin-bottom: 5px;
+}
 
-    .investor-card.green-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: rotate(-45deg) translate(0, -50%);
-      animation: shine 3s infinite;
-    }
+/* Style for the investor's name */
+.investor-name {
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: white; /* Ensure name is white */
+}
 
-    @keyframes shine {
-      0% { transform: rotate(-45deg) translate(0, -50%); }
-      100% { transform: rotate(-45deg) translate(100%, -50%); }
-    }
+/* Style for the shares info text */
+.investor-shares {
+  color: var(--light-gray); /* Light gray for shares text */
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Allow amount to wrap if needed */
+}
+
+/* Style for the coin icon */
+.investor-shares i {
+  margin-right: 5px;
+  color: var(--success); /* Icon color */
+}
+
+/* Style for the calculated amount (e.g., ₹5000) */
+.investor-amount {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: white; /* Ensure amount is white */
+  margin-left: 5px; /* Space between shares text and amount */
+}
+
+/* ======= End of Updated CSS ======= */
+
 
     /* User Profile Card - Enhanced */
     .profile-card {
@@ -311,10 +306,11 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin-bottom: 20px;
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
+      flex-direction: column; /* Arrange items vertically */
+      align-items: center; /* Center items horizontally */
       position: relative; /* For positioning the menu */
       overflow: hidden;
+      text-align: center; /* Center text within the card */
     }
 
     .profile-card::before {
@@ -326,7 +322,7 @@
       height: 200%;
       background: rgba(255, 255, 255, 0.15);
       transform: rotate(-45deg) translate(0, -50%);
-      animation: shine 3s infinite;
+      /* Removed animation: shine 3s infinite; */
     }
 
     .profile-avatar {
@@ -340,7 +336,7 @@
       color: white;
       font-weight: bold;
       font-size: 2.5rem;
-      margin-right: 20px;
+      margin-bottom: 15px;
       overflow: hidden;
     }
 
@@ -351,8 +347,7 @@
     }
 
     .profile-details {
-      flex: 1;
-      min-width: 250px;
+      width: 100%;
     }
 
     .profile-name {
@@ -363,6 +358,12 @@
     }
 
     .profile-id {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .profile-mobile {
       color: rgba(255, 255, 255, 0.8);
       margin-bottom: 10px;
       font-size: 0.9rem;
@@ -394,10 +395,41 @@
     }
 
     /* Menu Button Style */
-    .menu-button {
+    .menu-button-container {
       position: absolute;
       top: 10px;
       right: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .notification-icon {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 5px;
+      margin-right: 10px;
+      position: relative; /* For red dot */
+    }
+
+    .notification-icon:hover {
+      color: var(--light-gray);
+    }
+
+    .notification-dot {
+      height: 8px;
+      width: 8px;
+      background-color: red;
+      border-radius: 50%;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: none; /* Hidden by default */
+    }
+
+    .menu-button {
       background: none;
       border: none;
       color: white;
@@ -470,6 +502,12 @@
     .notification-popup h2 {
       color: var(--primary);
       margin-bottom: 15px;
+    }
+
+    .notification-popup .notification-image {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
     }
 
     .notification-popup p {
@@ -775,7 +813,7 @@
   </div>
 </div>
 
-<div id="forgotPasswordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; justify-content:center; align-items:center;">
+<div id="forgotPasswordModal" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
   <div style="background:white; padding:30px; border-radius:10px; width:90%; max-width:400px;">
     <h2 style="color:#4361ee; margin-bottom:20px;">Reset Password</h2>
     <input type="email" id="resetEmail" placeholder="Enter your email" style="width:100%; padding:12px 15px; margin-bottom:15px; border:1px solid #ddd; border-radius:5px;">
@@ -789,8 +827,9 @@
   <div class="notification-popup">
     <button class="close-modal-btn" onclick="closeNotificationsModal()">&times;</button>
     <h2 id="notificationHeadline"></h2>
+    <img id="notificationImage" src="" alt="" class="notification-image" style="display: none;">
     <p id="notificationSummary"></p>
-    <a id="notificationLink" href="#" target="_blank" class="notification-link-btn">Click Here</a>
+    <a id="notificationLink" href="#" target="_blank" class="notification-link-btn" style="display: none;">Click Here</a>
   </div>
 </div>
 
@@ -835,7 +874,7 @@
           <div class="investor-name">Loading...</div>
           <div class="investor-shares">
             <i class="fas fa-coins"></i>
-            0 Shares (₹0)
+            0 Shares (<span class="investor-amount">₹0</span>)
           </div>
         </div>
       </div>
@@ -846,7 +885,7 @@
           <div class="investor-name">Loading...</div>
           <div class="investor-shares">
             <i class="fas fa-coins"></i>
-            0 Shares (₹0)
+            0 Shares (<span class="investor-amount">₹0</span>)
           </div>
         </div>
       </div>
@@ -857,7 +896,7 @@
           <div class="investor-name">Loading...</div>
           <div class="investor-shares">
             <i class="fas fa-coins"></i>
-            0 Shares (₹0)
+            0 Shares (<span class="investor-amount">₹0</span>)
           </div>
         </div>
       </div>
@@ -865,18 +904,24 @@
   </div>
 
   <div class="profile-card" id="userProfile">
-    <button class="menu-button" onclick="toggleMenu()">
-      <i class="fas fa-bars"></i>
-    </button>
+    <div class="menu-button-container">
+      <button class="notification-icon" onclick="showNotificationsModal()">
+        <i class="fas fa-bell"></i>
+        <span class="notification-dot" id="notificationDot"></span>
+      </button>
+      <button class="menu-button" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
     <div class="menu-dropdown" id="profileMenu">
-      <button onclick="showNotificationsModal()">Notifications</button>
       <button onclick="showChangePasswordModal()">Change Password</button>
       <button onclick="logoutUser()">Logout</button>
     </div>
     <div class="profile-avatar loading"></div>
     <div class="profile-details">
-      <div class="profile-name loading" style="width: 200px; height: 28px; margin-bottom: 10px;"></div>
-      <div class="profile-id loading" style="width: 150px; height: 18px; margin-bottom: 15px;"></div>
+      <div class="profile-name loading"></div>
+      <div class="profile-id loading"></div>
+      <div class="profile-mobile loading"></div>
       <div class="profile-stats">
         <div class="stat-item">
           <div class="stat-label">Shares</div>
@@ -889,10 +934,6 @@
         <div class="stat-item">
           <div class="stat-label">Member Since</div>
           <div class="stat-value" id="memberSince">Loading...</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Last Login</div>
-          <div class="stat-value" id="lastLogin">Loading...</div>
         </div>
       </div>
     </div>
@@ -940,9 +981,9 @@
     <a href="https://ramazone.store.shoopy.in" target="_blank" class="footer-card ramazone-store">
       <i class="fas fa-store"></i> Ramazone Store
     </a>
-    <a href="https://wa.me/917903698180" target="_blank" class="footer-card whatsapp-chat">
-      <i class="fab fa-whatsapp"></i> WhatsApp Chat
-    </a>
+<a href="https://wa.me/917903698180?text=*Ramazone%20Investment*%0A%0Aplease%20help%20me" target="_blank" class="footer-card whatsapp-chat">  
+  <i class="fab fa-whatsapp"></i> WhatsApp Chat  
+</a>
   </footer>
 </div>
 
@@ -951,7 +992,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // Firebase configuration
+    // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc",
     authDomain: "re-sh-51ff6.firebaseapp.com",
@@ -962,6 +1003,7 @@
     appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
     measurementId: "G-E3884F19J2"
   };
+
 
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
@@ -974,40 +1016,48 @@
   let adInterval = null;
   let usersRef = null;
   let notificationsRef = null;
+  let newNotification = false; // Flag to track new notifications
+
+  // --- DOM Elements ---
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboardScreen = document.getElementById('dashboard');
+  const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+  const notificationsModal = document.getElementById('notificationsModal');
+  const changePasswordModal = document.getElementById('changePasswordModal');
+  const profileMenu = document.getElementById('profileMenu');
+  const notificationDot = document.getElementById('notificationDot');
+
 
   // Function to toggle the profile menu
   function toggleMenu() {
-    const menu = document.getElementById('profileMenu');
-    menu.classList.toggle('open');
+    profileMenu.classList.toggle('open');
   }
 
   // Logout function
   function logoutUser() {
     auth.signOut().then(() => {
-      // Sign-out successful.
-      currentUser = null;
-      document.getElementById('dashboard').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-      if (adInterval) {
-        clearInterval(adInterval);
-      }
+      // Sign-out successful. Handled by onAuthStateChanged
+      console.log("User logged out");
     }).catch((error) => {
       // An error happened.
       console.error("Logout error:", error);
-      // Optionally show an error message to the user
+      alert("Error logging out. Please try again.");
     });
   }
 
   // Function to show the notifications modal
   function showNotificationsModal() {
-    document.getElementById('profileMenu').classList.remove('open');
-    document.getElementById('notificationsModal').style.display = 'flex';
+    profileMenu.classList.remove('open');
+    notificationsModal.style.display = 'flex';
+    // Reset new notification indicator when modal is opened
+    notificationDot.style.display = 'none';
+    newNotification = false;
     loadNotifications();
   }
 
   // Function to close the notifications modal
   function closeNotificationsModal() {
-    document.getElementById('notificationsModal').style.display = 'none';
+    notificationsModal.style.display = 'none';
   }
 
   // Function to load notifications from Firebase
@@ -1015,33 +1065,53 @@
     if (!notificationsRef) {
       notificationsRef = db.ref('notifications');
     }
-    notificationsRef.limitToLast(1).once('value', (snapshot) => { // Assuming you want the latest notification
-      snapshot.forEach((childSnapshot) => {
-        const notification = childSnapshot.val();
-        document.getElementById('notificationHeadline').textContent = notification.headline || 'Notification';
-        document.getElementById('notificationSummary').textContent = notification.summary || '';
-        const linkElement = document.getElementById('notificationLink');
-        linkElement.href = notification.link || '#';
-        linkElement.style.display = notification.link ? 'inline-block' : 'none';
-      });
-      if (!snapshot.exists()) {
+    notificationsRef.limitToLast(1).once('value', (snapshot) => { // Get the latest notification
+      if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => { // Iterate (though only one expected)
+            const notification = childSnapshot.val();
+            document.getElementById('notificationHeadline').textContent = notification.headline || 'Notification';
+            const imageElement = document.getElementById('notificationImage');
+            if (notification.imageLink) {
+              imageElement.src = notification.imageLink;
+              imageElement.style.display = 'block';
+            } else {
+              imageElement.style.display = 'none';
+            }
+            document.getElementById('notificationSummary').textContent = notification.summary || '';
+            const linkElement = document.getElementById('notificationLink');
+            if (notification.link) {
+              linkElement.href = notification.link;
+              linkElement.style.display = 'inline-block';
+            } else {
+              linkElement.style.display = 'none';
+            }
+         });
+      } else {
         document.getElementById('notificationHeadline').textContent = 'No New Notifications';
         document.getElementById('notificationSummary').textContent = '';
+        document.getElementById('notificationImage').style.display = 'none';
         document.getElementById('notificationLink').style.display = 'none';
       }
+    }).catch(error => {
+        console.error("Error loading notifications:", error);
+        document.getElementById('notificationHeadline').textContent = 'Error Loading Notifications';
     });
   }
 
   // Function to show the change password modal
   function showChangePasswordModal() {
-    document.getElementById('profileMenu').classList.remove('open');
-    document.getElementById('changePasswordModal').style.display = 'flex';
+    profileMenu.classList.remove('open');
+    // Clear previous messages and inputs
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+    document.getElementById('passwordChangeMessage').style.display = 'none';
+    changePasswordModal.style.display = 'flex';
   }
 
   // Function to close the change password modal
   function closeChangePasswordModal() {
-    document.getElementById('changePasswordModal').style.display = 'none';
-    document.getElementById('passwordChangeMessage').style.display = 'none';
+    changePasswordModal.style.display = 'none';
   }
 
   // Function to update the user's password
@@ -1050,6 +1120,8 @@
     const newPassword = document.getElementById('newPassword').value;
     const confirmNewPassword = document.getElementById('confirmNewPassword').value;
     const messageElement = document.getElementById('passwordChangeMessage');
+
+    messageElement.style.display = 'none'; // Hide previous message
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       messageElement.textContent = 'Please fill in all fields.';
@@ -1075,66 +1147,67 @@
     const user = auth.currentUser;
 
     if (user) {
-      // Re-authenticate user (more secure approach)
+      // Re-authenticate user
       const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
       user.reauthenticateWithCredential(credential)
         .then(() => {
-          user.updatePassword(newPassword)
-            .then(() => {
-              messageElement.textContent = 'Password updated successfully!';
-              messageElement.style.color = 'green';
-              messageElement.style.display = 'block';
-              setTimeout(() => closeChangePasswordModal(), 3000);
-            }).catch((error) => {
-              messageElement.textContent = 'Error updating password: ' + error.message;
-              messageElement.style.color = 'red';
-              messageElement.style.display = 'block';
-            });
-        }).catch((error) => {
-          messageElement.textContent = 'Incorrect current password.';
+          // User re-authenticated. Now update password.
+          return user.updatePassword(newPassword);
+        })
+        .then(() => {
+          messageElement.textContent = 'Password updated successfully!';
+          messageElement.style.color = 'green';
+          messageElement.style.display = 'block';
+          // Clear fields after success
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmNewPassword').value = '';
+          setTimeout(() => closeChangePasswordModal(), 3000); // Close modal after 3s
+        })
+        .catch((error) => {
+          console.error("Password update error:", error);
+          if (error.code === 'auth/wrong-password') {
+             messageElement.textContent = 'Incorrect current password.';
+          } else {
+             messageElement.textContent = 'Error updating password: ' + error.message;
+          }
           messageElement.style.color = 'red';
           messageElement.style.display = 'block';
         });
     } else {
-      messageElement.textContent = 'No user logged in.';
+      messageElement.textContent = 'No user logged in. Cannot change password.';
       messageElement.style.color = 'red';
       messageElement.style.display = 'block';
     }
   }
 
-  // Login function with enhanced error handling
+  // Login function
   function loginUser() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const errorMsg = document.getElementById('loginError');
+    const loginBtn = document.querySelector('.login-btn');
 
-    // Basic validation
+    errorMsg.style.display = 'none'; // Hide previous errors
+
     if (!email || !password) {
       errorMsg.textContent = "Please enter both email and password";
       errorMsg.style.display = 'block';
-      setTimeout(() => { errorMsg.style.display = 'none'; }, 3000);
       return;
     }
 
     // Show loading state
-    const loginBtn = document.querySelector('.login-btn');
     loginBtn.disabled = true;
     loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
 
     auth.signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        currentUser = userCredential.user;
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-
-        // Set up real-time listener
-        setupRealtimeListener();
-        startAdSlider();
-
-        // Update last login time
-        updateLastLogin(email);
+        // Login successful - handled by onAuthStateChanged
+        console.log("Login successful for:", userCredential.user.email);
+        // No need to manually show dashboard here, onAuthStateChanged handles it
       })
       .catch((error) => {
+        console.error("Login error:", error);
         let errorMessage = "Login failed. Please try again.";
         switch(error.code) {
           case "auth/user-not-found":
@@ -1144,14 +1217,17 @@
             errorMessage = "Incorrect password.";
             break;
           case "auth/too-many-requests":
-            errorMessage = "Too many attempts. Account temporarily locked.";
+            errorMessage = "Too many login attempts. Please try again later.";
             break;
+          case "auth/invalid-email":
+             errorMessage = "Invalid email format.";
+             break;
         }
         errorMsg.textContent = errorMessage;
         errorMsg.style.display = 'block';
-        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
       })
       .finally(() => {
+        // Reset button state
         loginBtn.disabled = false;
         loginBtn.textContent = 'Login';
       });
@@ -1159,71 +1235,90 @@
 
   // Set up real-time database listener
   function setupRealtimeListener() {
-    // Remove previous listener if exists
+    // Detach previous listeners if they exist to avoid duplicates
     if (usersRef) {
       usersRef.off();
     }
+    if (notificationsRef) {
+        notificationsRef.off();
+    }
 
+    // Listen for user data changes
     usersRef = db.ref('users');
     usersRef.on('value', (snapshot) => {
-      loadDashboardData();
+      loadDashboardData(snapshot); // Pass snapshot directly
     }, (error) => {
       console.error("Error fetching users data:", error);
-      // Optionally display an error message to the user
+      // Display a more user-friendly error on the dashboard
+      document.getElementById('profileName').textContent = "Error loading data";
+      // Clear loading states to prevent infinite spinners
+      clearLoadingStates();
     });
-  }
 
-  // Update last login time
-  function updateLastLogin(email) {
-    db.ref('users').orderByChild('email').equalTo(email).once('value')
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const updates = {};
-          snapshot.forEach((childSnapshot) => {
-            updates['users/' + childSnapshot.key + '/lastLogin'] = new Date().toISOString();
-          });
-          db.ref().update(updates).catch(error => console.error("Error updating last login:", error));
-        }
-      }).catch(error => console.error("Error finding user by email:", error));
+    // Listen for new notifications
+    notificationsRef = db.ref('notifications');
+    notificationsRef.limitToLast(1).on('child_added', (snapshot) => {
+      // Only show dot if user is logged in and dashboard is visible
+      if (currentUser && dashboardScreen.style.display === 'block') {
+        notificationDot.style.display = 'block';
+        newNotification = true;
+      }
+    });
   }
 
   // Forgot password functions
   function showForgotPassword() {
-    document.getElementById('forgotPasswordModal').style.display = 'flex';
+    // Hide login form elements if needed, show modal
+    forgotPasswordModal.style.display = 'flex';
+    document.getElementById('resetEmail').value = ''; // Clear email field
+    document.getElementById('resetMessage').style.display = 'none'; // Hide any previous message
   }
 
   function hideForgotPassword() {
-    document.getElementById('forgotPasswordModal').style.display = 'none';
-    document.getElementById('resetMessage').style.display = 'none';
+    forgotPasswordModal.style.display = 'none';
   }
 
   function sendPasswordReset() {
     const email = document.getElementById('resetEmail').value;
     const message = document.getElementById('resetMessage');
+    const resetBtn = forgotPasswordModal.querySelector('button:first-of-type');
+
+    message.style.display = 'none'; // Hide previous message
 
     if (!email) {
-      message.textContent = "Please enter your email";
+      message.textContent = "Please enter your email address.";
       message.style.color = "red";
       message.style.display = "block";
       return;
     }
 
-    const resetBtn = document.querySelector('#forgotPasswordModal button:first-of-type');
+    // Show loading state on button
     resetBtn.disabled = true;
     resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
     auth.sendPasswordResetEmail(email)
       .then(() => {
-        message.textContent = "Password reset email sent! Check your inbox.";
+        message.textContent = "Password reset email sent! Please check your inbox (and spam folder).";
         message.style.color = "green";
         message.style.display = "block";
+         // Optionally hide the modal after a delay
+         // setTimeout(hideForgotPassword, 5000);
       })
       .catch((error) => {
-        message.textContent = error.message;
+        console.error("Password reset error:", error);
+        if (error.code === 'auth/user-not-found') {
+            message.textContent = "No user found with this email address.";
+        } else if (error.code === 'auth/invalid-email') {
+            message.textContent = "Invalid email format.";
+        }
+        else {
+            message.textContent = "Error sending reset email: " + error.message;
+        }
         message.style.color = "red";
         message.style.display = "block";
       })
       .finally(() => {
+        // Reset button state
         resetBtn.disabled = false;
         resetBtn.textContent = 'Send Reset Link';
       });
@@ -1232,6 +1327,8 @@
   // Advertisement Slider
   function startAdSlider() {
     const slides = document.querySelectorAll('.ad-slide');
+    if (slides.length === 0) return; // No slides to animate
+
     let currentSlide = 0;
 
     // Clear existing interval if any
@@ -1239,8 +1336,11 @@
       clearInterval(adInterval);
     }
 
-    // Show first slide
-    slides[currentSlide].classList.add('active');
+    // Ensure only the first slide is active initially
+    slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === 0);
+    });
+
 
     adInterval = setInterval(() => {
       slides[currentSlide].classList.remove('active');
@@ -1249,50 +1349,79 @@
     }, 3000); // Change every 3 seconds
   }
 
-  // Load all dashboard data
-  function loadDashboardData() {
-    db.ref('users').once('value')
-      .then((snapshot) => {
-        const allUsers = [];
+  function stopAdSlider() {
+      if (adInterval) {
+          clearInterval(adInterval);
+          adInterval = null;
+      }
+  }
+
+  // Load all dashboard data from the provided snapshot
+  function loadDashboardData(snapshot) {
+    if (!currentUser) return; // Don't load if no user logged in
+
+    const allUsers = [];
+    if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           const user = childSnapshot.val();
-          user.id = childSnapshot.key;
+          user.id = childSnapshot.key; // Add Firebase key as ID
+          // Basic data validation/defaults
+          user.shares = user.shares || 0;
+          user.name = user.name || 'Anonymous';
+          user.email = user.email || '';
           allUsers.push(user);
         });
+    } else {
+        console.warn("No user data found in the database.");
+        // Handle case with no users gracefully
+         clearLoadingStates(); // Remove loading spinners
+         document.getElementById('topInvestors').innerHTML = '<p>No investor data available.</p>';
+         document.getElementById('totalInvestors').textContent = '0';
+         // Potentially display a message in the profile too
+         return;
+    }
 
-        // Process all data from single snapshot
-        displayTopInvestors(allUsers);
 
-        // Find and display current user
-        const currentUserData = allUsers.find(user => user.email === currentUser?.email);
-        if (currentUserData) {
-          displayUserProfile(currentUserData);
-          displayReturnPercentageCards(currentUserData.shares); // Display return cards
-        } else {
-          console.warn("Current user data not found in the fetched list.");
-          // Optionally handle the case where current user's data is not available
-        }
+    // Find current user's data
+    const currentUserData = allUsers.find(user => user.email === currentUser.email);
 
-        updateSharesChart(allUsers);
-        updateSharesSummary(allUsers);
-      })
-      .catch((error) => {
-        console.error("Error loading data:", error);
-        // Show error to user - consider a more user-friendly display
-        document.getElementById('profileName').textContent = "Error loading data";
-        // Remove loading states from sections that might be affected
-        document.querySelectorAll('#topInvestors .loading').forEach(el => el.classList.remove('loading'));
-        document.querySelectorAll('#userProfile .loading').forEach(el => el.classList.remove('loading'));
-        document.querySelectorAll('.shares-summary .loading').forEach(el => el.classList.remove('loading'));
-        document.getElementById('returnPercentageCards').innerHTML = '<div class="error-message">Failed to load return data.</div>';
-      });
+    // Process and display data
+    displayTopInvestors(allUsers);
+    if (currentUserData) {
+      displayUserProfile(currentUserData);
+      displayReturnPercentageCards(currentUserData.shares);
+    } else {
+      console.warn("Current user's data not found in the snapshot. Logging out.");
+       // Handle case where logged-in user is not in DB (maybe deleted?)
+      alert("Your user data could not be found. Logging out.");
+      logoutUser(); // Log out the user as their data is missing
+      return; // Stop further processing
+    }
+    updateSharesChart(allUsers);
+    updateSharesSummary(allUsers);
+
+    // Clear any remaining loading states just in case
+    clearLoadingStates();
+
+  }
+
+  // Helper to remove all loading classes
+  function clearLoadingStates() {
+       document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+       // Specific loading text cleanup if needed
+        if(document.getElementById('userShares').textContent === 'Loading...') document.getElementById('userShares').textContent = '0';
+        if(document.getElementById('userInvestment').textContent === 'Loading...') document.getElementById('userInvestment').textContent = '₹0';
+        if(document.getElementById('memberSince').textContent === 'Loading...') document.getElementById('memberSince').textContent = 'N/A';
+        if(document.querySelector('#soldSharesCard .value').textContent === '...') document.querySelector('#soldSharesCard .value').textContent = '0';
+        if(document.querySelector('#availableSharesCard .value').textContent === '...') document.querySelector('#availableSharesCard .value').textContent = '0';
+        if(document.getElementById('totalInvestors').textContent === '...') document.getElementById('totalInvestors').textContent = '0';
   }
 
     // Display year-wise return percentage cards
-  function displayReturnPercentageCards(userShares) {
+  function displayReturnPercentageCards(userShares = 0) {
     const container = document.getElementById('returnPercentageCards');
     container.innerHTML = ''; // Clear previous cards
-    const sharePrice = 100;
+    const sharePrice = 100; // Assuming price per share
 
     const returns = [
       { years: 1, percentage: 8 },
@@ -1302,57 +1431,59 @@
       { years: 5, percentage: 110 }
     ];
 
+    // Calculate base investment only once
+    const investmentAmount = userShares * sharePrice;
+
     returns.forEach(ret => {
       const card = document.createElement('div');
       card.className = 'return-card';
       card.classList.add(`year-${ret.years}`); // Add class for year-specific styling
-      const investmentAmount = userShares * sharePrice;
+
       const returnAmount = (investmentAmount * ret.percentage) / 100;
       const totalAmount = investmentAmount + returnAmount;
+
       card.innerHTML = `
-        <h3>${ret.years} Year</h3>
+        <h3>${ret.years} Year${ret.years > 1 ? 's' : ''}</h3>
         <div class="percentage">${ret.percentage}%</div>
-        <div class="amount">₹${totalAmount.toFixed(2)}</div>
+        <div class="amount" title="Based on current ${userShares} shares (₹${investmentAmount.toFixed(0)})">≈ ₹${totalAmount.toFixed(2)}</div>
       `;
       container.appendChild(card);
     });
   }
 
 
-    // Display top 3 investors with enhanced design
+    // Display top 3 investors
   function displayTopInvestors(allUsers) {
     const container = document.getElementById('topInvestors');
-
-    // Remove loading states
-    container.querySelectorAll('.loading').forEach(el => {
-      el.classList.remove('loading');
-    });
+    container.innerHTML = ''; // Clear previous content/loading states
 
     // Sort by shares (descending) and take top 3
-    const topInvestors = [...allUsers]
+    const topInvestors = [...allUsers] // Create a copy before sorting
       .sort((a, b) => (b.shares || 0) - (a.shares || 0))
       .slice(0, 3);
 
-    // Clear existing content
-    container.innerHTML = '';
+    if (topInvestors.length === 0 && allUsers.length > 0) {
+        // Handle case where users exist but have 0 shares
+        container.innerHTML = '<p>No investors with shares yet.</p>';
+        return;
+    } else if (allUsers.length === 0) {
+        // Handled in loadDashboardData, but good to double-check
+        container.innerHTML = '<p>No investor data available.</p>';
+        return;
+    }
+
 
     topInvestors.forEach((investor, index) => {
       const investorCard = document.createElement('div');
-      investorCard.className = 'investor-card';
-
-      // Apply specific class based on rank
-      if (index === 0) {
-        investorCard.classList.add('golden-card');
-      } else if (index === 1) {
-        investorCard.classList.add('silver-card');
-      } else if (index === 2) {
-        investorCard.classList.add('green-card');
-      }
+      investorCard.className = 'investor-card'; // Base class with background
 
       // Use profilePic if available, otherwise use name initial
       const avatarContent = investor.profilePic ?
-        `<img src="${investor.profilePic}" alt="${investor.name || 'Investor'}" onerror="this.parentElement.innerHTML='${investor.name ? investor.name.charAt(0).toUpperCase() : '?'}'">` :
+        `<img src="${investor.profilePic}" alt="${investor.name}" onerror="this.parentElement.innerHTML='${investor.name ? investor.name.charAt(0).toUpperCase() : '?'}'">` :
         (investor.name ? investor.name.charAt(0).toUpperCase() : '?');
+
+      // *** Calculate amount ***
+      const investmentValue = (investor.shares || 0) * 100;
 
       investorCard.innerHTML = `
         <div class="investor-avatar">
@@ -1363,106 +1494,116 @@
           <div class="investor-name">${investor.name || 'Anonymous'}</div>
           <div class="investor-shares">
             <i class="fas fa-coins"></i>
-            ${investor.shares || 0} Shares (₹${(investor.shares || 0) * 100})
+            ${investor.shares || 0} Shares
+            <span class="investor-amount">(₹${investmentValue})</span>
           </div>
         </div>
       `;
       container.appendChild(investorCard);
     });
 
-    // Fill remaining slots if less than 3 investors
-    for (let i = topInvestors.length; i < 3; i++) {
-      const investorCard = document.createElement('div');
-      investorCard.className = 'investor-card';
-      investorCard.innerHTML = `
-        <div class="investor-avatar">?</div>
-        <div class="investor-details">
-          <div class="investor-rank">#${i + 1}</div>
-          <div class="investor-name">Not Available</div>
-          <div class="investor-shares">
-            <i class="fas fa-coins"></i>
-            0 Shares (₹0)
-          </div>
-        </div>
-      `;
-      container.appendChild(investorCard);
-    }
+    // Optional: Fill remaining slots if less than 3 investors were found *with shares*
+    // (This might not be needed if you only want to show actual top investors)
+    // for (let i = topInvestors.length; i < 3; i++) {
+    //   const placeholderCard = document.createElement('div');
+    //   placeholderCard.className = 'investor-card placeholder'; // Add placeholder class for different styling if needed
+    //   placeholderCard.innerHTML = `...`; // Simple placeholder content
+    //   container.appendChild(placeholderCard);
+    // }
   }
 
 
 
 
-  // Display user profile with enhanced design
+  // Display user profile
   function displayUserProfile(user) {
     const profileCard = document.getElementById('userProfile');
-    // Remove loading states
-    profileCard.querySelectorAll('.loading').forEach(el => {
-      el.classList.remove('loading');
-    });
+    // Clear loading classes from profile elements
+    profileCard.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
 
     document.querySelector('#userProfile .profile-name').textContent = user.name || 'Anonymous';
-    document.querySelector('#userProfile .profile-id').textContent = `RMZID: ${user.rmzID || '-----'}`;
-    document.getElementById('userShares').textContent = user.shares || 0;
-    document.getElementById('userInvestment').textContent = `₹${(user.shares || 0) * 100}`;
-    document.getElementById('memberSince').textContent = formatDate(user.createdAt);
-    document.getElementById('lastLogin').textContent = formatDate(user.lastLogin || user.createdAt);
+    document.querySelector('#userProfile .profile-id').textContent = `RMZID: ${user.rmzID || 'N/A'}`;
 
-    // Set profile image - using profilePic field from Firebase
-    const profileAvatar = document.querySelector('.profile-avatar');
+    // *** Format Mobile Number: Display only the number ***
+    document.querySelector('#userProfile .profile-mobile').textContent = user.mobileNumber || 'Not Available';
+
+    const userShares = user.shares || 0;
+    const userInvestment = userShares * 100;
+    document.getElementById('userShares').textContent = userShares;
+    document.getElementById('userInvestment').textContent = `₹${userInvestment}`;
+    document.getElementById('memberSince').textContent = formatDate(user.createdAt);
+
+    // Set profile avatar
+    const profileAvatar = document.querySelector('#userProfile .profile-avatar');
+    profileAvatar.innerHTML = ''; // Clear previous content
 
     if (user.profilePic) {
-      profileAvatar.innerHTML = `<img src="${user.profilePic}" alt="${user.name || 'Profile'}" onerror="handleProfileImageError(this)">`;
+      const img = document.createElement('img');
+      img.src = user.profilePic;
+      img.alt = user.name || 'Profile';
+      img.onerror = () => handleProfileImageError(profileAvatar, user.name); // Pass avatar element and name
+      profileAvatar.appendChild(img);
+      profileAvatar.style.backgroundColor = 'transparent'; // Ensure no background color interferes
     } else {
-      profileAvatar.innerHTML = user.name ? user.name.charAt(0).toUpperCase() : '?';
-      profileAvatar.style.backgroundColor = getAvatarBackgroundColor(user.name); // Add a simple color generation
-      profileAvatar.style.color = 'white';
-      profileAvatar.style.fontWeight = 'bold';
-      profileAvatar.style.fontSize = '2.5rem';
-      profileAvatar.style.display = 'flex';
-      profileAvatar.style.alignItems = 'center';
-      profileAvatar.style.justifyContent = 'center';
+        handleProfileImageError(profileAvatar, user.name); // Use fallback if no pic
     }
   }
 
-  // Simple function to generate a background color for the avatar
+  // Simple function to generate a fallback avatar background color
   function getAvatarBackgroundColor(name) {
-    if (!name) return '#4361ee';
-    const charCode = name.charCodeAt(0);
-    const hue = charCode % 360;
-    return `hsl(${hue}, 70%, 50%)`;
+    if (!name) return '#4361ee'; // Default primary color
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = hash % 360;
+    return `hsl(${hue}, 60%, 55%)`; // Slightly adjusted saturation/lightness
   }
 
-  // Handle profile image loading errors
-  function handleProfileImageError(img) {
-    const parent = img.parentElement;
-    const name = img.alt;
-    parent.innerHTML = name ? name.charAt(0).toUpperCase() : '?';
-    parent.style.backgroundColor = getAvatarBackgroundColor(name);
-    parent.style.color = 'white';
-    parent.style.fontWeight = 'bold';
-    parent.style.fontSize = '2.5rem';
-    parent.style.display = 'flex';
-    parent.style.alignItems = 'center';
-    parent.style.justifyContent = 'center';
+  // Handle profile image loading errors or missing images - Creates fallback initial
+  function handleProfileImageError(avatarElement, name) {
+    const initial = name ? name.charAt(0).toUpperCase() : '?';
+    avatarElement.innerHTML = initial; // Set the initial as text content
+    avatarElement.style.backgroundColor = getAvatarBackgroundColor(name);
+    // Ensure styles for text display are set
+    avatarElement.style.color = 'white';
+    avatarElement.style.fontWeight = 'bold';
+    avatarElement.style.fontSize = '2.5rem';
+    avatarElement.style.display = 'flex';
+    avatarElement.style.alignItems = 'center';
+    avatarElement.style.justifyContent = 'center';
   }
 
-  // Update shares chart
+  // Update shares distribution chart
   function updateSharesChart(users) {
-    // Sort users by shares (descending)
-    users.sort((a, b) => (b.shares || 0) - (a.shares || 0));
-
-    // Get top 5 investors for chart
-    const topInvestors = users.slice(0, 9);
-    const labels = topInvestors.map(user => user.name || 'Anonymous');
-    const sharesData = topInvestors.map(user => user.shares || 0);
-    const investmentData = sharesData.map(shares => shares * 100);
-
     const ctx = document.getElementById('sharesChart').getContext('2d');
 
-    // Destroy previous chart if exists
+    // Destroy previous chart instance if it exists
     if (sharesChart) {
       sharesChart.destroy();
+      sharesChart = null;
     }
+
+    // Filter out users with 0 shares for a cleaner chart, sort, take top N
+    const usersWithShares = users.filter(user => (user.shares || 0) > 0);
+    usersWithShares.sort((a, b) => (b.shares || 0) - (a.shares || 0));
+
+    const topN = 9; // Show top 9 investors in the chart
+    const chartUsers = usersWithShares.slice(0, topN);
+
+    const labels = chartUsers.map(user => user.name || 'Anonymous');
+    const sharesData = chartUsers.map(user => user.shares || 0);
+    const investmentData = sharesData.map(shares => shares * 100); // Calculate investment
+
+    // Check if there's any data to chart
+    if (chartUsers.length === 0) {
+        // Optionally display a message if no data
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.textAlign = 'center';
+        ctx.fillText('No share data to display.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+        return;
+    }
+
 
     sharesChart = new Chart(ctx, {
       type: 'bar',
@@ -1472,18 +1613,20 @@
           {
             label: 'Shares Held',
             data: sharesData,
-            backgroundColor: 'rgba(67, 97, 238, 0.7)',
+            backgroundColor: 'rgba(67, 97, 238, 0.7)', // Primary color with opacity
             borderColor: 'rgba(67, 97, 238, 1)',
-            borderWidth: 1
+            borderWidth: 1,
+            yAxisID: 'yShares' // Assign to the primary Y axis
           },
           {
             label: 'Investment (₹)',
             data: investmentData,
-            backgroundColor: 'rgba(76, 201, 240, 0.7)',
+            backgroundColor: 'rgba(76, 201, 240, 0.7)', // Success color with opacity
             borderColor: 'rgba(76, 201, 240, 1)',
-            borderWidth: 1,
-            type: 'line',
-            yAxisID: 'y1'
+            borderWidth: 2, // Slightly thicker border for line
+            type: 'line', // Make this dataset a line chart
+            yAxisID: 'yInvestment', // Assign to the secondary Y axis
+            tension: 0.1 // Slight curve to the line
           }
         ]
       },
@@ -1491,14 +1634,22 @@
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: {
+          x: {
+             ticks: {
+                autoSkip: false, // Prevent labels from being skipped
+                maxRotation: 45, // Rotate labels if they overlap
+                minRotation: 0
+             }
+          },
+          yShares: { // Primary Y Axis (Shares)
+            position: 'left',
             beginAtZero: true,
             title: {
               display: true,
               text: 'Number of Shares'
             }
           },
-          y1: {
+          yInvestment: { // Secondary Y Axis (Investment)
             position: 'right',
             beginAtZero: true,
             title: {
@@ -1506,26 +1657,31 @@
               text: 'Investment Amount (₹)'
             },
             grid: {
-              drawOnChartArea: false
+              drawOnChartArea: false // Only draw grid lines for the primary axis
             }
           }
         },
         plugins: {
           tooltip: {
+            mode: 'index', // Show tooltips for all datasets at that index
+            intersect: false, // Tooltip appears even when not directly hovering over point/bar
             callbacks: {
               label: function(context) {
                 let label = context.dataset.label || '';
                 if (label) {
                   label += ': ';
                 }
-                if (context.datasetIndex === 0) {
-                  label += context.raw + ' shares';
-                } else {
-                  label += '₹' + context.raw;
+                if (context.dataset.yAxisID === 'yShares') { // Shares dataset
+                  label += context.formattedValue + ' shares';
+                } else if (context.dataset.yAxisID === 'yInvestment') { // Investment dataset
+                  label += '₹' + context.formattedValue;
                 }
                 return label;
               }
             }
+          },
+          legend: {
+             position: 'top', // Position legend at the top
           }
         }
       }
@@ -1534,57 +1690,86 @@
 
 // Update shares summary with progress bars
   function updateSharesSummary(users) {
-    const totalShares = 1000; // As per your requirement
+    const totalShares = 1000; // Total available shares
     let soldShares = 0;
 
     users.forEach(user => {
       soldShares += user.shares || 0;
     });
 
+    // Ensure sold shares don't exceed total shares (data sanity check)
+    soldShares = Math.min(soldShares, totalShares);
+
     const availableShares = totalShares - soldShares;
-    const soldPercentage = (soldShares / totalShares) * 100;
+    const soldPercentage = totalShares > 0 ? (soldShares / totalShares) * 100 : 0;
     const availablePercentage = 100 - soldPercentage;
 
-    // Remove loading states
-    document.querySelector('#soldSharesCard .value').classList.remove('loading');
-    document.querySelector('#availableSharesCard .value').classList.remove('loading');
-    document.querySelector('#totalInvestors').classList.remove('loading');
-
+    // Update text values (remove loading class handled elsewhere now)
     document.querySelector('#soldSharesCard .value').textContent = soldShares;
     document.querySelector('#availableSharesCard .value').textContent = availableShares;
     document.getElementById('totalInvestors').textContent = users.length;
 
-    // Update progress bars
-    document.querySelector('#soldProgress .progress-bar').style.width = `${soldPercentage}%`;
-    document.querySelector('#availableProgress .progress-bar').style.width = `${availablePercentage}%`;
+    // Update progress bars smoothly
+    const soldProgressBar = document.querySelector('#soldProgress .progress-bar');
+    const availableProgressBar = document.querySelector('#availableProgress .progress-bar');
+
+    soldProgressBar.style.width = `${soldPercentage}%`;
+    availableProgressBar.style.width = `${availablePercentage}%`;
   }
 
-  // Helper function to format date
-  function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' };
-    return date.toLocaleDateString('en-US', options);
+  // Helper function to format date (e.g., "April 6, 2025")
+  function formatDate(timestamp) {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      // Check if date is valid
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    } catch (e) {
+        console.error("Error formatting date:", timestamp, e);
+        return 'Invalid Date';
+    }
   }
 
-  // Initial authentication state check
+  // --- Authentication State Change Listener ---
   auth.onAuthStateChanged((user) => {
-    document.getElementById('changePasswordModal').style.display = 'none'; // Ensure password modal is hidden on load
+    // Ensure modals are hidden on auth state change
+    hideForgotPassword();
+    closeChangePasswordModal();
+    closeNotificationsModal();
+
     if (user) {
+      // User is signed in.
       currentUser = user;
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      setupRealtimeListener();
-      startAdSlider();
+      loginScreen.style.display = 'none'; // Hide login
+      dashboardScreen.style.display = 'block'; // Show dashboard
+      console.log("Auth state changed: User logged in", user.email);
+      setupRealtimeListener(); // Start listening for data
+      startAdSlider(); // Start ad slider
+      // Initial load might be triggered by the listener setup, or call explicitly if needed
+      // loadDashboardData(); // Could call here, but listener should handle it
     } else {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
-      if (adInterval) {
-        clearInterval(adInterval);
-      }
+      // User is signed out.
+      currentUser = null;
+      dashboardScreen.style.display = 'none'; // Hide dashboard
+      loginScreen.style.display = 'flex'; // Show login
+      console.log("Auth state changed: User logged out");
+      stopAdSlider(); // Stop ad slider
+       // Detach listeners when logged out
+       if (usersRef) usersRef.off();
+       if (notificationsRef) notificationsRef.off();
+       // Clear dashboard data visually if needed
+       clearLoadingStates(); // Optional: reset UI elements
+       document.getElementById('topInvestors').innerHTML = ''; // Clear lists etc.
+       document.getElementById('returnPercentageCards').innerHTML = '';
+       if(sharesChart) sharesChart.destroy(); sharesChart = null; // Clear chart
     }
   });
-  // [Rest of the functions remain the same]
+
+  // --- Initial Setup ---
+  // Code inside onAuthStateChanged handles the initial view (login or dashboard)
+
 </script>
 </body>
 </html>
