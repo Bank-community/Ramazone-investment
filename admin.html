@@ -31,10 +31,9 @@
     background: #f5f7fa;
     color: #333;
     line-height: 1.5;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* Removed fixed height and centering to allow scrolling */
+    min-height: 100vh;
+    padding: 20px 0; /* Add some padding */
   }
 
   /* Password Protection Styles */
@@ -46,7 +45,23 @@
     width: 90%;
     max-width: 400px;
     text-align: center;
+    /* Center login screen specifically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
+
+  /* Ensure dashboard is not absolutely positioned */
+  #dashboard {
+      display: none; /* Initially hidden */
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin: 0 auto; /* Center dashboard content */
+  }
+
 
   .login-container h2 {
     color: var(--primary);
@@ -87,7 +102,7 @@
 
   /* Dashboard Styles */
   .container {
-    display: none;
+    /* display: none; */ /* Controlled by JS now */
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px;
@@ -250,6 +265,7 @@
   }
 
   .notification-form input[type="text"],
+  .notification-form input[type="file"], /* Added file type */
   .notification-form textarea {
     width: 100%;
     padding: 8px;
@@ -279,6 +295,23 @@
   .notification-form button:hover {
     background: var(--info);
   }
+
+   .image-preview-small { /* Style for notification image preview */
+      max-width: 100px;
+      max-height: 100px;
+      margin-top: 5px;
+      display: none; /* Initially hidden */
+      border: 1px solid #ddd;
+      padding: 2px;
+   }
+
+   .upload-status { /* Style for upload status messages */
+        font-size: 0.8rem;
+        margin-top: -5px;
+        margin-bottom: 10px;
+        color: var(--gray);
+   }
+
 
   .search-card {
     display: flex;
@@ -426,13 +459,40 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: hidden; /* Ensures image stays within bounds */
   }
+
+ .profile-pic-preview img { /* Style for the image inside preview */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+ }
+
 
   .profile-pic-preview i {
     font-size: 2rem;
     color: var(--gray);
   }
+
+   /* Style for file input - visually hidden but accessible */
+   .file-input-label {
+       display: inline-block;
+       padding: 6px 12px;
+       cursor: pointer;
+       background-color: var(--light);
+       color: var(--primary);
+       border: 1px solid var(--primary);
+       border-radius: 5px;
+       font-size: 0.85rem;
+       transition: background-color 0.3s;
+   }
+   .file-input-label:hover {
+       background-color: #e2e6ea;
+   }
+   .file-input {
+       display: none; /* Hide the default file input */
+   }
+
 
   /* User Details Modal */
   .modal {
@@ -444,7 +504,8 @@
     height: 100%;
     background: rgba(0,0,0,0.5);
     z-index: 1000;
-    overflow-y: auto;
+    overflow-y: auto; /* Allow modal scroll */
+    padding: 20px 0; /* Add padding for scroll */
   }
 
   .modal-content {
@@ -572,6 +633,9 @@
     .user-list {
       grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     }
+     .login-container {
+       width: 95%;
+     }
   }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -631,13 +695,19 @@
     <div class="notification-form">
       <label for="notificationHeadline">Headline:</label>
       <input type="text" id="notificationHeadline" placeholder="Enter headline">
+
       <label for="notificationSummary">Summary Text:</label>
       <textarea id="notificationSummary" placeholder="Enter summary text"></textarea>
+
       <label for="notificationLink">Link (Optional):</label>
       <input type="text" id="notificationLink" placeholder="Enter link URL">
-      <label for="notificationImageLink">Image Link (Optional):</label>
-      <input type="text" id="notificationImageLink" placeholder="Enter image URL">
-      <button onclick="saveNotification()">Update Notification</button>
+
+      <label for="notificationImageFile">Image (Optional):</label>
+      <input type="file" id="notificationImageFile" class="file-input" accept="image/*">
+      <label for="notificationImageFile" class="file-input-label">Choose Image</label>
+      <img id="notificationImagePreview" class="image-preview-small" src="#" alt="Image Preview"/>
+      <div id="notificationImageStatus" class="upload-status"></div>
+      <input type="hidden" id="notificationImageLink"> <button onclick="saveNotification()" id="saveNotificationBtn">Update Notification</button>
       <p id="notificationStatus" style="margin-top: 10px; display: none;"></p>
 
       <h3>Previous Notifications</h3>
@@ -653,6 +723,7 @@
       <option value="11-30">11-30 Shares</option>
       <option value="31-50">31-50 Shares</option>
       <option value="51-100">51-100 Shares</option>
+      <option value="101+">101+ Shares</option>
     </select>
     <button class="btn btn-primary" onclick="searchAndFilter()">Apply</button>
   </div>
@@ -676,10 +747,11 @@
 
     <div class="profile-pic-container">
       <div class="profile-pic-preview" id="profilePicPreview">
-        <i class="fas fa-user"></i>
-      </div>
-      <input type="text" id="editProfilePic" class="form-control" placeholder="Profile picture URL">
-    </div>
+        <i class="fas fa-user"></i> </div>
+      <input type="file" id="editProfilePicFile" class="file-input" accept="image/*">
+      <label for="editProfilePicFile" class="file-input-label">Change Picture</label>
+       <div id="editProfilePicStatus" class="upload-status"></div>
+      <input type="hidden" id="editProfilePicUrl"> </div>
 
     <div class="form-group">
       <label>Name</label>
@@ -702,6 +774,12 @@
     </div>
 
     <div class="form-group">
+      <label>RMZ ID</label>
+      <p id="rmzIdDisplay">-</p>
+    </div>
+
+
+    <div class="form-group">
       <label>Created At</label>
       <p id="createdAt">-</p>
     </div>
@@ -717,7 +795,7 @@
     </div>
 
     <div class="btn-group">
-      <button class="btn btn-success" onclick="saveUser()">Save Changes</button>
+      <button class="btn btn-success" onclick="saveUser()" id="saveUserBtn">Save Changes</button>
       <button class="btn btn-secondary" onclick="closeModal()">Close</button>
       <button class="btn btn-danger" onclick="deleteUser()">Delete Member</button>
     </div>
@@ -733,10 +811,12 @@
 
     <div class="profile-pic-container">
       <div class="profile-pic-preview" id="newProfilePicPreview">
-        <i class="fas fa-user"></i>
-      </div>
-      <input type="text" id="newUserProfilePic" class="form-control" placeholder="Profile picture URL">
-    </div>
+         <i class="fas fa-user"></i> </div>
+       <input type="file" id="newUserProfilePicFile" class="file-input" accept="image/*">
+       <label for="newUserProfilePicFile" class="file-input-label">Upload Picture</label>
+       <div id="newUserProfilePicStatus" class="upload-status"></div>
+       <input type="hidden" id="newUserProfilePicUrl"> </div>
+
 
     <div class="form-group">
       <label>Name</label>
@@ -749,53 +829,55 @@
     </div>
 
     <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="newUserEmail" class="form-control" placeholder="Enter email address" required>
-    </div>
-
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="newUserPassword" class="form-control" placeholder="Set login password" required>
+      <label>Email (Optional)</label> <input type="email" id="newUserEmail" class="form-control" placeholder="Enter email address">
     </div>
 
     <div class="form-group">
       <label>Initial Shares</label>
-      <input type="number" id="newUserShares" class="form-control" value="0" required>
+      <input type="number" id="newUserShares" class="form-control" value="0" min="0" required>
     </div>
 
     <div class="btn-group">
-      <button class="btn btn-success" onclick="addNewMember()">Add Member</button>
+      <button class="btn btn-success" onclick="addNewMember()" id="addMemberBtn">Add Member</button>
       <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
 <script>
-  // Firebase configuration
+  // Firebase configuration (Keep yours)
   const firebaseConfig = {
-    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc",
+    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc", // Replace with your actual API key
     authDomain: "re-sh-51ff6.firebaseapp.com",
     databaseURL: "https://re-sh-51ff6-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "re-sh-51ff6",
-    storageBucket: "re-sh-51ff6.firebasestorage.app",
+    storageBucket: "re-sh-51ff6.appspot.com", // This is no longer used by the script but fine to keep
     messagingSenderId: "870340778217",
     appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
     measurementId: "G-E3884F19J2"
   };
 
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
   const db = firebase.database();
-  let currentUserId = '';
-  const TOTAL_SHARES = 1000;
-  const MAX_NOTIFICATIONS = 3;
+  // const storage = firebase.storage(); // Firebase Storage is no longer used
+
+  let currentUserId = ''; // Stores the Firebase key of the user being edited
+  let originalProfilePicUrl = ''; // Store original URL when editing
+  let originalNotificationImageUrl = ''; // Store original URL when editing notification
+  const TOTAL_SHARES_CAP = 1000; // कुल शेयर्स की सीमा
+  const MAX_NOTIFICATIONS_DISPLAY = 5; // पिछली सूचनाओं की संख्या
+
+  // --- ImgBB Configuration ---
+  const imgbbApiKey = '65bbcf742486328061382f03949b47c6'; // <-- IMPORTANT: Replace with your actual ImgBB API key
+  const imgbbUploadUrl = 'https://api.imgbb.com/1/upload';
 
   // Password Protection
-  const ADMIN_PASSWORD = "753690"; // Hardcoded password as requested
+  const ADMIN_PASSWORD = "753690"; // अपना सुरक्षित पासवर्ड यहाँ सेट करें
 
   function checkPassword() {
     const enteredPassword = document.getElementById('passwordInput').value;
@@ -803,9 +885,9 @@
 
     if (enteredPassword === ADMIN_PASSWORD) {
       document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'block'; // Show dashboard
       loadDashboard();
-      loadNotifications(); // Load existing notifications
+      loadNotifications(); // मौजूदा सूचनाएं लोड करें
     } else {
       errorMsg.style.display = 'block';
       document.getElementById('passwordInput').value = '';
@@ -815,57 +897,177 @@
     }
   }
 
-  // Allow pressing Enter to submit password
+  // Enter दबाने पर पासवर्ड सबमिट करने की अनुमति दें
   document.getElementById('passwordInput').addEventListener('keyup', function(event) {
     if (event.key === 'Enter') {
       checkPassword();
     }
   });
 
+  // --- ImgBB Image Upload Function ---
+  async function uploadImageToImgBB(fileInputId, statusElementId) {
+      const fileInput = document.getElementById(fileInputId);
+      const statusElement = document.getElementById(statusElementId);
+
+      if (!imgbbApiKey || imgbbApiKey === 'YOUR_IMGBB_API_KEY') {
+           console.error("ImgBB API Key is not configured.");
+           if (statusElement) statusElement.textContent = 'Upload Error: API Key missing.';
+           return null;
+      }
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+          if (statusElement) statusElement.textContent = ''; // Clear previous status
+          return null; // No file selected
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+      // Optional: Set expiration if needed (e.g., '600' for 10 minutes)
+      // formData.append('expiration', '600');
+
+      if (statusElement) statusElement.textContent = 'Uploading...';
+
+      try {
+          const response = await fetch(`${imgbbUploadUrl}?key=${imgbbApiKey}`, {
+              method: 'POST',
+              body: formData,
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+              if (statusElement) statusElement.textContent = 'Upload successful!';
+              setTimeout(() => { if (statusElement) statusElement.textContent = ''; }, 2000);
+              console.log("ImgBB Upload Result:", result);
+              return result.data.url; // Return the direct image URL
+          } else {
+              console.error("ImgBB Upload Error:", result);
+              const errorMessage = result?.error?.message || `HTTP error! status: ${response.status}`;
+              if (statusElement) statusElement.textContent = `Upload failed: ${errorMessage}`;
+              return null;
+          }
+      } catch (error) {
+          console.error("ImgBB Fetch Error:", error);
+          if (statusElement) statusElement.textContent = 'Upload failed. Check console.';
+          return null; // Indicate failure
+      }
+  }
+
+
+  // --- Image Preview Functions ---
+ function displayImagePreview(fileInputId, previewElementId) {
+      const fileInput = document.getElementById(fileInputId);
+      const previewElement = document.getElementById(previewElementId);
+
+      if (fileInput.files && fileInput.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function(e) {
+              // मुख्य प्रोफाइल पिक प्रीव्यू के लिए, सामग्री बदलें
+              if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview') {
+                 previewElement.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+              }
+              // छोटे नोटिफिकेशन प्रीव्यू के लिए, src सेट करें और दिखाएं
+              else if (previewElementId === 'notificationImagePreview') {
+                  previewElement.src = e.target.result;
+                  previewElement.style.display = 'block';
+              }
+          }
+          reader.readAsDataURL(fileInput.files[0]);
+      } else {
+          // यदि कोई फ़ाइल नहीं चुनी गई है तो वैकल्पिक रूप से प्रीव्यू छिपाएं (नोटिफिकेशन के लिए)
+           if (previewElementId === 'notificationImagePreview') {
+                previewElement.src = '#';
+                previewElement.style.display = 'none';
+            }
+            // प्रोफाइल पिक के लिए डिफ़ॉल्ट आइकन पर रीसेट करें
+           else if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview'){
+                 previewElement.innerHTML = '<i class="fas fa-user"></i>';
+           }
+      }
+  }
+
+ function setPreviewFromUrl(url, previewElementId) {
+    const previewElement = document.getElementById(previewElementId);
+     if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview') {
+        if (url) {
+            previewElement.innerHTML = `<img src="${url}" alt="Profile Picture">`;
+        } else {
+            previewElement.innerHTML = '<i class="fas fa-user"></i>'; // डिफ़ॉल्ट आइकन
+        }
+     }
+     else if (previewElementId === 'notificationImagePreview') {
+         if(url) {
+             previewElement.src = url;
+             previewElement.style.display = 'block';
+         } else {
+             previewElement.src = '#';
+             previewElement.style.display = 'none';
+         }
+     }
+  }
+
+  // Event listeners for image previews when file is selected
+  document.getElementById('newUserProfilePicFile').addEventListener('change', () => displayImagePreview('newUserProfilePicFile', 'newProfilePicPreview'));
+  document.getElementById('editProfilePicFile').addEventListener('change', () => displayImagePreview('editProfilePicFile', 'profilePicPreview'));
+  document.getElementById('notificationImageFile').addEventListener('change', () => displayImagePreview('notificationImageFile', 'notificationImagePreview'));
+
+
   function formatDateTime(isoString) {
     if (!isoString) return "N/A";
-    const dateObj = new Date(isoString);
-    return dateObj.toLocaleString('en-IN', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  function updateProfilePicPreview(inputId, previewId) {
-    const url = document.getElementById(inputId).value;
-    const preview = document.getElementById(previewId);
-
-    if (url) {
-      preview.innerHTML = `<img src="${url}" alt="Profile" style="width:100%;height:100%;object-fit:cover;">`;
-    } else {
-      preview.innerHTML = '<i class="fas fa-user"></i>';
+    try {
+        const dateObj = new Date(isoString);
+        // जांचें कि क्या तारीख मान्य है
+        if (isNaN(dateObj.getTime())) {
+            return "Invalid Date";
+        }
+        return dateObj.toLocaleString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    } catch (e) {
+        console.error("Error formatting date:", isoString, e);
+        return "Date Error";
     }
-  }
+}
+
 
   function loadDashboard() {
-    db.ref('users').once('value', snapshot => {
+    db.ref('users').orderByKey().once('value', snapshot => { // Order by Firebase key
       const data = snapshot.val();
-      let totalUsers = 0;
+      let totalUsersCount = 0;
       let totalSharesSold = 0;
       let html = '';
 
       if (data) {
-        for (const id in data) {
-          totalUsers++;
-          totalSharesSold += parseInt(data[id].shares || 0);
-          html += `<li class="user-item" onclick="loadUserData('${id}')">${id}</li>`;
-        }
-      } else {
+         // Firebase द्वारा कुंजी के अनुसार क्रमबद्ध डेटा पहले से ही है
+         Object.keys(data).forEach(id => {
+            if (data[id]) { // सुनिश्चित करें कि उपयोगकर्ता डेटा मौजूद है
+                 totalUsersCount++;
+                 totalSharesSold += parseInt(data[id].shares || 0);
+                 const displayId = data[id].rmzID || id; // प्रदर्शन के लिए RMZ ID का उपयोग करें
+                 html += `<li class="user-item" onclick="loadUserData('${id}')">${displayId}</li>`;
+            }
+        });
+      }
+
+      if (html === '') {
         html = '<li>No members found</li>';
       }
 
-      document.getElementById('totalUsers').innerText = totalUsers;
+      document.getElementById('totalUsers').innerText = totalUsersCount;
       document.getElementById('totalShares').innerText = totalSharesSold;
-      document.getElementById('availableSharesValue').innerText = TOTAL_SHARES - totalSharesSold;
+      document.getElementById('availableSharesValue').innerText = Math.max(0, TOTAL_SHARES_CAP - totalSharesSold);
       document.getElementById('userList').innerHTML = html;
+    }, error => {
+        console.error("Error loading users:", error);
+        alert("Could not load user data. Please check console.");
+        document.getElementById('userList').innerHTML = '<li>Error loading members</li>';
     });
   }
 
@@ -878,45 +1080,60 @@
     const searchTerm = document.getElementById('searchBox').value.trim().toLowerCase();
     const shareFilter = document.getElementById('filterShares').value;
 
-    db.ref('users').once('value', snapshot => {
+    db.ref('users').orderByKey().once('value', snapshot => { // Order by Firebase key
       const data = snapshot.val();
       let html = '';
       let filteredCount = 0;
-      let totalSharesSold = 0;
+      let filteredSharesSold = 0;
+      let allUsersTotalShares = 0; // सभी उपयोगकर्ताओं के कुल शेयर गणना करने के लिए
 
       if (data) {
-        for (const id in data) {
+        Object.keys(data).forEach(id => {
           const user = data[id];
+          if (!user) return;
+
+          // सभी उपयोगकर्ताओं के कुल शेयरों की गणना करें
+          allUsersTotalShares += parseInt(user.shares || 0);
+
           const userName = user.name ? user.name.toLowerCase() : '';
           const userMobile = user.mobile ? user.mobile.toLowerCase() : '';
+          const userRmzId = user.rmzID ? user.rmzID.toLowerCase() : id.toLowerCase(); // RMZ ID या कुंजी द्वारा खोजें
           const userShares = parseInt(user.shares || 0);
 
-          // Check search term
+          // खोज शब्द जांचें (ID, नाम, मोबाइल)
           const matchesSearch = searchTerm === '' ||
-                               id.toLowerCase().includes(searchTerm) ||
+                               userRmzId.includes(searchTerm) ||
                                userName.includes(searchTerm) ||
                                userMobile.includes(searchTerm);
 
-          // Check share filter
+          // शेयर फ़िल्टर जांचें
           let matchesFilter = true;
           if (shareFilter !== '') {
-            if (shareFilter === '0-10') {
-              matchesFilter = userShares >= 0 && userShares <= 10;
-            } else if (shareFilter === '11-30') {
-              matchesFilter = userShares >= 11 && userShares <= 30;
-            } else if (shareFilter === '31-50') {
-              matchesFilter = userShares >= 31 && userShares <= 50;
-            } else if (shareFilter === '51-100') {
-              matchesFilter = userShares >= 51 && userShares <= 100;
+            const range = shareFilter.split('-');
+            if (range.length === 2) {
+                const min = parseInt(range[0]);
+                const max = parseInt(range[1]);
+                 // शामिल करने के लिए सीमा जांच को समायोजित करें
+                if (!isNaN(min) && !isNaN(max)) {
+                    matchesFilter = userShares >= min && userShares <= max;
+                } else {
+                    matchesFilter = false; // अमान्य सीमा
+                }
+            } else if (shareFilter === '101+') { // 101+ केस हैंडल करें
+                 matchesFilter = userShares >= 101;
+            } else {
+                matchesFilter = false; // अमान्य फ़िल्टर मान
             }
           }
 
+
           if (matchesSearch && matchesFilter) {
             filteredCount++;
-            totalSharesSold += userShares;
-            html += `<li class="user-item" onclick="loadUserData('${id}')">${id}</li>`;
+            filteredSharesSold += userShares;
+            const displayId = user.rmzID || id;
+            html += `<li class="user-item" onclick="loadUserData('${id}')">${displayId}</li>`;
           }
-        }
+        });
       }
 
       if (html === '') {
@@ -924,291 +1141,569 @@
       }
 
       document.getElementById('userList').innerHTML = html;
-      document.getElementById('totalUsers').innerText = filteredCount;
-      document.getElementById('totalShares').innerText = totalSharesSold;
-      document.getElementById('availableSharesValue').innerText = TOTAL_SHARES - totalSharesSold;
+
+      // डैशबोर्ड कार्ड अपडेट करें
+       document.getElementById('totalUsers').innerText = filteredCount; // फ़िल्टर किए गए सदस्यों की संख्या दिखाएं
+       document.getElementById('totalShares').innerText = filteredSharesSold; // केवल फ़िल्टर किए गए सदस्यों के शेयर दिखाएं
+       // उपलब्ध शेयर हमेशा कुल कैप और *सभी* बेचे गए शेयरों पर आधारित होते हैं
+       document.getElementById('availableSharesValue').innerText = Math.max(0, TOTAL_SHARES_CAP - allUsersTotalShares);
+
+       // यदि खोज/फ़िल्टर साफ़ है, तो पूर्ण डैशबोर्ड आँकड़े पुनः लोड करें
+       if(searchTerm === '' && shareFilter === '') {
+            loadDashboard(); // यह ओवरराइड करेगा और सभी सदस्यों के आँकड़े दिखाएगा
+       }
+
+
+      // फ़िल्टरिंग/खोज के बाद सूची हमेशा दिखाएं
       document.getElementById('userList').classList.add('show');
+    }, error => {
+         console.error("Error searching/filtering users:", error);
+         alert("Could not perform search/filter. Please check console.");
+         document.getElementById('userList').innerHTML = '<li>Error during search</li>';
     });
   }
+
 
   function loadUserData(id) {
     db.ref('users/' + id).once('value', snap => {
       if (!snap.exists()) {
-        alert("Member not found.");
+        alert("Member data not found for ID: " + id);
         return;
       }
 
       const user = snap.val();
-      currentUserId = id;
+      currentUserId = id; // Firebase कुंजी स्टोर करें
+      originalProfilePicUrl = user.profilePic || ''; // मूल पिक URL स्टोर करें
 
-      // Update modal title
-      document.getElementById('modalTitle').textContent = `Member: ${id}`;
+      const displayId = user.rmzID || id; // प्रदर्शन के लिए RMZ ID का उपयोग करें
+      document.getElementById('modalTitle').textContent = `Member: ${displayId}`;
 
-      // Fill form fields
+      // फ़ॉर्म फ़ील्ड भरें
       document.getElementById('editName').value = user.name || '';
       document.getElementById('editEmail').value = user.email || '';
       document.getElementById('editMobile').value = user.mobile || '';
       document.getElementById('editShares').value = user.shares || 0;
-      document.getElementById('editProfilePic').value = user.profilePic || '';
+      document.getElementById('rmzIdDisplay').textContent = displayId; // RMZ ID प्रदर्शित करें
       document.getElementById('createdAt').textContent = formatDateTime(user.createdAt);
       document.getElementById('lastLogin').textContent = formatDateTime(user.lastLogin);
 
-      // Update profile picture preview
-      updateProfilePicPreview('editProfilePic', 'profilePicPreview');
+      // पिछला फ़ाइल इनपुट स्टेटस/मान साफ़ करें
+      document.getElementById('editProfilePicFile').value = null;
+      document.getElementById('editProfilePicStatus').textContent = '';
+      document.getElementById('editProfilePicUrl').value = originalProfilePicUrl; // URL को छिपे हुए इनपुट में स्टोर करें (हालांकि सीधे उपयोग नहीं किया गया)
 
-      // Build history list
+      // संग्रहीत URL से प्रोफ़ाइल चित्र प्रीव्यू सेट करें
+      setPreviewFromUrl(originalProfilePicUrl, 'profilePicPreview');
+
+      // इतिहास सूची बनाएं
       let historyHtml = '';
       if (user.history) {
-        Object.values(user.history).forEach(tx => {
-          historyHtml += `
-            <div class="history-item">
-              <strong>${formatDateTime(tx.date)}</strong><br>
-              ${tx.shares} shares - ${tx.note || 'No description'}
-            </div>
-          `;
+         const sortedHistoryKeys = Object.keys(user.history).sort((a, b) => {
+             // सुनिश्चित करें कि दिनांक मौजूद है, अन्यथा 0 का उपयोग करें
+             const dateA = new Date(user.history[a]?.date || 0).getTime();
+             const dateB = new Date(user.history[b]?.date || 0).getTime();
+             return dateB - dateA; // नवीनतम पहले
+         });
+
+        sortedHistoryKeys.forEach(key => {
+          const tx = user.history[key];
+          // सुनिश्चित करें कि लेन-देन ऑब्जेक्ट मान्य है
+           if (tx && tx.date !== undefined && tx.shares !== undefined) {
+              historyHtml += `
+                <div class="history-item">
+                  <strong>${formatDateTime(tx.date)}</strong><br>
+                  ${tx.shares > 0 ? '+' : ''}${tx.shares} shares - ${tx.note || 'No description'}
+                </div>
+              `;
+           }
         });
-      } else {
-        historyHtml = '<div class="history-item">No transaction history</div>';
       }
+       if (historyHtml === '') {
+           historyHtml = '<div class="history-item">No transaction history</div>';
+       }
       document.getElementById('historyList').innerHTML = historyHtml;
 
-      // Show modal
+      // मोडल दिखाएं
       document.getElementById('userModal').style.display = 'block';
+    }, error => {
+        console.error("Error loading user data:", error);
+        alert("Could not load member details. Please check console.");
     });
   }
 
-  function saveUser() {
-    const updated = {
-      name: document.getElementById('editName').value,
-      email: document.getElementById('editEmail').value,
-      mobile: document.getElementById('editMobile').value,
-      shares: parseInt(document.getElementById('editShares').value),
-      profilePic: document.getElementById('editProfilePic').value,
-      updatedAt: new Date().toISOString()
-    };
+ async function saveUser() {
+    if (!currentUserId) return;
 
-    db.ref('users/' + currentUserId).update(updated).then(() => {
-      alert("Member updated successfully!");
-      loadDashboard();
-      closeModal();
-    }).catch(error => {
-      alert("Error updating member: " + error.message);
-    });
-  }
+    const saveButton = document.getElementById('saveUserBtn');
+    saveButton.disabled = true; // सेव के दौरान बटन अक्षम करें
+    saveButton.textContent = 'Saving...';
 
-  async function deleteUser() {
-    if (!confirm(`Are you sure you want to permanently delete member ${currentUserId}?`)) {
-      return;
+    let newProfilePicUrl = originalProfilePicUrl; // डिफ़ॉल्ट रूप से मूल URL रखें
+
+    // जांचें कि क्या अपलोड के लिए नई फ़ाइल चुनी गई थी
+    if (document.getElementById('editProfilePicFile').files.length > 0) {
+        // ImgBB पर अपलोड करें
+        const uploadedUrl = await uploadImageToImgBB('editProfilePicFile', 'editProfilePicStatus');
+        if (uploadedUrl) {
+             newProfilePicUrl = uploadedUrl; // यदि सफल हो तो नए URL का उपयोग करें
+        } else {
+             // अपलोड विफल - मूल URL रखें, उपयोगकर्ता को सूचित करें
+             alert("Profile picture upload failed. Changes saved without updating picture.");
+             // newProfilePicUrl पहले से ही originalProfilePicUrl पर सेट है
+        }
     }
+
+    const updatedShares = parseInt(document.getElementById('editShares').value);
+    // उपलब्ध शेयरों की गणना करें (यह गणना केवल वर्तमान दृश्य पर आधारित है, बेहतर सटीकता के लिए डीबी से जांचें)
+    // const availableShares = parseInt(document.getElementById('availableSharesValue').innerText || '0');
+    // const currentSharesOnScreen = parseInt(document.getElementById('totalShares').innerText || '0'); // कुल बेचे गए शेयर (स्क्रीन पर)
+
+    // Fetch current shares directly from DB for accurate comparison and validation
+    db.ref('users/' + currentUserId + '/shares').once('value', async currentSharesSnap => {
+        const currentDbShares = parseInt(currentSharesSnap.val() || 0);
+        const shareChange = updatedShares - currentDbShares;
+
+        // Validate against total available shares (only if increasing shares)
+        if (shareChange > 0) {
+            const totalSoldSharesSnapshot = await db.ref('users').once('value');
+            let totalSoldShares = 0;
+            if (totalSoldSharesSnapshot.exists()) {
+                Object.values(totalSoldSharesSnapshot.val()).forEach(u => {
+                    if (u && typeof u.shares !== 'undefined') {
+                        totalSoldShares += parseInt(u.shares || 0);
+                    }
+                });
+            }
+            // Calculate shares excluding the current user's *original* count before this update
+            const sharesExcludingCurrentUser = totalSoldShares - currentDbShares;
+            const totalAvailableCap = TOTAL_SHARES_CAP - sharesExcludingCurrentUser; // How many shares can *this* user take max
+
+            if (updatedShares > totalAvailableCap) {
+                 alert(`Error: Cannot set shares to ${updatedShares}. Only ${totalAvailableCap} shares are available for this member considering the total cap of ${TOTAL_SHARES_CAP}.`);
+                 saveButton.disabled = false;
+                 saveButton.textContent = 'Save Changes';
+                 return; // Stop saving
+            }
+        }
+
+
+        const updatedData = {
+          name: document.getElementById('editName').value.trim(),
+          email: document.getElementById('editEmail').value.trim(),
+          mobile: document.getElementById('editMobile').value.trim(),
+          shares: isNaN(updatedShares) ? 0 : updatedShares, // Ensure shares is a number
+          profilePic: newProfilePicUrl, // Use the determined URL (new or original)
+          updatedAt: new Date().toISOString()
+          // rmzID should generally not be updated here
+        };
+
+        try {
+            // Add transaction history if shares changed
+            if (!isNaN(updatedData.shares) && shareChange !== 0) {
+                const historyEntry = {
+                    date: updatedData.updatedAt, // Use update timestamp
+                    shares: shareChange,
+                    note: `Shares updated by admin (${shareChange > 0 ? '+' : ''}${shareChange})`
+                };
+                // Push new history entry
+                await db.ref('users/' + currentUserId + '/history').push(historyEntry);
+            }
+
+            // Now update the main user data
+            await db.ref('users/' + currentUserId).update(updatedData);
+
+            alert("Member updated successfully!");
+            loadDashboard(); // Refresh dashboard data
+            closeModal();
+        } catch (error) {
+            console.error("Error updating member:", error);
+            alert("Error updating member: " + error.message);
+        } finally {
+            // Re-enable button regardless of success/failure
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save Changes';
+        }
+
+    }).catch(error => {
+         console.error("Error fetching current shares:", error);
+          alert("Could not fetch current shares for validation or history. Update aborted.");
+          saveButton.disabled = false;
+          saveButton.textContent = 'Save Changes';
+    });
+ }
+
+ async function deleteUser() {
+    if (!currentUserId) return;
+
+    const userRef = db.ref('users/' + currentUserId);
 
     try {
-      // Get user email before deleting
-      const userSnapshot = await db.ref('users/' + currentUserId).once('value');
-      const userData = userSnapshot.val();
-      const userEmail = userData.email;
+        // Get RMZ ID for confirmation message
+        const snap = await userRef.once('value');
+        if (!snap.exists()) {
+            alert("Member data not found, cannot delete.");
+            return;
+        }
+        const userData = snap.val();
+        const displayId = userData?.rmzID || currentUserId;
+        // We don't need the profilePicUrl for deletion anymore
 
-      // Delete from Authentication
-      try {
-        const user = await auth.getUserByEmail(userEmail);
-        await auth.deleteUser(user.uid);
-      } catch (authError) {
-        console.warn("Could not delete auth user:", authError.message);
-      }
+        if (!confirm(`Are you sure you want to permanently delete member ${displayId}? This action cannot be undone.`)) {
+          return;
+        }
 
-      // Delete from Realtime Database
-      await db.ref('users/' + currentUserId).remove();
+        // --- Remove Firebase Storage Deletion ---
+        // The profile picture hosted on ImgBB will remain, but will be orphaned.
+        // No action needed here to delete the image.
 
-      alert("Member deleted successfully from both systems!");
-      loadDashboard();
-      closeModal();
+        // Delete user data from Realtime Database
+        await userRef.remove();
+
+        alert(`Member ${displayId} deleted successfully from the database!`);
+        loadDashboard(); // Refresh dashboard
+        closeModal(); // Close modal
+
     } catch (error) {
-      alert("Error deleting member: " + error.message);
+        console.error("Error deleting member:", error);
+        alert("Error deleting member: " + error.message + ". Please check the console for details.");
+        // Don't close modal on error so user can see what went wrong
     }
-  }
+ }
+
 
   function closeModal() {
     document.getElementById('userModal').style.display = 'none';
-    currentUserId = '';
+    currentUserId = ''; // Reset current ID
+    originalProfilePicUrl = ''; // Reset original URL
+    // Reset preview to default
+    setPreviewFromUrl(null, 'profilePicPreview');
+    document.getElementById('editProfilePicStatus').textContent = ''; // Clear status
+    document.getElementById('editProfilePicFile').value = null; // Clear file input
   }
 
   function showAddMemberForm() {
-    // Clear form fields
-    document.getElementById('newUserName').value = '';
-    document.getElementById('newUserMobile').value = '';
-    document.getElementById('newUserEmail').value = '';
-    document.getElementById('newUserPassword').value = '';
-    document.getElementById('newUserShares').value = '0';
-    document.getElementById('newUserProfilePic').value = '';
-
-    // Reset profile picture preview
-    document.getElementById('newProfilePicPreview').innerHTML = '<i class="fas fa-user"></i>';
-
-    // Show modal
-    document.getElementById('addMemberModal').style.display = 'block';
+      // Reset previous values
+      document.getElementById('newUserName').value = '';
+      document.getElementById('newUserMobile').value = '';
+      document.getElementById('newUserEmail').value = '';
+      document.getElementById('newUserShares').value = '0';
+      document.getElementById('newUserProfilePicFile').value = null; // Clear file input
+      setPreviewFromUrl(null, 'newProfilePicPreview'); // Reset preview
+      document.getElementById('newUserProfilePicStatus').textContent = ''; // Clear status
+      document.getElementById('newUserProfilePicUrl').value = ''; // Clear hidden URL field (not strictly needed now)
+      document.getElementById('addMemberModal').style.display = 'block';
   }
 
   function closeAddModal() {
-    document.getElementById('addMemberModal').style.display = 'none';
+     document.getElementById('addMemberModal').style.display = 'none';
   }
 
   async function addNewMember() {
-    const name = document.getElementById('newUserName').value.trim();
-    const mobile = document.getElementById('newUserMobile').value.trim();
-    const email = document.getElementById('newUserEmail').value.trim();
-    const password = document.getElementById('newUserPassword').value;
-    const shares = parseInt(document.getElementById('newUserShares').value) || 0;
-    const profilePic = document.getElementById('newUserProfilePic').value.trim();
-    const now = new Date().toISOString();
+      const name = document.getElementById('newUserName').value.trim();
+      const mobile = document.getElementById('newUserMobile').value.trim();
+      const email = document.getElementById('newUserEmail').value.trim();
+      const shares = parseInt(document.getElementById('newUserShares').value);
+      const addButton = document.getElementById('addMemberBtn');
 
-    if (!name || !mobile || !email || !password) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-    try {
-      // Check if email already exists in auth
-      const methods = await auth.fetchSignInMethodsForEmail(email);
-      if (methods.length > 0) {
-        alert("This email is already registered");
-        return;
+      if (!name || !mobile) {
+          alert("Please enter Name and Mobile number.");
+          return;
+      }
+      if (isNaN(shares) || shares < 0) {
+          alert("Please enter a valid non-negative number for Initial Shares.");
+          return;
       }
 
-      // Create user in Authentication
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const uid = userCredential.user.uid;
-
-      // Get next RMZ ID from counter
-      const counterRef = db.ref('counter/userCount');
-      const snapshot = await counterRef.once('value');
-      let userCount = snapshot.exists() ? snapshot.val() : 0;
-      userCount += 1;
-      const rmzID = "RMZ" + String(userCount).padStart(4, '0');
-
-      // Create user in Realtime Database
-      const newUser = {
-        name: name,
-        mobile: mobile,
-        email: email,
-        shares: shares,
-        profilePic: profilePic || '',
-        rmzID: rmzID,
-        uid: uid, // Store auth UID for reference
-        createdAt: now,
-        lastLogin: now,
-        history: {
-          t1: {
-            date: now.split("T")[0],
-            shares: shares,
-            note: "Initial share registration"
-          }
+       // Check available shares
+        const totalSoldSharesSnapshot = await db.ref('users').once('value');
+        let totalSoldShares = 0;
+        if (totalSoldSharesSnapshot.exists()) {
+            Object.values(totalSoldSharesSnapshot.val()).forEach(u => {
+                if (u && typeof u.shares !== 'undefined') {
+                    totalSoldShares += parseInt(u.shares || 0);
+                }
+            });
         }
-      };
+        const availableShares = TOTAL_SHARES_CAP - totalSoldShares;
 
-      await db.ref('users/' + rmzID).set(newUser);
-      await counterRef.set(userCount);
+        if (shares > availableShares) {
+            alert(`Error: Cannot add ${shares} shares. Only ${availableShares} shares are available in total.`);
+            return;
+        }
 
-      alert(`Member added successfully with ID: ${rmzID}`);
-      closeAddModal();
-      loadDashboard();
-    } catch (error) {
-      alert("Error adding member: " + error.message);
-    }
-  }
 
-  function toggleNotificationSection() {
-    const notificationSection = document.getElementById('notificationSection');
-    notificationSection.style.display = notificationSection.style.display === 'none' ? 'block' : 'none';
-  }
+      addButton.disabled = true;
+      addButton.textContent = 'Adding...';
 
-  function saveNotification() {
-    const headline = document.getElementById('notificationHeadline').value;
-    const summary = document.getElementById('notificationSummary').value;
-    const link = document.getElementById('notificationLink').value;
-    const imageLink = document.getElementById('notificationImageLink').value;
-    const statusMsg = document.getElementById('notificationStatus');
-    const previousNotificationsList = document.getElementById('previousNotifications');
+      let profilePicUrl = null;
+      // Upload image if file selected
+      if (document.getElementById('newUserProfilePicFile').files.length > 0) {
+           profilePicUrl = await uploadImageToImgBB('newUserProfilePicFile', 'newUserProfilePicStatus');
+          if (profilePicUrl === null) {
+              alert("Profile picture upload failed, but member will be added without a picture.");
+              // Continue, but URL will be null
+          }
+      }
 
-    const newNotification = {
-      headline: headline,
-      summary: summary,
-      link: link,
-      imageLink: imageLink,
-      timestamp: firebase.database.ServerValue.TIMESTAMP // Add timestamp for ordering
-    };
+       // Get next RMZ ID
+      db.ref('users').orderByKey().limitToLast(1).once('value', async lastUserSnap => {
+           let nextIdNumber = 1;
+           if (lastUserSnap.exists()) {
+                const lastUserKey = Object.keys(lastUserSnap.val())[0]; // Get the last key (which is the RMZ ID)
+                // Extract number part, handle potential non-RMZ keys if any edge cases exist
+                const match = lastUserKey.match(/RMZ(\d+)/);
+                if (match && match[1]) {
+                     const lastNum = parseInt(match[1], 10);
+                     if (!isNaN(lastNum)) {
+                         nextIdNumber = lastNum + 1;
+                     }
+                }
+           }
+           const newRmzID = `RMZ${nextIdNumber.toString().padStart(4, '0')}`; // e.g., RMZ0001
 
-    db.ref('notifications').push(newNotification)
-      .then(() => {
-        statusMsg.textContent = "Notification updated successfully!";
-        statusMsg.style.color = "green";
-        statusMsg.style.display = "block";
-        setTimeout(() => {
-          statusMsg.style.display = "none";
-        }, 3000);
-        loadNotifications(); // Reload notifications after saving
-      })
-      .catch((error) => {
-        statusMsg.textContent = "Error updating notification: " + error.message;
-        statusMsg.style.color = "red";
-        statusMsg.style.display = "block";
+            const newUserData = {
+                rmzID: newRmzID,
+                name: name,
+                mobile: mobile,
+                email: email,
+                shares: shares,
+                profilePic: profilePicUrl, // Either uploaded URL or null
+                createdAt: new Date().toISOString(),
+                lastLogin: null, // New user, no previous login
+                history: {} // Start with empty history object
+            };
+
+            // If initial shares > 0, add an initial history entry
+            if (shares > 0) {
+                const initialHistoryEntry = {
+                    date: newUserData.createdAt,
+                    shares: shares,
+                    note: "Initial shares allocated"
+                };
+                // Add with a key (e.g., 'initial') into the history object
+                 newUserData.history['initial'] = initialHistoryEntry;
+                 // Alternatively, if you wanted Firebase to generate a unique key:
+                 // delete newUserData.history; // Remove the empty object first
+                 // const historyRef = db.ref('users/' + newRmzID + '/history');
+                 // await historyRef.push(initialHistoryEntry);
+            }
+
+           try {
+               // Save the new member using their RMZ ID as the key
+                await db.ref('users/' + newRmzID).set(newUserData);
+               alert(`Member ${newRmzID} added successfully!`);
+               loadDashboard(); // Refresh dashboard
+               closeAddModal(); // Close modal
+           } catch (error) {
+               console.error("Error adding new member:", error);
+               alert("Error adding member: " + error.message);
+                // No need for image rollback as we aren't managing the external storage deletion easily
+           } finally {
+               addButton.disabled = false;
+               addButton.textContent = 'Add Member';
+           }
+      }).catch(error => {
+           console.error("Error fetching last user ID:", error);
+           alert("Could not determine the next RMZ ID. Member not added.");
+           addButton.disabled = false;
+           addButton.textContent = 'Add Member';
       });
   }
 
-  function loadNotifications() {
-    const previousNotificationsList = document.getElementById('previousNotifications');
-    previousNotificationsList.innerHTML = ''; // Clear previous list
+  // --- Notification Section ---
 
-    db.ref('notifications')
-      .orderByChild('timestamp')
-      .limitToLast(MAX_NOTIFICATIONS)
-      .once('value', snapshot => {
-        const notifications = snapshot.val();
-        const notificationArray = [];
+ function toggleNotificationSection() {
+     const section = document.getElementById('notificationSection');
+     section.style.display = section.style.display === 'none' ? 'block' : 'none';
+     if (section.style.display === 'block') {
+         loadNotifications(); // Load/refresh notifications when shown
+     }
+ }
 
-        if (notifications) {
-          for (const key in notifications) {
-            notificationArray.push({ id: key, ...notifications[key] });
-          }
+ async function saveNotification() {
+     const headline = document.getElementById('notificationHeadline').value.trim();
+     const summary = document.getElementById('notificationSummary').value.trim();
+     const link = document.getElementById('notificationLink').value.trim();
+     const statusP = document.getElementById('notificationStatus');
+     const saveBtn = document.getElementById('saveNotificationBtn');
 
-          // Display the latest notification in the form
-          if (notificationArray.length > 0) {
-            const latestNotification = notificationArray[notificationArray.length - 1];
-            document.getElementById('notificationHeadline').value = latestNotification.headline || '';
-            document.getElementById('notificationSummary').value = latestNotification.summary || '';
-            document.getElementById('notificationLink').value = latestNotification.link || '';
-            document.getElementById('notificationImageLink').value = latestNotification.imageLink || '';
-          }
+     if (!headline || !summary) {
+         alert("Please enter both Headline and Summary.");
+         return;
+     }
 
-          // Display previous notifications in the list
-          notificationArray.slice(0, notificationArray.length -1).forEach(notification => {
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-              <strong>${notification.headline || 'No Headline'}</strong><br>
-              ${notification.summary ? notification.summary.substring(0, 50) + '...' : 'No summary'}
-            `;
-            previousNotificationsList.appendChild(listItem);
-          });
+     saveBtn.disabled = true;
+     saveBtn.textContent = 'Saving...';
+     statusP.style.display = 'none'; // Hide previous status
+
+     let imageUrl = originalNotificationImageUrl || document.getElementById('notificationImageLink').value || null; // Start with original or hidden link value
+
+     // Check if new image file is selected
+     if (document.getElementById('notificationImageFile').files.length > 0) {
+         // Upload new image to ImgBB
+         const uploadedUrl = await uploadImageToImgBB('notificationImageFile', 'notificationImageStatus');
+         if (uploadedUrl) {
+             // --- Removed Firebase Storage Deletion of Old Image ---
+             // No action needed to delete the old image from ImgBB here.
+             imageUrl = uploadedUrl; // Use the new URL
+         } else {
+             // Upload failed, notify user, but save text
+             alert("Image upload failed. Notification will be saved without the new image.");
+             // imageUrl retains the old value (or null)
+         }
+     }
+
+
+     const notificationData = {
+         headline: headline,
+         summary: summary,
+         link: link || null, // Save null if empty
+         imageUrl: imageUrl, // Either new URL, original URL, or null
+         timestamp: new Date().toISOString()
+     };
+
+     // Update/set at 'current_notification' path in Firebase
+     db.ref('current_notification').set(notificationData)
+         .then(() => {
+             // On success, also add to history
+             return db.ref('notification_history').push(notificationData);
+         })
+         .then(() => {
+             statusP.textContent = "Notification updated successfully!";
+             statusP.style.color = 'green';
+             statusP.style.display = 'block';
+             // Clear form fields and reset preview
+             document.getElementById('notificationHeadline').value = '';
+             document.getElementById('notificationSummary').value = '';
+             document.getElementById('notificationLink').value = '';
+             document.getElementById('notificationImageFile').value = null;
+             document.getElementById('notificationImageLink').value = ''; // Clear hidden link
+             setPreviewFromUrl(null, 'notificationImagePreview');
+             document.getElementById('notificationImageStatus').textContent = '';
+             originalNotificationImageUrl = ''; // Reset original URL holder
+             loadNotifications(); // Refresh list
+         })
+         .catch((error) => {
+             console.error("Error saving notification:", error);
+             statusP.textContent = "Error saving notification: " + error.message;
+             statusP.style.color = 'red';
+             statusP.style.display = 'block';
+             // No image rollback needed for ImgBB
+         })
+         .finally(() => {
+             saveBtn.disabled = false;
+             saveBtn.textContent = 'Update Notification';
+         });
+ }
+
+
+ function loadNotifications() {
+     const previousList = document.getElementById('previousNotifications');
+     previousList.innerHTML = '<li>Loading...</li>'; // Loading indicator
+
+     // 1. Load current active notification (if any) and populate form
+     db.ref('current_notification').once('value', snapshot => {
+         if (snapshot.exists()) {
+             const currentNotif = snapshot.val();
+             document.getElementById('notificationHeadline').value = currentNotif.headline || '';
+             document.getElementById('notificationSummary').value = currentNotif.summary || '';
+             document.getElementById('notificationLink').value = currentNotif.link || '';
+             document.getElementById('notificationImageLink').value = currentNotif.imageUrl || ''; // Store URL in hidden input (useful if reusing without new upload)
+             originalNotificationImageUrl = currentNotif.imageUrl || ''; // Store original URL
+             setPreviewFromUrl(currentNotif.imageUrl, 'notificationImagePreview');
+             document.getElementById('notificationImageFile').value = null; // Reset file input
+             document.getElementById('notificationImageStatus').textContent = '';
+         } else {
+             // Clear form if no current notification
+              document.getElementById('notificationHeadline').value = '';
+              document.getElementById('notificationSummary').value = '';
+              document.getElementById('notificationLink').value = '';
+              document.getElementById('notificationImageFile').value = null;
+              document.getElementById('notificationImageLink').value = '';
+              setPreviewFromUrl(null, 'notificationImagePreview');
+              document.getElementById('notificationImageStatus').textContent = '';
+              originalNotificationImageUrl = '';
+         }
+     });
+
+     // 2. Load history of previous notifications
+     db.ref('notification_history')
+       .orderByChild('timestamp') // Order by timestamp
+       .limitToLast(MAX_NOTIFICATIONS_DISPLAY) // Get latest N
+       .once('value', snapshot => {
+         let html = '';
+         if (snapshot.exists()) {
+             const notifications = [];
+             snapshot.forEach(childSnapshot => {
+                 notifications.push({ key: childSnapshot.key, ...childSnapshot.val() });
+             });
+             // Reverse to show latest first
+             notifications.reverse();
+
+             notifications.forEach(notif => {
+                 html += `<li>
+                     <strong>${notif.headline}</strong> (${formatDateTime(notif.timestamp)})<br>
+                     <small>${notif.summary.substring(0, 50)}...</small>
+                     <button onclick="deleteNotificationHistory('${notif.key}')" style="margin-left: 10px; font-size: 0.7rem; padding: 2px 5px; cursor: pointer; background: #ffdddd; border: 1px solid #f7a7a7; border-radius: 3px;">Delete</button>
+                     <button onclick="reuseNotification('${notif.key}')" style="margin-left: 5px; font-size: 0.7rem; padding: 2px 5px; cursor: pointer; background: #ddeeff; border: 1px solid #a7c7f7; border-radius: 3px;">Reuse</button>
+                 </li>`;
+             });
+         } else {
+             html = '<li>No previous notifications found.</li>';
+         }
+         previousList.innerHTML = html;
+     }).catch(error => {
+         console.error("Error loading notification history:", error);
+         previousList.innerHTML = '<li>Error loading history.</li>';
+     });
+ }
+
+ // Function to delete a specific historical notification
+ function deleteNotificationHistory(key) {
+    if (!key) return;
+    if (confirm("Are you sure you want to delete this notification from history?")) {
+        // Note: This only deletes the history record in Firebase.
+        // The image (if any) will remain hosted on ImgBB.
+        db.ref('notification_history/' + key).remove()
+            .then(() => {
+                console.log("Notification history entry deleted:", key);
+                loadNotifications(); // Refresh list
+            })
+            .catch(error => {
+                console.error("Error deleting notification history:", error);
+                alert("Could not delete notification history entry.");
+            });
+    }
+ }
+
+// Function to reload a previous notification into the form for editing
+function reuseNotification(key) {
+    if (!key) return;
+    db.ref('notification_history/' + key).once('value', snapshot => {
+        if (snapshot.exists()) {
+            const notif = snapshot.val();
+             document.getElementById('notificationHeadline').value = notif.headline || '';
+             document.getElementById('notificationSummary').value = notif.summary || '';
+             document.getElementById('notificationLink').value = notif.link || '';
+             document.getElementById('notificationImageLink').value = notif.imageUrl || ''; // Store URL in hidden input
+             originalNotificationImageUrl = notif.imageUrl || ''; // Store as original for potential save
+             setPreviewFromUrl(notif.imageUrl, 'notificationImagePreview');
+             document.getElementById('notificationImageFile').value = null; // Reset file input
+             document.getElementById('notificationImageStatus').textContent = '';
+             alert("Notification content loaded into the form. You can now edit and click 'Update Notification' to make it the current one.");
         } else {
-          previousNotificationsList.innerHTML = '<li>No previous notifications found.</li>';
+            alert("Could not find the selected notification history entry.");
         }
-      });
-  }
+    }).catch(error => {
+        console.error("Error reusing notification:", error);
+        alert("Error loading notification data for reuse.");
+    });
+}
 
-  // Close modal when clicking outside content
-  window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-      closeModal();
-      closeAddModal();
-    }
-  }
 
-  // Initialize profile picture preview updates
-  document.getElementById('editProfilePic').addEventListener('input', function() {
-    updateProfilePicPreview('editProfilePic', 'profilePicPreview');
-  });
-
-  document.getElementById('newUserProfilePic').addEventListener('input', function() {
-    updateProfilePicPreview('newUserProfilePic', 'newProfilePicPreview');
-  });
+  // Initial load is triggered by checkPassword() upon successful login
+ // loadDashboard(); // Called after password check is successful
 </script>
+
 </body>
 </html>
