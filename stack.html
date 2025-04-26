@@ -3,564 +3,649 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Report - Compact</title>
-    <link rel="stylesheet" href="output_style.css">
+    <title>Enhanced Data Report - Rudransh Warehouse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        /* --- Enhanced Design Variables & Base --- */
+        :root {
+            --primary-color: #3498db; /* Slightly softer blue */
+            --primary-dark: #2980b9;
+            --secondary-color: #95a5a6; /* Grey for secondary actions */
+            --secondary-dark: #7f8c8d;
+            --success-color: #2ecc71; /* Green */
+            --success-dark: #27ae60;
+            --danger-color: #e74c3c; /* Red (for potential future use) */
+            --light-bg: #f8f9fa; /* Light background for table header/footer */
+            --body-bg: #f0f4f8; /* Slightly bluish grey background */
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50; /* Darker text for better contrast */
+            --text-normal: #34495e;
+            --text-muted: #7f8c8d;
+            --border-color: #e1e5e8; /* Lighter border */
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer, slightly larger shadow */
+            --card-radius: 8px;
+            --input-height: 38px;
+            --transition-speed: 0.3s;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-normal);
+            background-color: var(--body-bg);
+            padding: 20px; /* More padding */
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1300px; /* Slightly wider */
+            margin: 20px auto;
+            background: transparent;
+            padding: 0;
+        }
+
+        /* --- Card Style --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px; /* More space between cards */
+            padding: 20px 25px; /* More padding inside cards */
+            overflow: hidden; /* Contain child elements */
+        }
+
+        /* --- Typography --- */
+        h1 {
+            text-align: center; color: var(--text-dark); margin-bottom: 8px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center; color: var(--text-muted); margin-bottom: 30px; /* More space below subtitle */
+            font-size: 1rem; font-weight: 400;
+        }
+        .section-header {
+            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .section-header h2, .section-header h3 {
+            color: var(--text-dark); font-weight: 600; margin: 0; padding: 0;
+            border: none; font-size: 1.2rem; /* Slightly larger section titles */
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* --- Combined Controls and Summary Section --- */
+        .controls-summary-section { padding-bottom: 15px; }
+
+        /* Summary Area */
+        .summary-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px 20px; /* Increased gap */
+            margin-bottom: 25px; /* More space before filters */
+            padding-bottom: 20px; /* More padding */
+            border-bottom: 1px dashed var(--border-color); /* Subtle divider */
+        }
+        .summary-item {
+            padding: 5px; border: none; background-color: transparent;
+            display: flex; flex-direction: column; align-items: flex-start;
+        }
+        .summary-item .label {
+            font-size: 0.75rem; /* Slightly larger label */
+            color: var(--text-muted); margin-bottom: 3px;
+            font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .summary-item strong {
+            font-weight: 600;
+            font-size: 1.1rem; /* Larger value */
+            color: var(--text-dark);
+            line-height: 1.3;
+            word-break: break-word; /* Prevent long CAD from breaking layout */
+        }
+        /* Specific colors for totals */
+        .summary-item strong.total-mt { color: var(--primary-dark); font-weight: 700; }
+        .summary-item strong.total-bag { color: var(--success-dark); font-weight: 700; }
+        .summary-item strong#summaryTotalCountVan { color: var(--text-dark); font-weight: 700;} /* Style for Count Van */
+
+        /* Filter Controls */
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Wider minmax */
+            gap: 15px 20px; /* Increased gap */
+            align-items: end; /* Align items to bottom */
+        }
+        .form-group label {
+            display: block; margin-bottom: 5px;
+            font-weight: 500; font-size: 0.8rem; /* Slightly larger label */
+            color: var(--text-dark);
+        }
+        .filter-controls input[type="text"],
+        .filter-controls input[type="date"],
+        .filter-controls select {
+            width: 100%; padding: 8px 12px; /* More padding */
+            border: 1px solid var(--border-color); border-radius: 5px; font-size: 0.9rem;
+            font-family: 'Inter', sans-serif; background-color: var(--card-bg);
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            height: var(--input-height);
+            color: var(--text-normal);
+        }
+        .filter-controls select {
+            /* Nicer dropdown arrow */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat; background-position: right 10px center;
+            background-size: 18px 18px; padding-right: 35px; appearance: none;
+        }
+        .filter-controls input:focus,
+        .filter-controls select:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Subtle focus ring */
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+             cursor: pointer; opacity: 0.7; transition: opacity var(--transition-speed) ease;
+             padding-left: 5px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+        /* Placeholder styling */
+        ::placeholder { color: var(--text-muted); opacity: 0.8; }
+
+        .clear-btn {
+            background-color: var(--secondary-color); color: #fff; padding: 0 20px;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;
+            font-weight: 500; transition: background-color var(--transition-speed) ease, transform 0.1s ease;
+            height: var(--input-height); line-height: var(--input-height);
+            text-align: center; width: 100%;
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .clear-btn:hover { background-color: var(--secondary-dark); }
+        .clear-btn:active { transform: translateY(1px); }
+
+        /* --- Table Styling --- */
+        .table-container {
+            margin-top: 25px; /* More space above table */
+            overflow-x: auto; /* Enable horizontal scroll on small screens */
+        }
+        table {
+            width: 100%; border-collapse: collapse; font-size: 0.88rem; /* Slightly larger base font */
+            border: 1px solid var(--border-color); /* Add outer border */
+            border-radius: var(--card-radius); /* Match card radius */
+            overflow: hidden; /* Needed for border-radius on table */
+        }
+
+        th, td {
+            border: none; /* Remove individual cell borders */
+            border-bottom: 1px solid var(--border-color); /* Horizontal lines */
+            padding: 10px 15px; /* More padding */
+            text-align: center; white-space: nowrap; vertical-align: middle;
+            color: var(--text-normal);
+        }
+        tbody tr:last-child td { border-bottom: none; } /* Remove last row border */
+
+        /* Table Header */
+        thead th {
+            background-color: var(--light-bg); font-weight: 600; color: var(--text-dark);
+            position: sticky; top: 0; z-index: 1;
+            border-bottom: 2px solid var(--primary-color); /* Stronger bottom border */
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 12px 15px; /* Header padding */
+        }
+
+        /* Table Body */
+        tbody tr { transition: background-color var(--transition-speed) ease; }
+        tbody tr:nth-child(even) { background-color: #fdfdfe; } /* Subtle zebra striping */
+        tbody tr:hover { background-color: #eef4f8; } /* Hover effect */
+
+        /* Specific cell alignment/styling */
+         td:nth-child(5), td:nth-child(7) { text-align: center; } /* Entry/Out Bag */
+         td:nth-child(6), td:nth-child(8) { text-align: center; font-family: 'Courier New', Courier, monospace; } /* Entry/Out Wt */
+         td:nth-child(1), td:nth-child(3) { white-space: normal; word-break: break-word; } /* Allow wrap for Date & CAD */
+
+         /* --- NEW: Style for Stack No column in body --- */
+         tbody td:nth-child(2) {
+            font-weight: 700; /* Bold */
+            color: #000000;   /* Black */
+         }
+
+        /* No Data Message */
+        .no-data-message {
+            text-align: center; padding: 40px 20px; color: var(--text-muted); font-style: italic; font-size: 1rem;
+            background-color: var(--light-bg); border-radius: 0 0 var(--card-radius) var(--card-radius); /* Match table bottom */
+        }
+        /* Logic handled by JS */
+
+        /* --- Footer Totals --- */
+        tfoot { border-top: 2px solid var(--primary-color); background-color: var(--light-bg); }
+        tfoot th, tfoot td {
+            font-weight: 600; color: var(--text-dark); font-size: 0.9rem;
+            padding: 12px 15px; /* Footer padding */
+            border-bottom: none; /* Remove tfoot bottom border */
+        }
+        tfoot th { text-align: center; padding-right: 20px; }
+        tfoot td { text-align: center; font-family: 'Courier New', Courier, monospace; }
+        /* Color coding and bolding for footer totals */
+        tfoot td.total-mt { color: var(--primary-dark); font-weight: 700 !important; }
+        tfoot td.total-bag { color: var(--success-dark); font-weight: 700 !important; }
+
+
+        /* --- Responsiveness --- */
+        @media (max-width: 992px) {
+            .filter-controls {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .card { padding: 15px 20px; }
+            h1 { font-size: 1.6rem; }
+            .subtitle { font-size: 0.9rem; margin-bottom: 20px;}
+            .summary-area { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px 15px; padding-bottom: 15px; margin-bottom: 20px; }
+             .summary-item strong { font-size: 1rem; }
+             .filter-controls { grid-template-columns: 1fr 1fr; gap: 12px 15px;} /* Force 2 columns */
+             .form-group.button-group { grid-column: span 2; margin-top: 10px; } /* Button spans full width */
+             .clear-btn { width: 100%; }
+             th, td { padding: 8px 10px; }
+             thead th { padding: 10px 10px; font-size: 0.75rem; }
+             tfoot th, tfoot td { padding: 10px 10px; font-size: 0.85rem; }
+             .no-data-message { padding: 30px 15px; }
+        }
+
+        @media (max-width: 480px) {
+             body { padding: 10px; }
+             .card { padding: 15px; }
+             h1 { font-size: 1.4rem; }
+             .subtitle { font-size: 0.85rem;}
+             .summary-area { grid-template-columns: 1fr 1fr; gap: 10px; } /* Force 2 columns */
+             .filter-controls { grid-template-columns: 1fr; } /* Force 1 column */
+             .form-group.button-group { grid-column: span 1; }
+             th, td { font-size: 0.8rem; }
+             thead th { font-size: 0.7rem; }
+        }
+
+    </style>
 </head>
 <body>
-<style>
-/* output_style.css - Updated - More Compact Controls/Summary */
-
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* Color Palette & Variables */
-:root {
-    --primary-color: #007bff;
-    --primary-dark: #0056b3;
-    --secondary-color: #6c757d;
-    --secondary-dark: #5a6268;
-    --success-color: #198754;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-    --text-color: #495057;
-    --text-muted: #6c757d;
-    --border-color: #dee2e6;
-    --card-bg: #ffffff;
-    --card-shadow: 0 3px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
-    --card-radius: 6px;
-    --input-height: 36px; /* Slightly reduced height */
-}
-
-/* Basic Reset & Body */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Inter', sans-serif;
-    line-height: 1.5; /* Adjusted line height */
-    color: var(--text-color);
-    background-color: #f0f2f5;
-    padding: 10px; /* Reduced body padding */
-    min-height: 100vh;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 15px auto; /* Reduced margin */
-    background: transparent;
-    padding: 0;
-}
-
-/* Card Style for Sections */
-.card {
-    background-color: var(--card-bg);
-    border-radius: var(--card-radius);
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--border-color);
-    margin-bottom: 15px; /* Reduced margin */
-    padding: 15px 20px; /* Reduced padding */
-}
-
-/* Headings */
-h1 {
-    text-align: center; color: var(--dark-color); margin-bottom: 5px;
-    font-weight: 600; font-size: 1.6rem; /* Reduced size */
-}
-.subtitle {
-    text-align: center; color: var(--text-muted); margin-bottom: 15px;
-    font-size: 0.95rem; font-weight: 300;
-}
-.section-header {
-    margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);
-}
-.section-header h2, .section-header h3 {
-    color: var(--dark-color); font-weight: 600; margin: 0; padding: 0;
-    border: none; font-size: 1.1rem; /* Reduced size */
-}
-
-/* --- Combined Controls and Summary Section --- */
-.controls-summary-section { padding-bottom: 10px; } /* Reduce bottom padding */
-
-/* Summary Area (Compact Grid) */
-.summary-area {
-    display: grid;
-    /* More aggressive grid, force more items per row */
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 8px 12px; /* Reduced gap */
-    margin-bottom: 15px; /* Space before filters */
-    padding-bottom: 12px; /* Reduced padding */
-    /* border-bottom: 1px dashed var(--border-color); */ /* Removed border for space */
-}
-.summary-item {
-    padding: 0; border: none; background-color: transparent;
-    display: flex; flex-direction: column; align-items: flex-start;
-}
-.summary-item .label {
-    font-size: 0.7rem; /* Smaller label */
-    color: var(--text-muted); margin-bottom: 1px;
-    font-weight: 500; text-transform: uppercase;
-}
-.summary-item strong {
-    font-weight: 600; /* Keep bold */
-    font-size: 0.9rem; /* Reduced value size */
-    color: var(--dark-color);
-    line-height: 1.3; /* Adjust line height */
-}
-/* Color coding */
-.summary-item strong.total-mt { color: var(--primary-dark); }
-.summary-item strong.total-bag { color: var(--success-color); }
-
-
-/* Filter Controls (Compact Grid) */
-.filter-controls {
-    display: grid;
-    /* Aim for ~3 columns + button on wider screens */
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Reduced minmax */
-    gap: 10px 15px; /* Reduced gap */
-    align-items: end;
-}
-.form-group label {
-    display: block; margin-bottom: 3px; /* Reduced margin */
-    font-weight: 500; font-size: 0.75rem; /* Smaller label */
-    color: var(--text-color);
-}
-.filter-controls input[type="text"],
-.filter-controls input[type="date"],
-.filter-controls select {
-    width: 100%; padding: 6px 10px; /* Reduced padding */
-    border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; /* Smaller font */
-    font-family: 'Inter', sans-serif; background-color: var(--card-bg);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    height: var(--input-height);
-}
-.filter-controls select {
-     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16"><path fill="%236c757d" d="M8 11.414l-4.95-4.95a1 1 0 1 1 1.414-1.414L8 8.586l3.536-3.536a1 1 0 1 1 1.414 1.414L8 11.414z"/></svg>'); /* Smaller arrow */
-     background-repeat: no-repeat; background-position: right 8px center; /* Adjust position */
-     background-size: 12px 12px; padding-right: 28px; appearance: none;
-}
-.filter-controls input:focus,
-.filter-controls select:focus {
-    outline: none; border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1); /* Reduced shadow */
-}
-input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6;}
-input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 0.9; }
-
-.clear-btn {
-    background-color: var(--secondary-color); color: #fff; padding: 0 15px; /* Reduced padding */
-    border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; /* Smaller font */
-    font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease;
-    height: var(--input-height); line-height: var(--input-height);
-    text-align: center; width: 100%;
-}
-.clear-btn:hover { background-color: var(--secondary-dark); }
-.clear-btn:active { transform: translateY(1px); }
-
-/* --- Table Styling --- */
-.table-container { margin-top: 15px; } /* Reduced margin */
-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; } /* Smaller base font */
-
-th, td {
-    border: none; border-bottom: 1px solid var(--border-color);
-    padding: 8px 10px; /* Reduced padding */
-    text-align: left; white-space: nowrap; vertical-align: middle;
-}
-tbody tr:last-child td { border-bottom: none; }
-
-/* Table Header */
-thead th {
-    background-color: var(--light-color); font-weight: 600; color: var(--dark-color);
-    position: sticky; top: 0; z-index: 1; border-bottom: 2px solid var(--primary-color);
-    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 10px; /* Adjusted padding */
-}
-
-/* Table Body */
-tbody tr { transition: background-color 0.2s ease; }
-tbody tr:hover { background-color: #eef2f7; }
-.no-data-message {
-    text-align: center; padding: 20px; color: var(--text-muted); font-style: italic; font-size: 0.9rem;
-}
-#dataTableBody:empty + #noDataMessage { display: block !important; }
-#dataTableBody:not(:empty) + #noDataMessage { display: none !important; }
-#dataTableBody tr td[colspan="8"] { display: none; }
-
-
-/* --- Footer Totals --- */
-tfoot { border-top: 2px solid var(--border-color); }
-tfoot th, tfoot td {
-    font-weight: 600; background-color: var(--light-color);
-    color: var(--dark-color); font-size: 0.85rem; /* Smaller */
-    padding: 10px 10px; /* Reduced padding */
-}
-tfoot th { text-align: right; padding-right: 15px; }
-tfoot td { text-align: right; font-family: 'Consolas', 'Menlo', 'Courier New', monospace; }
-/* Color coding and bolding for footer totals */
-tfoot td.total-mt { color: var(--primary-dark); font-weight: 700 !important; }
-tfoot td.total-bag { color: var(--success-color); font-weight: 700 !important; }
-
-
-/* --- Responsiveness --- */
-
-/* Adjust grid columns for filters based on width */
-@media (min-width: 450px) {
-    .filter-controls {
-        grid-template-columns: 1fr 1fr; /* Two columns */
-        gap: 12px 15px;
-    }
-     /* Make button span or place differently */
-     .form-group.button-group {
-       grid-column: span 2; /* Span full width */
-       margin-top: 8px;
-       text-align: right;
-   }
-     .clear-btn { width: auto; padding: 0 20px; } /* Auto width */
-}
-
-@media (min-width: 768px) {
-    .summary-area {
-         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Adjust summary columns */
-         gap: 10px 18px;
-    }
-     .filter-controls {
-        /* Try 3 columns + button */
-         grid-template-columns: 1fr 1fr 1fr auto;
-         gap: 15px 18px;
-    }
-     .form-group.button-group {
-        grid-column: auto; /* Button takes last column */
-        margin-top: 0;
-        text-align: left;
-    }
-     .clear-btn { width: auto; padding: 0 25px; }
-}
-
-@media (min-width: 992px) {
-     .summary-area {
-         /* Maybe force 4 columns for summary details */
-         grid-template-columns
-</style>
     <div class="container">
         <h1>Stack Data Report</h1>
         <p class="subtitle">Rudransh warehouse stack filter recorded.</p>
 
         <div class="controls-summary-section card">
-
             <div class="summary-area">
-                <div class="summary-item">
-                    <span class="label">Entries Found:</span>
-                    <strong id="displayedEntriesCount">0</strong>
-                </div>
                  <div class="summary-item">
-                    <span class="label">Date:</span>
+                    <span class="label">Total Count Van:</span>
+                    <strong id="summaryTotalCountVan">0</strong>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Selected Date:</span>
                     <strong id="selectedDate">Any</strong>
                 </div>
                 <div class="summary-item">
-                    <span class="label">Stack:</span>
+                    <span class="label">Selected Stack:</span>
                     <strong id="selectedStack">All</strong>
                 </div>
-                 <div class="summary-item">
-                    <span class="label">CAD:</span>
+                <div class="summary-item">
+                    <span class="label">Filtered CAD:</span>
                     <strong id="selectedCad">None</strong>
                 </div>
-                 <div class="summary-item">
-                    <span class="label">Entry Bag:</span>
+                <div class="summary-item">
+                    <span class="label">Total Entry Bag:</span>
                     <strong id="summaryTotalEntryBag" class="total-bag">0</strong>
                  </div>
                  <div class="summary-item">
-                    <span class="label">Entry Wt:</span>
+                    <span class="label">Total Entry Wt:</span>
                     <strong id="summaryTotalEntryWeight" class="total-mt">0.000</strong>
                  </div>
                  <div class="summary-item">
-                    <span class="label">Out Bag:</span>
+                    <span class="label">Total Out Bag:</span>
                     <strong id="summaryTotalOutBag" class="total-bag">0</strong>
                  </div>
                   <div class="summary-item">
-                    <span class="label">Out Wt:</span>
+                    <span class="label">Total Out Wt:</span>
                     <strong id="summaryTotalOutWeight" class="total-mt">0.000</strong>
                  </div>
             </div>
 
             <div class="filter-controls">
                  <div class="form-group">
-                    <label for="filterDate">Date</label>
-                    <input type="date" id="filterDate" title="Filter by Date">
+                    <label for="filterDate">Filter by Date</label>
+                    <input type="date" id="filterDate" title="Select a date to filter entries">
                 </div>
                  <div class="form-group">
-                    <label for="filterStack">Stack No</label>
-                    <select id="filterStack" title="Filter by Stack Number">
+                    <label for="filterStack">Filter by Stack No</label>
+                    <select id="filterStack" title="Select a stack number to filter entries">
                         <option value="">All Stacks</option>
                         </select>
                 </div>
                  <div class="form-group">
-                    <label for="filterCad">CAD No</label>
-                    <input type="text" id="filterCad" placeholder="Enter CAD No." title="Filter by CAD Number">
+                    <label for="filterCad">Filter by CAD No</label>
+                    <input type="text" id="filterCad" placeholder="Enter CAD No. (partial match)" title="Enter full or partial CAD number">
                 </div>
                  <div class="form-group button-group">
-                     <button id="clearFilters" class="clear-btn" title="Clear all filters">Clear</button> </div>
+                     <label for="clearFilters" style="visibility: hidden; height: 0; margin: 0;">Actions</label>
+                     <button id="clearFilters" class="clear-btn" title="Clear all filters and show all data">
+                         Clear Filters
+                     </button>
+                 </div>
             </div>
         </div>
-        <div class="table-container card">
+
+        <div class="table-section card">
              <div class="section-header">
-                 <h3>Filtered Data</h3>
+                 <h3>Filtered Stack Data</h3>
              </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Stack No</th>
-                        <th>CAD No</th>
-                        <th>Count Van</th>
-                        <th>Entry Bag</th>
-                        <th>Entry Wt (MT)</th>
-                        <th>Out Bag</th>
-                        <th>Out Wt (MT)</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTableBody">
-                     </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="4">Filtered Totals:</th>
-                        <td id="footerTotalEntryBag" class="total-bag">0</td>
-                        <td id="footerTotalEntryWeight" class="total-mt">0.000</td>
-                        <td id="footerTotalOutBag" class="total-bag">0</td>
-                        <td id="footerTotalOutWeight" class="total-mt">0.000</td>
-                    </tr>
-                </tfoot>
-            </table>
-             <div id="noDataMessage" class="no-data-message" style="display: none;">
-                No data found matching the current filters.
-            </div>
+             <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Slect Date</th>
+                            <th>Stack No</th>
+                            <th>CAD No</th>
+                            <th>Count Van</th>
+                            <th>Entry Bag</th>
+                            <th>Entry Wt (MT)</th>
+                            <th>Out Bag</th>
+                            <th>Out Wt (MT)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                         </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4">Filtered Totals:</th>
+                            <td id="footerTotalEntryBag" class="total-bag">0</td>
+                            <td id="footerTotalEntryWeight" class="total-mt">0.000</td>
+                            <td id="footerTotalOutBag" class="total-bag">0</td>
+                            <td id="footerTotalOutWeight" class="total-mt">0.000</td>
+                        </tr>
+                    </tfoot>
+                </table>
+             </div>
+             <div id="noDataMessageContainer">
+                 <div id="noDataMessage" class="no-data-message" style="display: none;">
+                    No data found matching the current filters.
+                 </div>
+             </div>
         </div>
-        </div>
+    </div>
 
-    <script> // output_script.js - Updated - Compact Layout, Precision Fix, Footer Totals
+    <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA", // IMPORTANT: Keep your API key secure!
+          authDomain: "rrr-64363.firebaseapp.com",
+          databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "rrr-64363",
+          storageBucket: "rrr-64363.appspot.com",
+          messagingSenderId: "475232352781",
+          appId: "1:475232352781:web:4d1178de814502caadf344"
+        };
 
-// --- Firebase Configuration --- (Same as before)
-const firebaseConfig = {
-  apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA",
-  authDomain: "rrr-64363.firebaseapp.com",
-  databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "rrr-64363",
-  storageBucket: "rrr-64363.appspot.com",
-  messagingSenderId: "475232352781",
-  appId: "1:475232352781:web:4d1178de814502caadf344"
-};
+        // --- Initialize Firebase ---
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const entriesRef = database.ref('entries');
 
-// --- Initialize Firebase ---
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const entriesRef = database.ref('entries');
+        // --- DOM Elements ---
+        const dataTableBody = document.getElementById('dataTableBody');
+        const filterDateInput = document.getElementById('filterDate');
+        const filterStackSelect = document.getElementById('filterStack');
+        const filterCadInput = document.getElementById('filterCad');
+        const clearFiltersButton = document.getElementById('clearFilters');
+        const noDataMessageDiv = document.getElementById('noDataMessage');
+        const noDataMessageContainer = document.getElementById('noDataMessageContainer'); // Container for the message
 
-// --- DOM Elements ---
-const dataTableBody = document.getElementById('dataTableBody');
-const filterDateInput = document.getElementById('filterDate');
-const filterStackSelect = document.getElementById('filterStack');
-const filterCadInput = document.getElementById('filterCad');
-const clearFiltersButton = document.getElementById('clearFilters');
-const noDataMessageDiv = document.getElementById('noDataMessage');
+        // Top Summary Context Elements
+        const summaryTotalCountVanEl = document.getElementById('summaryTotalCountVan'); // UPDATED ID
+        const selectedDateEl = document.getElementById('selectedDate');
+        const selectedStackEl = document.getElementById('selectedStack');
+        const selectedCadEl = document.getElementById('selectedCad');
+        // Top Summary Total Elements
+        const summaryTotalEntryBagEl = document.getElementById('summaryTotalEntryBag');
+        const summaryTotalEntryWeightEl = document.getElementById('summaryTotalEntryWeight');
+        const summaryTotalOutBagEl = document.getElementById('summaryTotalOutBag');
+        const summaryTotalOutWeightEl = document.getElementById('summaryTotalOutWeight');
 
-// Top Summary Context Elements
-const displayedEntriesCountEl = document.getElementById('displayedEntriesCount');
-const selectedDateEl = document.getElementById('selectedDate');
-const selectedStackEl = document.getElementById('selectedStack');
-const selectedCadEl = document.getElementById('selectedCad');
-// Top Summary Total Elements
-const summaryTotalEntryBagEl = document.getElementById('summaryTotalEntryBag');
-const summaryTotalEntryWeightEl = document.getElementById('summaryTotalEntryWeight');
-const summaryTotalOutBagEl = document.getElementById('summaryTotalOutBag');
-const summaryTotalOutWeightEl = document.getElementById('summaryTotalOutWeight');
+        // Footer Total Elements
+        const footerTotalEntryBagCell = document.getElementById('footerTotalEntryBag');
+        const footerTotalEntryWeightCell = document.getElementById('footerTotalEntryWeight');
+        const footerTotalOutBagCell = document.getElementById('footerTotalOutBag');
+        const footerTotalOutWeightCell = document.getElementById('footerTotalOutWeight');
 
-// Footer Total Elements (Re-added)
-const footerTotalEntryBagCell = document.getElementById('footerTotalEntryBag');
-const footerTotalEntryWeightCell = document.getElementById('footerTotalEntryWeight');
-const footerTotalOutBagCell = document.getElementById('footerTotalOutBag');
-const footerTotalOutWeightCell = document.getElementById('footerTotalOutWeight');
+        let allEntries = []; // Stores all fetched data, helps avoid re-fetching
 
-let allEntries = []; // Stores all fetched data
+        // --- Helper Functions ---
 
-// --- Functions ---
-
-/**
- * Populates the Stack Number filter dropdown.
- */
-function populateStackFilterDropdown(entries) {
-    const stackNumbers = [...new Set(entries.map(entry => entry.stackNumber).filter(Boolean))]
-                         .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-
-    filterStackSelect.innerHTML = '<option value="">All Stacks</option>';
-
-    stackNumbers.forEach(stack => {
-        const option = document.createElement('option');
-        option.value = stack;
-        option.textContent = stack;
-        filterStackSelect.appendChild(option);
-    });
-}
-
-/**
- * Updates the top summary section based on filter criteria and calculated totals.
- * @param {object} filterCriteria - The currently applied filter values.
- * @param {object} totals - Calculated totals object { entryBag, entryWt, outBag, outWt }.
- * @param {number} count - Number of entries in filteredData.
- */
-function renderSummary(filterCriteria, totals, count) {
-    // Update Summary Filter Context
-    displayedEntriesCountEl.textContent = count;
-    selectedDateEl.textContent = filterCriteria.date ? filterCriteria.date : 'Any'; // Use "Any"
-    selectedStackEl.textContent = filterCriteria.stack ? filterCriteria.stack : 'All';
-    selectedCadEl.textContent = filterCriteria.cad ? `"${filterCriteria.cad}"` : 'None';
-
-    // Update Summary Totals (Apply .toFixed(3) for weight precision)
-    summaryTotalEntryBagEl.textContent = totals.entryBag;
-    summaryTotalEntryWeightEl.textContent = totals.entryWt.toFixed(3);
-    summaryTotalOutBagEl.textContent = totals.outBag;
-    summaryTotalOutWeightEl.textContent = totals.outWt.toFixed(3);
-}
-
-/**
- * Renders the data array into the HTML table body.
- * Calculates filtered totals and updates the table footer.
- * @param {Array} dataToRender - Array of entry objects to display.
- * @returns {object} - Calculated totals { entryBag, entryWt, outBag, outWt }.
- */
-function renderTable(dataToRender) {
-    dataTableBody.innerHTML = '';
-    noDataMessageDiv.style.display = 'none';
-
-    let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0;
-    const hasData = dataToRender && dataToRender.length > 0;
-
-    if (!hasData) {
-        noDataMessageDiv.style.display = 'block';
-    } else {
-        dataToRender.forEach(entry => {
-            const row = document.createElement('tr');
-            // ... (rest of the row generation is the same)
-            const date = entry.date || '';
-            const stackNumber = entry.stackNumber || '';
-            const cadNo = entry.cadNo || '';
-            const countVan = entry.countVan || '';
-            const entryBag = entry.entryBag || '';
-            const entryWeight = entry.entryWeight || '';
-            const outBag = entry.outBag || '';
-            const outWeight = entry.outWeight || '';
-
-            row.innerHTML = `
-                <td>${date}</td>
-                <td>${stackNumber}</td>
-                <td>${cadNo}</td>
-                <td>${countVan}</td>
-                <td>${entryBag || '-'}</td>
-                <td>${entryWeight || '-'}</td>
-                <td>${outBag || '-'}</td>
-                <td>${outWeight || '-'}</td>
-            `;
-            dataTableBody.appendChild(row);
-
-            // Calculate totals
-            totalEntryBag += parseInt(entry.entryBag) || 0;
-            totalEntryWeight += parseFloat(entry.entryWeight) || 0;
-            totalOutBag += parseInt(entry.outBag) || 0;
-            totalOutWeight += parseFloat(entry.outWeight) || 0;
-        });
-    }
-
-    // Update Footer Totals (Apply .toFixed(3) for weight precision)
-    footerTotalEntryBagCell.textContent = totalEntryBag;
-    footerTotalEntryWeightCell.textContent = totalEntryWeight.toFixed(3);
-    footerTotalOutBagCell.textContent = totalOutBag;
-    footerTotalOutWeightCell.textContent = totalOutWeight.toFixed(3);
-
-    // Return calculated totals
-    return {
-        entryBag: totalEntryBag,
-        entryWt: totalEntryWeight,
-        outBag: totalOutBag,
-        outWt: totalOutWeight
-    };
-}
-
-/**
- * Fetches all entries, populates dropdown, applies filters, and renders.
- */
-function fetchAndDisplayData() {
-     noDataMessageDiv.textContent = "Loading data...";
-     noDataMessageDiv.style.display = 'block';
-     dataTableBody.innerHTML = ''; // Clear table during load
-
-    entriesRef.on('value', (snapshot) => {
-        allEntries = [];
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            allEntries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-             allEntries.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        /**
+         * Formats a date string from YYYY-MM-DD to DD/MM/YYYY.
+         * Returns '-' if the input is invalid.
+         * @param {string} dateStr - The date string in YYYY-MM-DD format.
+         * @returns {string} - Formatted date string DD/MM/YYYY or '-'.
+         */
+        function formatDateDDMMYYYY(dateStr) {
+            if (!dateStr || dateStr === '-') {
+                return '-';
+            }
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const [year, month, day] = parts;
+                    // Basic validation for parts length
+                    if (year.length === 4 && month.length === 2 && day.length === 2) {
+                         return `${day}/${month}/${year}`;
+                    }
+                }
+                return dateStr; // Return original if format is unexpected
+            } catch (error) {
+                console.warn("Could not format date:", dateStr, error);
+                return dateStr; // Return original on error
+            }
         }
-        populateStackFilterDropdown(allEntries);
-        applyFilters(); // Apply initial filters and render
-        noDataMessageDiv.textContent = "No data found matching the current filters."; // Reset message text
-        // Visibility handled by renderTable now
-    }, (error) => {
-        console.error("Error fetching data: ", error);
-         dataTableBody.innerHTML = '';
-         noDataMessageDiv.textContent = "Error loading data. Check console or try again later.";
-         noDataMessageDiv.style.display = 'block';
-        // Clear summary and footer on error
-        const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0 };
-        renderSummary({ date: '', stack: '', cad: '' }, zeroTotals, 0);
-        footerTotalEntryBagCell.textContent = '0';
-        footerTotalEntryWeightCell.textContent = '0.000';
-        footerTotalOutBagCell.textContent = '0';
-        footerTotalOutWeightCell.textContent = '0.000';
-    });
-}
 
-/**
- * Applies current filter values and renders table & summary.
- */
-function applyFilters() {
-    const filterCriteria = {
-        date: filterDateInput.value,
-        stack: filterStackSelect.value,
-        cad: filterCadInput.value // Keep original case for summary display
-    };
-    const filterCadLower = filterCriteria.cad.trim().toLowerCase(); // Use lower for matching
 
-    let filteredData = allEntries;
+        // --- Core Functions ---
 
-    if (filterCriteria.date) {
-        filteredData = filteredData.filter(entry => entry.date === filterCriteria.date);
-    }
-    if (filterCriteria.stack) {
-        filteredData = filteredData.filter(entry => entry.stackNumber === filterCriteria.stack);
-    }
-    if (filterCadLower) {
-        filteredData = filteredData.filter(entry => entry.cadNo && entry.cadNo.toLowerCase().includes(filterCadLower));
-    }
+        /**
+         * Populates the Stack Number filter dropdown with unique, sorted stack numbers.
+         * @param {Array} entries - Array of all entry objects.
+         */
+        function populateStackFilterDropdown(entries) {
+            const stackNumbers = [...new Set(entries.map(entry => entry.stackNumber).filter(Boolean))]
+                                 .sort((a, b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+            filterStackSelect.innerHTML = '<option value="">All Stacks</option>';
+            stackNumbers.forEach(stack => {
+                const option = document.createElement('option');
+                option.value = stack;
+                option.textContent = stack;
+                filterStackSelect.appendChild(option);
+            });
+        }
 
-    // Render the table first, which also calculates and returns totals
-    const totals = renderTable(filteredData);
+        /**
+         * Updates the top summary section based on filter criteria and calculated totals.
+         * @param {object} filterCriteria - The currently applied filter values { date, stack, cad }.
+         * @param {object} totals - Calculated totals object { entryBag, entryWt, outBag, outWt, countVan }. <-- ADDED countVan
+         */
+        function renderSummary(filterCriteria, totals) { // Removed 'count' param
+            // Update Summary Filter Context Display
+            summaryTotalCountVanEl.textContent = (totals.countVan || 0).toLocaleString(); // Display total countVan
+            selectedDateEl.textContent = filterCriteria.date ? formatDateDDMMYYYY(filterCriteria.date) : 'Any'; // Format date here too if needed
+            selectedStackEl.textContent = filterCriteria.stack ? filterCriteria.stack : 'All';
+            selectedCadEl.textContent = filterCriteria.cad ? `"${filterCriteria.cad}"` : 'None';
 
-    // Render the top summary using the filter criteria, calculated totals, and count
-    renderSummary(filterCriteria, totals, filteredData.length);
-}
+            // Update Summary Other Totals
+            summaryTotalEntryBagEl.textContent = (totals.entryBag || 0).toLocaleString();
+            summaryTotalEntryWeightEl.textContent = (totals.entryWt || 0).toFixed(3);
+            summaryTotalOutBagEl.textContent = (totals.outBag || 0).toLocaleString();
+            summaryTotalOutWeightEl.textContent = (totals.outWt || 0).toFixed(3);
+        }
 
-// --- Event Listeners ---
-filterDateInput.addEventListener('input', applyFilters);
-filterStackSelect.addEventListener('change', applyFilters);
-filterCadInput.addEventListener('input', applyFilters);
+        /**
+         * Renders the filtered data into the HTML table body.
+         * Calculates filtered totals (including countVan) and updates the table footer.
+         * Shows or hides the "No Data" message.
+         * @param {Array} dataToRender - Array of entry objects to display.
+         * @returns {object} - Calculated totals { entryBag, entryWt, outBag, outWt, countVan }. <-- ADDED countVan
+         */
+        function renderTable(dataToRender) {
+            dataTableBody.innerHTML = '';
+            let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0, totalCountVan = 0; // Added totalCountVan
+            const hasData = dataToRender && dataToRender.length > 0;
 
-clearFiltersButton.addEventListener('click', () => {
-    filterDateInput.value = '';
-    filterStackSelect.value = '';
-    filterCadInput.value = '';
-    applyFilters();
-});
+            if (hasData) {
+                noDataMessageContainer.style.display = 'none';
+                dataToRender.forEach(entry => {
+                    const row = dataTableBody.insertRow();
 
-// --- Initial Load ---
-document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayData();
-});
-</script>
+                    // Get values, providing defaults and parsing numbers
+                    const date = entry.date || '-';
+                    const stackNumber = entry.stackNumber || '-';
+                    const cadNo = entry.cadNo || '-';
+                    const countVan = parseInt(entry.countVan) || 0; // Parse countVan as integer, default 0
+                    const entryBag = parseInt(entry.entryBag) || 0;
+                    const entryWeight = parseFloat(entry.entryWeight) || 0.0;
+                    const outBag = parseInt(entry.outBag) || 0;
+                    const outWeight = parseFloat(entry.outWeight) || 0.0;
+
+                    // Populate cells - format numbers and date for display
+                    row.insertCell().textContent = formatDateDDMMYYYY(date); // Format date here
+                    row.insertCell().textContent = stackNumber;
+                    row.insertCell().textContent = cadNo;
+                    row.insertCell().textContent = countVan > 0 ? countVan.toLocaleString() : '-'; // Display countVan
+                    row.insertCell().textContent = entryBag > 0 ? entryBag.toLocaleString() : '-';
+                    row.insertCell().textContent = entryWeight > 0 ? entryWeight.toFixed(3) : '-';
+                    row.insertCell().textContent = outBag > 0 ? outBag.toLocaleString() : '-';
+                    row.insertCell().textContent = outWeight > 0 ? outWeight.toFixed(3) : '-';
+
+                    // Add to totals
+                    totalCountVan += countVan; // Accumulate countVan
+                    totalEntryBag += entryBag;
+                    totalEntryWeight += entryWeight;
+                    totalOutBag += outBag;
+                    totalOutWeight += outWeight;
+                });
+            } else {
+                noDataMessageContainer.style.display = 'block';
+                noDataMessageDiv.style.display = 'block';
+            }
+
+            // Update Footer Totals
+            footerTotalEntryBagCell.textContent = totalEntryBag.toLocaleString();
+            footerTotalEntryWeightCell.textContent = totalEntryWeight.toFixed(3);
+            footerTotalOutBagCell.textContent = totalOutBag.toLocaleString();
+            footerTotalOutWeightCell.textContent = totalOutWeight.toFixed(3);
+
+            // Return calculated totals including countVan
+            return {
+                entryBag: totalEntryBag,
+                entryWt: totalEntryWeight,
+                outBag: totalOutBag,
+                outWt: totalOutWeight,
+                countVan: totalCountVan // Return total countVan
+            };
+        }
+
+        /**
+         * Fetches all entries from Firebase, stores them, populates dropdown,
+         * applies initial filters, and handles loading/error states.
+         */
+        function fetchAndDisplayData() {
+             dataTableBody.innerHTML = '';
+             noDataMessageContainer.style.display = 'block';
+             noDataMessageDiv.textContent = "Loading data, please wait...";
+             noDataMessageDiv.style.display = 'block';
+             // Reset summary including the new countVan field
+             const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
+             renderSummary({ date: '', stack: '', cad: '' }, zeroTotals);
+             // Reset footer totals
+             footerTotalEntryBagCell.textContent = '0';
+             footerTotalEntryWeightCell.textContent = '0.000';
+             footerTotalOutBagCell.textContent = '0';
+             footerTotalOutWeightCell.textContent = '0.000';
+
+
+             entriesRef.on('value', (snapshot) => {
+                allEntries = [];
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    allEntries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    allEntries.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                }
+                populateStackFilterDropdown(allEntries);
+                applyFilters();
+                noDataMessageDiv.textContent = "No data found matching the current filters.";
+
+            }, (error) => {
+                console.error("Firebase data fetch error: ", error);
+                allEntries = [];
+                dataTableBody.innerHTML = '';
+                noDataMessageContainer.style.display = 'block';
+                noDataMessageDiv.textContent = "Error loading data. Please check console or try again.";
+                noDataMessageDiv.style.display = 'block';
+                // Reset summary on error
+                const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
+                renderSummary({ date: '', stack: '', cad: '' }, zeroTotals);
+                footerTotalEntryBagCell.textContent = '0';
+                footerTotalEntryWeightCell.textContent = '0.000';
+                footerTotalOutBagCell.textContent = '0';
+                footerTotalOutWeightCell.textContent = '0.000';
+            });
+        }
+
+        /**
+         * Applies current filter values to the `allEntries` array
+         * and triggers rendering of the table and summary.
+         */
+        function applyFilters() {
+            const filterCriteria = {
+                date: filterDateInput.value,
+                stack: filterStackSelect.value,
+                cad: filterCadInput.value.trim()
+            };
+            const filterCadLower = filterCriteria.cad.toLowerCase();
+
+            let filteredData = allEntries;
+
+            if (filterCriteria.date) {
+                filteredData = filteredData.filter(entry => entry.date === filterCriteria.date);
+            }
+            if (filterCriteria.stack) {
+                filteredData = filteredData.filter(entry => entry.stackNumber === filterCriteria.stack);
+            }
+            if (filterCadLower) {
+                filteredData = filteredData.filter(entry =>
+                    entry.cadNo && entry.cadNo.toLowerCase().includes(filterCadLower)
+                );
+            }
+
+            // Render table returns totals including countVan
+            const totals = renderTable(filteredData);
+
+            // Pass the filter criteria and all totals (including countVan) to renderSummary
+            renderSummary(filterCriteria, totals);
+        }
+
+        // --- Event Listeners ---
+        filterDateInput.addEventListener('input', applyFilters);
+        filterStackSelect.addEventListener('change', applyFilters);
+        filterCadInput.addEventListener('input', applyFilters);
+
+        clearFiltersButton.addEventListener('click', () => {
+            filterDateInput.value = '';
+            filterStackSelect.value = '';
+            filterCadInput.value = '';
+            applyFilters();
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplayData();
+        });
+    </script>
 </body>
 </html>
