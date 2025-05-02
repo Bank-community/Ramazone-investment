@@ -7,26 +7,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        /* --- Enhanced Design Variables & Base --- */
+        /* --- Design Variables & Base --- */
         :root {
-            --primary-color: #3498db; /* Slightly softer blue */
+            --primary-color: #3498db;
             --primary-dark: #2980b9;
-            --secondary-color: #95a5a6; /* Grey for secondary actions */
+            --secondary-color: #95a5a6;
             --secondary-dark: #7f8c8d;
-            --success-color: #2ecc71; /* Green */
+            --success-color: #2ecc71;
             --success-dark: #27ae60;
-            --danger-color: #e74c3c; /* Red (for potential future use) */
-            --light-bg: #f8f9fa; /* Light background for table header/footer */
-            --body-bg: #f0f4f8; /* Slightly bluish grey background */
+            --danger-color: #e74c3c;
+            --danger-dark: #c0392b;
+            --info-color: #3498db; /* Using primary blue for weights now */
+            --info-dark: #2980b9;
+            --light-bg: #f8f9fa;
+            --body-bg: #f0f4f8;
             --card-bg: #ffffff;
-            --text-dark: #2c3e50; /* Darker text for better contrast */
+            --text-dark: #2c3e50;
             --text-normal: #34495e;
             --text-muted: #7f8c8d;
-            --border-color: #e1e5e8; /* Lighter border */
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer, slightly larger shadow */
+            --border-color: #e1e5e8;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --card-radius: 8px;
             --input-height: 38px;
             --transition-speed: 0.3s;
@@ -35,355 +39,294 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: var(--text-normal);
-            background-color: var(--body-bg);
-            padding: 20px; /* More padding */
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif; line-height: 1.6; color: var(--text-normal);
+            background-color: var(--body-bg); padding: 20px; min-height: 100vh;
         }
-
-        .container {
-            max-width: 1300px; /* Slightly wider */
-            margin: 20px auto;
-            background: transparent;
-            padding: 0;
-        }
-
-        /* --- Card Style --- */
+        .container { max-width: 1300px; margin: 20px auto; background: transparent; padding: 0; }
         .card {
-            background-color: var(--card-bg);
-            border-radius: var(--card-radius);
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
-            margin-bottom: 25px; /* More space between cards */
-            padding: 20px 25px; /* More padding inside cards */
-            overflow: hidden; /* Contain child elements */
+            background-color: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color); margin-bottom: 25px; padding: 20px 25px; overflow: hidden;
         }
 
-        /* --- Typography --- */
-        h1 {
-            text-align: center; color: var(--text-dark); margin-bottom: 8px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.8rem;
-        }
-        .subtitle {
-            text-align: center; color: var(--text-muted); margin-bottom: 30px; /* More space below subtitle */
-            font-size: 1rem; font-weight: 400;
-        }
-        .section-header {
-            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .section-header h2, .section-header h3 {
-            color: var(--text-dark); font-weight: 600; margin: 0; padding: 0;
-            border: none; font-size: 1.2rem; /* Slightly larger section titles */
-            font-family: 'Poppins', sans-serif;
-        }
+        /* --- Typography & Icons --- */
+        h1 { text-align: center; color: var(--text-dark); margin-bottom: 8px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 1rem; font-weight: 400; }
+        .section-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .section-header h3 { color: var(--text-dark); font-weight: 600; margin: 0; font-size: 1.2rem; font-family: 'Poppins', sans-serif; }
+        .icon { margin-right: 8px; color: var(--primary-color); width: 1em; text-align: center; }
+        .summary-item .label .icon { color: var(--text-muted); }
+        .form-group label .icon { color: var(--text-dark); }
+        th .icon { color: var(--primary-dark); margin-right: 5px; }
+        .clear-btn .icon { color: white; }
 
-        /* --- Combined Controls and Summary Section --- */
+        /* --- Controls and Summary Section --- */
         .controls-summary-section { padding-bottom: 15px; }
-
-        /* Summary Area */
-        .summary-area {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px 20px; /* Increased gap */
-            margin-bottom: 25px; /* More space before filters */
-            padding-bottom: 20px; /* More padding */
-            border-bottom: 1px dashed var(--border-color); /* Subtle divider */
-        }
-        .summary-item {
-            padding: 5px; border: none; background-color: transparent;
-            display: flex; flex-direction: column; align-items: flex-start;
-        }
-        .summary-item .label {
-            font-size: 0.75rem; /* Slightly larger label */
-            color: var(--text-muted); margin-bottom: 3px;
-            font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .summary-item strong {
-            font-weight: 600;
-            font-size: 1.1rem; /* Larger value */
-            color: var(--text-dark);
-            line-height: 1.3;
-            word-break: break-word; /* Prevent long CAD from breaking layout */
-        }
-        /* Specific colors for totals */
-        .summary-item strong.total-mt { color: var(--primary-dark); font-weight: 700; }
-        .summary-item strong.total-bag { color: var(--success-dark); font-weight: 700; }
-        .summary-item strong#summaryTotalCountVan { color: var(--text-dark); font-weight: 700;} /* Style for Count Van */
+        .summary-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color); }
+        .summary-item { padding: 5px; border: none; background-color: transparent; display: flex; flex-direction: column; align-items: flex-start; }
+        .summary-item .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; }
+        .summary-item strong { font-weight: 600; font-size: 1.15rem; color: var(--text-dark); line-height: 1.3; word-break: break-word; padding-left: 24px; }
+        .summary-item strong.net-bag, .summary-item strong.net-wt { font-weight: 700; }
+        .summary-item strong.net-bag.positive { color: var(--success-dark); }
+        .summary-item strong.net-bag.negative { color: var(--danger-dark); }
+        .summary-item strong.net-wt.positive { color: var(--info-dark); } /* Using info blue for net wt */
+        .summary-item strong.net-wt.negative { color: var(--danger-dark); }
+        .summary-item strong#summaryTotalCountVan { font-weight: 700;}
 
         /* Filter Controls */
-        .filter-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Wider minmax */
-            gap: 15px 20px; /* Increased gap */
-            align-items: end; /* Align items to bottom */
-        }
-        .form-group label {
-            display: block; margin-bottom: 5px;
-            font-weight: 500; font-size: 0.8rem; /* Slightly larger label */
-            color: var(--text-dark);
-        }
-        .filter-controls input[type="text"],
-        .filter-controls input[type="date"],
-        .filter-controls select {
-            width: 100%; padding: 8px 12px; /* More padding */
-            border: 1px solid var(--border-color); border-radius: 5px; font-size: 0.9rem;
-            font-family: 'Inter', sans-serif; background-color: var(--card-bg);
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            height: var(--input-height);
-            color: var(--text-normal);
-        }
-        .filter-controls select {
-            /* Nicer dropdown arrow */
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-            background-repeat: no-repeat; background-position: right 10px center;
-            background-size: 18px 18px; padding-right: 35px; appearance: none;
-        }
-        .filter-controls input:focus,
-        .filter-controls select:focus {
-            outline: none; border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Subtle focus ring */
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-             cursor: pointer; opacity: 0.7; transition: opacity var(--transition-speed) ease;
-             padding-left: 5px;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+.filter-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive columns */
+    gap: 15px 20px; /* Spacing between grid items */
+    align-items: end; /* Align items to the bottom (useful if labels vary in height) */
+}
 
-        /* Placeholder styling */
-        ::placeholder { color: var(--text-muted); opacity: 0.8; }
+.form-group label {
+    display: flex; /* Use flex to align icon and text */
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--text-dark);
+    align-items: center; /* Vertically align icon and text */
+}
 
-        .clear-btn {
-            background-color: var(--secondary-color); color: #fff; padding: 0 20px;
-            border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;
-            font-weight: 500; transition: background-color var(--transition-speed) ease, transform 0.1s ease;
-            height: var(--input-height); line-height: var(--input-height);
-            text-align: center; width: 100%;
-            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .clear-btn:hover { background-color: var(--secondary-dark); }
-        .clear-btn:active { transform: translateY(1px); }
+/* --- Base Styling for Text, Date, Number Inputs, and Select --- */
+.filter-controls input[type="text"],
+.filter-controls input[type="date"],
+.filter-controls input[type="number"], /* ADDED: Include number input */
+.filter-controls select {
+    width: 100%; /* Take full width of the grid cell */
+    padding: 8px 12px; /* Internal spacing */
+    border: 1px solid var(--border-color); /* Standard border */
+    border-radius: 5px; /* Slightly rounded corners */
+    font-size: 0.9rem; /* Text size inside input */
+    font-family: 'Inter', sans-serif; /* Consistent font */
+    background-color: var(--card-bg); /* Background color */
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease; /* Smooth transitions on focus */
+    height: var(--input-height); /* Consistent height */
+    color: var(--text-normal); /* Text color */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Specific styling for Select dropdown arrow */
+.filter-controls select {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 18px 18px;
+    padding-right: 35px; /* Space for the arrow */
+    appearance: none; /* Remove default browser arrow */
+    -webkit-appearance: none; /* Safari/Chrome */
+    -moz-appearance: none; /* Firefox */
+}
+
+/* Focus styling for Text, Date, Number Inputs, and Select */
+.filter-controls input[type="text"]:focus,
+.filter-controls input[type="date"]:focus,
+.filter-controls input[type="number"]:focus, /* ADDED: Include number input focus */
+.filter-controls select:focus {
+    outline: none; /* Remove default outline */
+    border-color: var(--primary-color); /* Highlight border */
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Add a subtle glow */
+}
+
+/* Styling for Date Input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity var(--transition-speed) ease;
+    padding-left: 5px;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Placeholder text styling */
+::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+/* --- Styling for Number Input Spinners (Optional but Recommended) --- */
+/* Hide spinners for WebKit browsers (Chrome, Safari, Edge, Opera) */
+.filter-controls input[type="number"]::-webkit-outer-spin-button,
+.filter-controls input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* Remove default spinner */
+    margin: 0; /* Remove any potential margin */
+}
+/* Hide spinners for Firefox */
+.filter-controls input[type="number"] {
+    -moz-appearance: textfield; /* Style as a text field to hide spinner */
+}
+
+/* Clear Button Styling */
+.clear-btn {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 0 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color var(--transition-speed) ease, transform 0.1s ease;
+    height: var(--input-height); /* Match input height */
+    line-height: var(--input-height); /* Center text vertically */
+    text-align: center;
+    width: 100%; /* Take full width */
+    display: inline-flex; /* Use flex for icon alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+}
+.clear-btn:hover {
+    background-color: var(--secondary-dark); /* Darker on hover */
+}
+.clear-btn:active {
+    transform: translateY(1px); /* Simple press effect */
+}
 
         /* --- Table Styling --- */
-        .table-container {
-            margin-top: 25px; /* More space above table */
-            overflow-x: auto; /* Enable horizontal scroll on small screens */
-        }
-        table {
-            width: 100%; border-collapse: collapse; font-size: 0.88rem; /* Slightly larger base font */
-            border: 1px solid var(--border-color); /* Add outer border */
-            border-radius: var(--card-radius); /* Match card radius */
-            overflow: hidden; /* Needed for border-radius on table */
-        }
-
-        th, td {
-            border: none; /* Remove individual cell borders */
-            border-bottom: 1px solid var(--border-color); /* Horizontal lines */
-            padding: 10px 15px; /* More padding */
-            text-align: center; white-space: nowrap; vertical-align: middle;
-            color: var(--text-normal);
-        }
-        tbody tr:last-child td { border-bottom: none; } /* Remove last row border */
+        .table-container { margin-top: 25px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; border: 1px solid var(--border-color); border-radius: var(--card-radius); overflow: hidden; }
+        th, td { border: none; border-bottom: 1px solid var(--border-color); padding: 10px 15px; text-align: center; white-space: nowrap; vertical-align: middle; color: var(--text-normal); }
+        tbody tr:last-child td, tfoot tr:last-child td { border-bottom: none; } /* No border below last body row or footer row */
 
         /* Table Header */
-        thead th {
-            background-color: var(--light-bg); font-weight: 600; color: var(--text-dark);
-            position: sticky; top: 0; z-index: 1;
-            border-bottom: 2px solid var(--primary-color); /* Stronger bottom border */
-            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
-            padding: 12px 15px; /* Header padding */
-        }
+        thead th { background-color: var(--light-bg); font-weight: 600; color: var(--text-dark); position: sticky; top: 0; z-index: 1; border-bottom: 2px solid var(--primary-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 15px; }
+        thead th .icon { vertical-align: middle; }
 
         /* Table Body */
         tbody tr { transition: background-color var(--transition-speed) ease; }
-        tbody tr:nth-child(even) { background-color: #fdfdfe; } /* Subtle zebra striping */
-        tbody tr:hover { background-color: #eef4f8; } /* Hover effect */
+        tbody tr:nth-child(even) { background-color: #fdfdfe; }
+        tbody tr:hover { background-color: #eef4f8; }
 
-        /* Specific cell alignment/styling */
-         td:nth-child(5), td:nth-child(7) { text-align: center; } /* Entry/Out Bag */
-         td:nth-child(6), td:nth-child(8) { text-align: center; font-family: 'Courier New', Courier, monospace; } /* Entry/Out Wt */
-         td:nth-child(1), td:nth-child(3) { white-space: normal; word-break: break-word; } /* Allow wrap for Date & CAD */
+        /* Specific Column Styles */
+        td:nth-child(5), td:nth-child(7) { text-align: center; } /* Entry/Out Bag */
+        td:nth-child(6), td:nth-child(8) { text-align: center; font-family: 'Courier New', Courier, monospace; } /* Entry/Out Wt */
+        /* Count Van styling (non-numeric text) */
+        td.count-van-text { font-style: italic; color: var(--text-normal); font-family: 'Inter', sans-serif; white-space: normal; word-break: break-word; } /* Allow text wrap */
+        /* Count Van styling (numeric) */
+        td.count-van-numeric { font-style: normal; color: var(--text-normal); font-family: 'Inter', sans-serif; }
 
-         /* --- NEW: Style for Stack No column in body --- */
-         tbody td:nth-child(2) {
-            font-weight: 700; /* Bold */
-            color: #000000;   /* Black */
-         }
+        td:nth-child(1), td:nth-child(3) { white-space: normal; word-break: break-word; } /* Allow wrap for Date & CAD */
+        tbody td:nth-child(2) { font-weight: 700; color: #000000; } /* Stack No */
 
-        /* No Data Message */
-        .no-data-message {
-            text-align: center; padding: 40px 20px; color: var(--text-muted); font-style: italic; font-size: 1rem;
-            background-color: var(--light-bg); border-radius: 0 0 var(--card-radius) var(--card-radius); /* Match table bottom */
-        }
-        /* Logic handled by JS */
+        /* No Data / Loading Message */
+        .message-container { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 1rem; background-color: var(--light-bg); border-radius: 0 0 var(--card-radius) var(--card-radius); }
+        .message-container .icon { margin-right: 10px; font-size: 1.2em; vertical-align: middle;}
+        .fa-spinner { animation: fa-spin 2s infinite linear; }
+        @keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- Footer Totals --- */
+        /* --- Footer Totals (Single Row, Aligned) --- */
         tfoot { border-top: 2px solid var(--primary-color); background-color: var(--light-bg); }
-        tfoot th, tfoot td {
-            font-weight: 600; color: var(--text-dark); font-size: 0.9rem;
-            padding: 12px 15px; /* Footer padding */
-            border-bottom: none; /* Remove tfoot bottom border */
-        }
-        tfoot th { text-align: center; padding-right: 20px; }
+        tfoot th, tfoot td { font-weight: 700; color: var(--text-dark); font-size: 0.9rem; padding: 12px 15px; vertical-align: middle; }
+        tfoot th { text-align: right; padding-right: 20px; color: var(--text-muted); } /* Label style */
         tfoot td { text-align: center; font-family: 'Courier New', Courier, monospace; }
-        /* Color coding and bolding for footer totals */
-        tfoot td.total-mt { color: var(--primary-dark); font-weight: 700 !important; }
-        tfoot td.total-bag { color: var(--success-dark); font-weight: 700 !important; }
 
+        /* Specific Footer Total Colors */
+        tfoot td.entry-bag, tfoot td.out-bag { color: var(--success-dark); }
+        tfoot td.entry-wt, tfoot td.out-wt { color: var(--info-dark); } /* All weights blue */
 
         /* --- Responsiveness --- */
         @media (max-width: 992px) {
-            .filter-controls {
-                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            }
+            .filter-controls { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+            .summary-area { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
         }
-
         @media (max-width: 768px) {
             body { padding: 15px; }
             .card { padding: 15px 20px; }
             h1 { font-size: 1.6rem; }
             .subtitle { font-size: 0.9rem; margin-bottom: 20px;}
             .summary-area { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px 15px; padding-bottom: 15px; margin-bottom: 20px; }
-             .summary-item strong { font-size: 1rem; }
-             .filter-controls { grid-template-columns: 1fr 1fr; gap: 12px 15px;} /* Force 2 columns */
-             .form-group.button-group { grid-column: span 2; margin-top: 10px; } /* Button spans full width */
-             .clear-btn { width: 100%; }
-             th, td { padding: 8px 10px; }
-             thead th { padding: 10px 10px; font-size: 0.75rem; }
-             tfoot th, tfoot td { padding: 10px 10px; font-size: 0.85rem; }
-             .no-data-message { padding: 30px 15px; }
+            .summary-item strong { font-size: 1.1rem; padding-left: 20px;}
+            .filter-controls { grid-template-columns: 1fr 1fr; gap: 12px 15px;}
+            .form-group.button-group { grid-column: span 2; margin-top: 10px; }
+            .clear-btn { width: 100%; }
+            th, td { padding: 8px 10px; } /* Reduce padding globally */
+            thead th { padding: 10px 10px; font-size: 0.75rem; }
+            tfoot th, tfoot td { padding: 10px 10px; font-size: 0.85rem; } /* Footer padding */
+            .message-container { padding: 30px 15px; }
+            /* Ensure count van text wraps on mobile */
+             td.count-van-text { white-space: normal; }
         }
-
         @media (max-width: 480px) {
              body { padding: 10px; }
              .card { padding: 15px; }
              h1 { font-size: 1.4rem; }
              .subtitle { font-size: 0.85rem;}
-             .summary-area { grid-template-columns: 1fr 1fr; gap: 10px; } /* Force 2 columns */
-             .filter-controls { grid-template-columns: 1fr; } /* Force 1 column */
+             .summary-area { grid-template-columns: 1fr 1fr; gap: 10px; }
+             .summary-item strong { font-size: 1rem; padding-left: 0; }
+             .filter-controls { grid-template-columns: 1fr; }
              .form-group.button-group { grid-column: span 1; }
-             th, td { font-size: 0.8rem; }
+             th, td { font-size: 0.8rem; padding: 6px 8px; } /* Further reduce padding */
              thead th { font-size: 0.7rem; }
+             /* Single row footer should behave better now, but adjust if needed */
+             tfoot th { text-align: center; font-size: 0.75rem; }
+             tfoot td { font-size: 0.8rem; padding: 8px 5px;} /* Adjust footer cell padding */
         }
 
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Stack Data Report</h1>
+        <h1><i class="fas fa-warehouse icon"></i>Stack Data Report</h1>
         <p class="subtitle">Rudransh warehouse stack filter recorded.</p>
 
         <div class="controls-summary-section card">
             <div class="summary-area">
-                 <div class="summary-item">
-                    <span class="label">Total Count Van:</span>
-                    <strong id="summaryTotalCountVan">0</strong>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Selected Date:</span>
-                    <strong id="selectedDate">Any</strong>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Selected Stack:</span>
-                    <strong id="selectedStack">All</strong>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Filtered CAD:</span>
-                    <strong id="selectedCad">None</strong>
-                </div>
-                <div class="summary-item">
-                    <span class="label">Total Entry Bag:</span>
-                    <strong id="summaryTotalEntryBag" class="total-bag">0</strong>
-                 </div>
-                 <div class="summary-item">
-                    <span class="label">Total Entry Wt:</span>
-                    <strong id="summaryTotalEntryWeight" class="total-mt">0.000</strong>
-                 </div>
-                 <div class="summary-item">
-                    <span class="label">Total Out Bag:</span>
-                    <strong id="summaryTotalOutBag" class="total-bag">0</strong>
-                 </div>
-                  <div class="summary-item">
-                    <span class="label">Total Out Wt:</span>
-                    <strong id="summaryTotalOutWeight" class="total-mt">0.000</strong>
-                 </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-truck icon"></i>Count Van:</span> <strong id="summaryTotalCountVan">0</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-calendar-alt icon"></i> Date:</span> <strong id="selectedDate">Any</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-layer-group icon"></i> Stack:</span> <strong id="selectedStack">All</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-barcode icon"></i> CAD/CDF:</span> <strong id="selectedCad">None</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-weight-hanging icon"></i>Net Bag:</span> <strong id="summaryNetBag" class="net-bag">0</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-balance-scale-left icon"></i>Net Wt (MT):</span> <strong id="summaryNetWeight" class="net-wt">0.000</strong> </div>
             </div>
-
             <div class="filter-controls">
-                 <div class="form-group">
-                    <label for="filterDate">Filter by Date</label>
-                    <input type="date" id="filterDate" title="Select a date to filter entries">
-                </div>
-                 <div class="form-group">
-                    <label for="filterStack">Filter by Stack No</label>
-                    <select id="filterStack" title="Select a stack number to filter entries">
-                        <option value="">All Stacks</option>
-                        </select>
-                </div>
-                 <div class="form-group">
-                    <label for="filterCad">Filter by CAD No</label>
-                    <input type="text" id="filterCad" placeholder="Enter CAD No. (partial match)" title="Enter full or partial CAD number">
-                </div>
-                 <div class="form-group button-group">
-                     <label for="clearFilters" style="visibility: hidden; height: 0; margin: 0;">Actions</label>
-                     <button id="clearFilters" class="clear-btn" title="Clear all filters and show all data">
-                         Clear Filters
-                     </button>
-                 </div>
+                 <div class="form-group"> <label for="filterDate"><i class="fas fa-calendar-day icon"></i>Filter by Date</label> <input type="date" id="filterDate" title="Select a date to filter entries"> </div>
+                 <div class="form-group"> <label for="filterStack"><i class="fas fa-layer-group icon"></i>Filter by Stack No</label> <select id="filterStack" title="Select a stack number"><option value="">All Stacks</option></select> </div>
+                 <div class="form-group"> <label for="filterCad"><i class="fas fa-barcode icon"></i>Filter by CAD/CDF No</label> <input type="number" id="filterCad" placeholder="Enter CAD/CDF No. (partial match)" title="Enter full or partial CAD number"> </div>
+                 <div class="form-group button-group"> <label for="clearFilters" style="visibility: hidden; height: 0; margin: 0;">Actions</label> <button id="clearFilters" class="clear-btn" title="Clear all filters"><i class="fas fa-times-circle icon"></i>Clear Filters</button> </div>
             </div>
         </div>
 
         <div class="table-section card">
-             <div class="section-header">
-                 <h3>Filtered Stack Data</h3>
-             </div>
+             <div class="section-header"> <h3><i class="fas fa-filter icon"></i>Filtered Stack Data</h3> </div>
              <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Slect Date</th>
-                            <th>Stack No</th>
-                            <th>CAD No</th>
-                            <th>Count Van</th>
-                            <th>Entry Bag</th>
-                            <th>Entry Wt (MT)</th>
-                            <th>Out Bag</th>
-                            <th>Out Wt (MT)</th>
+                            <th><i class="fas fa-calendar-alt icon"></i>Issu of Date</th>
+                            <th><i class="fas fa-layer-group icon"></i>Stack No</th>
+                            <th><i class="fas fa-barcode icon"></i>CAD/CDF No</th>
+                            <th><i class="fas fa-truck icon"></i>Count Van</th>
+                            <th><i class="fas fa-sign-in-alt icon"></i>Entry Bag</th>
+                            <th><i class="fas fa-weight-hanging icon"></i>Entry Wt (MT)</th>
+                            <th><i class="fas fa-sign-out-alt icon"></i>Out Bag</th>
+                            <th><i class="fas fa-weight-hanging icon"></i>Out Wt (MT)</th>
                         </tr>
                     </thead>
                     <tbody id="dataTableBody">
                          </tbody>
-                    <tfoot>
+                    <tfoot id="dataTableFooter">
                         <tr>
-                            <th colspan="4">Filtered Totals:</th>
-                            <td id="footerTotalEntryBag" class="total-bag">0</td>
-                            <td id="footerTotalEntryWeight" class="total-mt">0.000</td>
-                            <td id="footerTotalOutBag" class="total-bag">0</td>
-                            <td id="footerTotalOutWeight" class="total-mt">0.000</td>
-                        </tr>
+                            <th colspan="4">Totals:</th> <td id="footerTotalEntryBag" class="entry-bag">0</td>     <td id="footerTotalEntryWeight" class="entry-wt">0.000</td> <td id="footerTotalOutBag" class="out-bag">0</td> <td id="footerTotalOutWeight" class="out-wt">0.000</td></tr>
                     </tfoot>
                 </table>
              </div>
-             <div id="noDataMessageContainer">
-                 <div id="noDataMessage" class="no-data-message" style="display: none;">
-                    No data found matching the current filters.
-                 </div>
-             </div>
+             <div id="messageContainer" class="message-container" style="display: none;"> <span id="messageText"></span> </div>
         </div>
     </div>
 
     <script>
         // --- Firebase Configuration ---
         const firebaseConfig = {
-          apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA", // IMPORTANT: Keep your API key secure!
-          authDomain: "rrr-64363.firebaseapp.com",
-          databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "rrr-64363",
-          storageBucket: "rrr-64363.appspot.com",
-          messagingSenderId: "475232352781",
-          appId: "1:475232352781:web:4d1178de814502caadf344"
+            apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA", // Replace with your actual API key
+            authDomain: "rrr-64363.firebaseapp.com",
+            databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rrr-64363",
+            storageBucket: "rrr-64363.appspot.com",
+            messagingSenderId: "475232352781",
+            appId: "1:475232352781:web:4d1178de814502caadf344"
         };
 
         // --- Initialize Firebase ---
@@ -393,181 +336,179 @@
 
         // --- DOM Elements ---
         const dataTableBody = document.getElementById('dataTableBody');
+        const dataTableFooter = document.getElementById('dataTableFooter');
         const filterDateInput = document.getElementById('filterDate');
         const filterStackSelect = document.getElementById('filterStack');
         const filterCadInput = document.getElementById('filterCad');
         const clearFiltersButton = document.getElementById('clearFilters');
-        const noDataMessageDiv = document.getElementById('noDataMessage');
-        const noDataMessageContainer = document.getElementById('noDataMessageContainer'); // Container for the message
+        const messageContainer = document.getElementById('messageContainer');
+        const messageText = document.getElementById('messageText');
 
-        // Top Summary Context Elements
-        const summaryTotalCountVanEl = document.getElementById('summaryTotalCountVan'); // UPDATED ID
+        // Summary Elements
+        const summaryTotalCountVanEl = document.getElementById('summaryTotalCountVan');
         const selectedDateEl = document.getElementById('selectedDate');
         const selectedStackEl = document.getElementById('selectedStack');
         const selectedCadEl = document.getElementById('selectedCad');
-        // Top Summary Total Elements
-        const summaryTotalEntryBagEl = document.getElementById('summaryTotalEntryBag');
-        const summaryTotalEntryWeightEl = document.getElementById('summaryTotalEntryWeight');
-        const summaryTotalOutBagEl = document.getElementById('summaryTotalOutBag');
-        const summaryTotalOutWeightEl = document.getElementById('summaryTotalOutWeight');
+        const summaryNetBagEl = document.getElementById('summaryNetBag');
+        const summaryNetWeightEl = document.getElementById('summaryNetWeight');
 
-        // Footer Total Elements
+        // Footer Total Elements (Single Row)
         const footerTotalEntryBagCell = document.getElementById('footerTotalEntryBag');
         const footerTotalEntryWeightCell = document.getElementById('footerTotalEntryWeight');
         const footerTotalOutBagCell = document.getElementById('footerTotalOutBag');
         const footerTotalOutWeightCell = document.getElementById('footerTotalOutWeight');
 
-        let allEntries = []; // Stores all fetched data, helps avoid re-fetching
+        let allEntries = [];
 
         // --- Helper Functions ---
-
-        /**
-         * Formats a date string from YYYY-MM-DD to DD/MM/YYYY.
-         * Returns '-' if the input is invalid.
-         * @param {string} dateStr - The date string in YYYY-MM-DD format.
-         * @returns {string} - Formatted date string DD/MM/YYYY or '-'.
-         */
-        function formatDateDDMMYYYY(dateStr) {
-            if (!dateStr || dateStr === '-') {
-                return '-';
-            }
+        function formatDateDDMMYYYY(dateStr) { /* ... (same as before) ... */
+            if (!dateStr || dateStr === '-') { return '-'; }
             try {
                 const parts = dateStr.split('-');
-                if (parts.length === 3) {
-                    const [year, month, day] = parts;
-                    // Basic validation for parts length
-                    if (year.length === 4 && month.length === 2 && day.length === 2) {
-                         return `${day}/${month}/${year}`;
-                    }
-                }
-                return dateStr; // Return original if format is unexpected
-            } catch (error) {
-                console.warn("Could not format date:", dateStr, error);
-                return dateStr; // Return original on error
-            }
-        }
-
+                if (parts.length === 3) { const [y, m, d] = parts; if (y.length === 4 && m.length === 2 && d.length === 2) { return `${d}/${m}/${y}`; } }
+                return dateStr;
+            } catch (e) { console.warn("Date format error:", dateStr, e); return dateStr; }
+         }
+        function applyNetValueStyle(element, value) { /* ... (same as before) ... */
+             element.classList.remove('positive', 'negative');
+             if (value > 0) element.classList.add('positive');
+             else if (value < 0) element.classList.add('negative');
+         }
 
         // --- Core Functions ---
-
-        /**
-         * Populates the Stack Number filter dropdown with unique, sorted stack numbers.
-         * @param {Array} entries - Array of all entry objects.
-         */
-        function populateStackFilterDropdown(entries) {
+        function populateStackFilterDropdown(entries) { /* ... (same as before) ... */
             const stackNumbers = [...new Set(entries.map(entry => entry.stackNumber).filter(Boolean))]
                                  .sort((a, b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
             filterStackSelect.innerHTML = '<option value="">All Stacks</option>';
             stackNumbers.forEach(stack => {
                 const option = document.createElement('option');
-                option.value = stack;
-                option.textContent = stack;
+                option.value = stack; option.textContent = stack;
                 filterStackSelect.appendChild(option);
             });
-        }
+         }
 
-        /**
-         * Updates the top summary section based on filter criteria and calculated totals.
-         * @param {object} filterCriteria - The currently applied filter values { date, stack, cad }.
-         * @param {object} totals - Calculated totals object { entryBag, entryWt, outBag, outWt, countVan }. <-- ADDED countVan
-         */
-        function renderSummary(filterCriteria, totals) { // Removed 'count' param
-            // Update Summary Filter Context Display
-            summaryTotalCountVanEl.textContent = (totals.countVan || 0).toLocaleString(); // Display total countVan
-            selectedDateEl.textContent = filterCriteria.date ? formatDateDDMMYYYY(filterCriteria.date) : 'Any'; // Format date here too if needed
+        function renderSummary(filterCriteria, totals) { /* ... (same as before, uses numeric count van sum) ... */
+            summaryTotalCountVanEl.textContent = (totals.countVan || 0).toLocaleString();
+            selectedDateEl.textContent = filterCriteria.date ? formatDateDDMMYYYY(filterCriteria.date) : 'Any';
             selectedStackEl.textContent = filterCriteria.stack ? filterCriteria.stack : 'All';
             selectedCadEl.textContent = filterCriteria.cad ? `"${filterCriteria.cad}"` : 'None';
 
-            // Update Summary Other Totals
-            summaryTotalEntryBagEl.textContent = (totals.entryBag || 0).toLocaleString();
-            summaryTotalEntryWeightEl.textContent = (totals.entryWt || 0).toFixed(3);
-            summaryTotalOutBagEl.textContent = (totals.outBag || 0).toLocaleString();
-            summaryTotalOutWeightEl.textContent = (totals.outWt || 0).toFixed(3);
-        }
+            const netBag = (totals.entryBag || 0) - (totals.outBag || 0);
+            const netWt = (totals.entryWt || 0) - (totals.outWt || 0);
+            summaryNetBagEl.textContent = netBag.toLocaleString();
+            summaryNetWeightEl.textContent = netWt.toFixed(3);
+            applyNetValueStyle(summaryNetBagEl, netBag);
+            applyNetValueStyle(summaryNetWeightEl, netWt);
+         }
 
-        /**
-         * Renders the filtered data into the HTML table body.
-         * Calculates filtered totals (including countVan) and updates the table footer.
-         * Shows or hides the "No Data" message.
-         * @param {Array} dataToRender - Array of entry objects to display.
-         * @returns {object} - Calculated totals { entryBag, entryWt, outBag, outWt, countVan }. <-- ADDED countVan
-         */
         function renderTable(dataToRender) {
             dataTableBody.innerHTML = '';
-            let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0, totalCountVan = 0; // Added totalCountVan
+            let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0, numericTotalCountVan = 0; // Sum only numbers
             const hasData = dataToRender && dataToRender.length > 0;
 
             if (hasData) {
-                noDataMessageContainer.style.display = 'none';
+                hideMessage();
                 dataToRender.forEach(entry => {
                     const row = dataTableBody.insertRow();
 
-                    // Get values, providing defaults and parsing numbers
-                    const date = entry.date || '-';
-                    const stackNumber = entry.stackNumber || '-';
-                    const cadNo = entry.cadNo || '-';
-                    const countVan = parseInt(entry.countVan) || 0; // Parse countVan as integer, default 0
+                    // --- Refined Count Van Handling ---
+                    const countVanRaw = entry.countVan; // Get original value
+                    let countVanDisplay = '-';
+                    let isNumericVan = false;
+                    let isTextVan = false;
+
+                    if (countVanRaw !== null && countVanRaw !== undefined) {
+                        const countVanString = String(countVanRaw).trim(); // Convert to string and trim
+                        if (countVanString !== '') {
+                            const countVanParsed = parseInt(countVanString);
+
+                            if (!isNaN(countVanParsed)) { // It's a number (could be 0)
+                                if (countVanParsed !== 0) {
+                                    countVanDisplay = countVanParsed.toLocaleString();
+                                    numericTotalCountVan += countVanParsed; // Add non-zero numbers to sum
+                                    isNumericVan = true;
+                                } else {
+                                    countVanDisplay = '0'; // Display '0' if it was '0'
+                                    isNumericVan = true;
+                                }
+                            } else {
+                                // It's not a number, display the original text
+                                countVanDisplay = countVanString; // Use the trimmed string
+                                isTextVan = true;
+                            }
+                        }
+                    } // If raw value is null/undefined or empty string, display remains '-'
+                    // ---------------------------------
+
                     const entryBag = parseInt(entry.entryBag) || 0;
                     const entryWeight = parseFloat(entry.entryWeight) || 0.0;
                     const outBag = parseInt(entry.outBag) || 0;
                     const outWeight = parseFloat(entry.outWeight) || 0.0;
 
-                    // Populate cells - format numbers and date for display
-                    row.insertCell().textContent = formatDateDDMMYYYY(date); // Format date here
-                    row.insertCell().textContent = stackNumber;
-                    row.insertCell().textContent = cadNo;
-                    row.insertCell().textContent = countVan > 0 ? countVan.toLocaleString() : '-'; // Display countVan
+                    // Populate Cells
+                    row.insertCell().textContent = formatDateDDMMYYYY(entry.date || '-');
+                    row.insertCell().textContent = entry.stackNumber || '-';
+                    row.insertCell().textContent = entry.cadNo || '-';
+
+                    const vanCell = row.insertCell();
+                    vanCell.textContent = countVanDisplay;
+                    // Apply specific class for styling text vs number
+                    if (isTextVan) {
+                        vanCell.classList.add('count-van-text');
+                    } else if (isNumericVan) {
+                         vanCell.classList.add('count-van-numeric');
+                    } // Default styling if '-'
+
                     row.insertCell().textContent = entryBag > 0 ? entryBag.toLocaleString() : '-';
                     row.insertCell().textContent = entryWeight > 0 ? entryWeight.toFixed(3) : '-';
                     row.insertCell().textContent = outBag > 0 ? outBag.toLocaleString() : '-';
                     row.insertCell().textContent = outWeight > 0 ? outWeight.toFixed(3) : '-';
 
-                    // Add to totals
-                    totalCountVan += countVan; // Accumulate countVan
+                    // Accumulate other totals
                     totalEntryBag += entryBag;
                     totalEntryWeight += entryWeight;
                     totalOutBag += outBag;
                     totalOutWeight += outWeight;
                 });
-            } else {
-                noDataMessageContainer.style.display = 'block';
-                noDataMessageDiv.style.display = 'block';
             }
 
-            // Update Footer Totals
+            // --- Update Footer (Single Row) ---
             footerTotalEntryBagCell.textContent = totalEntryBag.toLocaleString();
             footerTotalEntryWeightCell.textContent = totalEntryWeight.toFixed(3);
             footerTotalOutBagCell.textContent = totalOutBag.toLocaleString();
             footerTotalOutWeightCell.textContent = totalOutWeight.toFixed(3);
 
-            // Return calculated totals including countVan
+            // Return totals needed for summary (using numeric count van sum)
             return {
-                entryBag: totalEntryBag,
-                entryWt: totalEntryWeight,
-                outBag: totalOutBag,
-                outWt: totalOutWeight,
-                countVan: totalCountVan // Return total countVan
+                entryBag: totalEntryBag, entryWt: totalEntryWeight,
+                outBag: totalOutBag, outWt: totalOutWeight,
+                countVan: numericTotalCountVan
             };
         }
 
-        /**
-         * Fetches all entries from Firebase, stores them, populates dropdown,
-         * applies initial filters, and handles loading/error states.
-         */
+        function showMessage(text, showSpinner = false) { /* ... (same as before) ... */
+            messageText.innerHTML = `${showSpinner ? '<i class="fas fa-spinner icon"></i>' : '<i class="fas fa-info-circle icon"></i>'} ${text}`;
+            messageContainer.style.display = 'block';
+            dataTableBody.style.display = 'none';
+            dataTableFooter.style.display = 'none';
+        }
+        function hideMessage() { /* ... (same as before) ... */
+            messageContainer.style.display = 'none';
+            dataTableBody.style.display = '';
+            dataTableFooter.style.display = ''; // Use default display (table-footer-group)
+        }
+
         function fetchAndDisplayData() {
              dataTableBody.innerHTML = '';
-             noDataMessageContainer.style.display = 'block';
-             noDataMessageDiv.textContent = "Loading data, please wait...";
-             noDataMessageDiv.style.display = 'block';
-             // Reset summary including the new countVan field
+             showMessage("Loading data, please wait...", true);
+
+             // Reset summary and footer (single row)
              const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
              renderSummary({ date: '', stack: '', cad: '' }, zeroTotals);
-             // Reset footer totals
              footerTotalEntryBagCell.textContent = '0';
              footerTotalEntryWeightCell.textContent = '0.000';
              footerTotalOutBagCell.textContent = '0';
              footerTotalOutWeightCell.textContent = '0.000';
-
 
              entriesRef.on('value', (snapshot) => {
                 allEntries = [];
@@ -575,19 +516,19 @@
                     const data = snapshot.val();
                     allEntries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
                     allEntries.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                    populateStackFilterDropdown(allEntries);
+                    applyFilters(); // Initial render
+                } else {
+                    allEntries = [];
+                    populateStackFilterDropdown(allEntries);
+                    applyFilters(); // Render empty state
                 }
-                populateStackFilterDropdown(allEntries);
-                applyFilters();
-                noDataMessageDiv.textContent = "No data found matching the current filters.";
-
             }, (error) => {
                 console.error("Firebase data fetch error: ", error);
                 allEntries = [];
-                dataTableBody.innerHTML = '';
-                noDataMessageContainer.style.display = 'block';
-                noDataMessageDiv.textContent = "Error loading data. Please check console or try again.";
-                noDataMessageDiv.style.display = 'block';
-                // Reset summary on error
+                showMessage("Error loading data. Please check console or try again.", false);
+                populateStackFilterDropdown(allEntries);
+                // Reset summary and footer on error
                 const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
                 renderSummary({ date: '', stack: '', cad: '' }, zeroTotals);
                 footerTotalEntryBagCell.textContent = '0';
@@ -597,55 +538,36 @@
             });
         }
 
-        /**
-         * Applies current filter values to the `allEntries` array
-         * and triggers rendering of the table and summary.
-         */
         function applyFilters() {
-            const filterCriteria = {
-                date: filterDateInput.value,
-                stack: filterStackSelect.value,
-                cad: filterCadInput.value.trim()
-            };
+            const filterCriteria = { date: filterDateInput.value, stack: filterStackSelect.value, cad: filterCadInput.value.trim() };
             const filterCadLower = filterCriteria.cad.toLowerCase();
-
             let filteredData = allEntries;
 
-            if (filterCriteria.date) {
-                filteredData = filteredData.filter(entry => entry.date === filterCriteria.date);
-            }
-            if (filterCriteria.stack) {
-                filteredData = filteredData.filter(entry => entry.stackNumber === filterCriteria.stack);
-            }
-            if (filterCadLower) {
-                filteredData = filteredData.filter(entry =>
-                    entry.cadNo && entry.cadNo.toLowerCase().includes(filterCadLower)
-                );
-            }
+            if (filterCriteria.date) filteredData = filteredData.filter(e => e.date === filterCriteria.date);
+            if (filterCriteria.stack) filteredData = filteredData.filter(e => e.stackNumber === filterCriteria.stack);
+            if (filterCadLower) filteredData = filteredData.filter(e => e.cadNo && e.cadNo.toLowerCase().includes(filterCadLower));
 
-            // Render table returns totals including countVan
+            // Render table (updates footer) and get totals
             const totals = renderTable(filteredData);
-
-            // Pass the filter criteria and all totals (including countVan) to renderSummary
+            // Update summary display
             renderSummary(filterCriteria, totals);
+
+             // Show "No data" message if needed
+             if (filteredData.length === 0 && allEntries.length >= 0) {
+                 if (!messageText.textContent.includes("Loading")) { showMessage("No data found matching the current filters.", false); }
+             } else if (filteredData.length > 0) {
+                  hideMessage();
+             }
         }
 
         // --- Event Listeners ---
         filterDateInput.addEventListener('input', applyFilters);
         filterStackSelect.addEventListener('change', applyFilters);
         filterCadInput.addEventListener('input', applyFilters);
-
-        clearFiltersButton.addEventListener('click', () => {
-            filterDateInput.value = '';
-            filterStackSelect.value = '';
-            filterCadInput.value = '';
-            applyFilters();
-        });
+        clearFiltersButton.addEventListener('click', () => { filterDateInput.value = ''; filterStackSelect.value = ''; filterCadInput.value = ''; applyFilters(); });
 
         // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchAndDisplayData();
-        });
+        document.addEventListener('DOMContentLoaded', () => { fetchAndDisplayData(); });
     </script>
 </body>
 </html>
