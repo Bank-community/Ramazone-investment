@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry & Management</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        /* Loader and other specific styles from previous step */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #dataTableBody td[colspan="9"] { /* Colspan updated back to 9 */
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+            color: #777;
+        }
+         #dataTableBody.loading td[colspan="9"]::after { /* Colspan updated */
+             content: "";
+             display: block;
+             border: 4px solid #f3f3f3;
+             border-top: 4px solid #3498db;
+             border-radius: 50%;
+             width: 25px;
+             height: 25px;
+             animation: spin 1s linear infinite;
+             margin: 10px auto 0;
+         }
+
+        /* Styling for Net Balance Section */
+        .net-balance-section {
+            background-color: #e9f5ff; /* Light blue background */
+            border: 1px solid #bce0fd; /* Blue border */
+            border-radius: 6px;
+            padding: 12px 18px; /* Adjusted padding */
+            margin: 15px 0 25px 0; /* Margin top/bottom */
+            text-align: center;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-around; /* Space out items */
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 15px; /* Gap between items if they wrap */
+        }
+        .net-balance-item {
+            display: inline-block; /* Or flex item */
+            margin: 0 10px; /* Spacing */
+        }
+        .net-balance-item span {
+            font-weight: 600;
+            color: #0056b3; /* Darker blue */
+            font-size: 1.1rem; /* Slightly larger font */
+             font-family: 'Courier New', Courier, monospace; /* Monospace for numbers */
+        }
+        .net-balance-item label {
+             font-size: 0.9rem;
+             color: #333;
+             margin-right: 8px; /* Space between label and value */
+        }
+
+         /* Further reduce form height */
+         #dataForm {
+             gap: 12px 18px; /* Slightly reduced gap */
+             padding: 12px; /* Slightly reduced padding */
+         }
+         label {
+             margin-bottom: 3px; /* Reduced label margin */
+             font-size: 0.83rem; /* Slightly smaller label */
+         }
+         input[type="text"],
+         input[type="date"],
+         input[type="number"] {
+             padding: 7px 9px; /* Reduced input padding */
+             font-size: 0.88rem; /* Slightly smaller font */
+         }
+          .form-buttons {
+             margin-top: 8px; /* Reduced top margin */
+          }
+
+
+    </style>
+</head>
+<body>
+<style>
+/* style.css - (Keep the existing styles from the previous version, adjusted as needed) */
+
+/* Basic Reset & Font */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f7f6; padding: 15px; }
+.container { max-width: 1000px; margin: 20px auto; background: #fff; padding: 20px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); }
+h1, h2, h3 { margin-bottom: 20px; text-align: center; color: #2c3e50; }
+h1 { font-size: 1.8rem; } h2 { font-size: 1.5rem; } h3 { font-size: 1.15rem; color: #34495e; margin-bottom: 15px; }
+hr { margin: 25px 0; border: 0; border-top: 1px solid #e0e0e0; } /* Adjusted margin */
+
+/* Form Styling - More Compact */
+#dataForm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px 18px; /* Further Reduced gap */
+    margin-bottom: 15px; /* Reduced margin */
+    padding: 12px; /* Further Reduced padding */
+    background-color: #fdfdfd; border: 1px solid #e8e8e8; border-radius: 6px;
+}
+.form-group { /* No specific style needed due to grid gap */ }
+label { display: block; margin-bottom: 3px; /* Reduced */ font-weight: 600; font-size: 0.83rem; /* Reduced */ color: #555; }
+input[type="text"], input[type="date"], input[type="number"], input[type="hidden"] {
+    width: 100%; padding: 7px 9px; /* Reduced */ border: 1px solid #ccc; border-radius: 4px; font-size: 0.88rem; /* Reduced */ transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input[type="hidden"] { display: none; }
+input:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); }
+
+/* Form Buttons */
+.form-buttons { grid-column: 1 / -1; display: flex; justify-content: center; align-items: center; gap: 10px; /* Reduced */ margin-top: 8px; /* Reduced */ flex-wrap: wrap; }
+
+/* General Button Styling */
+button, .button { display: inline-block; padding: 8px 15px; /* Reduced */ border: none; border-radius: 5px; cursor: pointer; font-size: 0.88rem; /* Reduced */ font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; text-align: center; min-width: 100px; /* Reduced */ box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+button:hover, .button:hover { transform: translateY(-1px); box-shadow: 0 3px 6px rgba(0,0,0,0.08); }
+button:active, .button:active { transform: scale(0.98); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+
+/* Specific Button Colors */
+#submitButton { background-color: #3498db; color: #fff; } #submitButton:hover { background-color: #2980b9; }
+.cancel-btn { background-color: #e74c3c; color: #fff; } .cancel-btn:hover { background-color: #c0392b; }
+#clearFilters { background-color: #7f8c8d; color: #fff; padding: 7px 12px; /* Reduced */ min-width: auto; } #clearFilters:hover { background-color: #6c7a7b; }
+
+/* Table Action Buttons */
+.edit-btn, .delete-btn { font-size: 0.78rem; /* Reduced */ padding: 4px 9px; /* Reduced */ min-width: 48px; /* Adjusted */ margin: 0 3px; }
+.edit-btn { background-color: #f39c12; color: #fff; } .edit-btn:hover { background-color: #e67e22; }
+.delete-btn { background-color: #e74c3c; color: #fff; } .delete-btn:hover { background-color: #c0392b; }
+
+/* Filter Section - Compact */
+.filter-section { margin-bottom: 25px; padding: 15px 20px; background-color: #fdfdfd; border: 1px solid #e8e8e8; border-radius: 6px; }
+.filter-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px 18px; align-items: end; }
+.filter-controls .form-group { margin-bottom: 0; }
+.filter-controls label { font-size: 0.8rem; } .filter-controls input { padding: 7px 9px; font-size: 0.85rem; }
+
+/* Table Styling - Cleaner */
+.table-container { overflow-x: auto; background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+table { width: 100%; border-collapse: collapse; margin-top: 0; font-size: 0.86rem; /* Reduced */ }
+th, td { border: 1px solid #e9ecef; padding: 8px 11px; /* Reduced */ text-align: left; white-space: nowrap; vertical-align: middle; }
+thead th { background-color: #f8f9fa; font-weight: 600; color: #495057; position: sticky; top: 0; z-index: 1; border-bottom: 2px solid #dee2e6; }
+thead th:last-child, tbody td:last-child { text-align: center; } /* Actions column */
+tbody tr:nth-child(even) { background-color: #fdfdfd; } tbody tr:hover { background-color: #eef5fc; }
+tbody td[colspan="9"] { text-align: center; font-style: italic; color: #777; padding: 25px; } /* Colspan 9 */
+tfoot { border-top: 2px solid #dee2e6; }
+tfoot th, tfoot td { font-weight: bold; background-color: #f8f9fa; color: #495057; }
+tfoot th { text-align: right; padding-right: 15px; }
+tfoot td { text-align: right; font-family: 'Courier New', Courier, monospace; font-size: 0.88rem; /* Reduced */ }
+tfoot td:last-child { font-family: inherit; background-color: #f8f9fa; text-align: center; }
+
+/* Mobile Responsiveness - Refined */
+@media (max-width: 992px) { .container { max-width: 95%; } #dataForm { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } } /* Adjusted minmax */
+@media (max-width: 768px) {
+    body { padding: 10px; } .container { padding: 15px; }
+    h1 { font-size: 1.5rem; } h2 { font-size: 1.3rem; } h3 { font-size: 1.0rem; } /* Reduced */
+    #dataForm, .filter-controls { grid-template-columns: 1fr; gap: 10px; } /* Reduced gap */
+    #dataForm { padding: 10px; } .filter-section { padding: 10px 15px; }
+    .form-buttons { flex-direction: column; align-items: stretch; }
+    #dataForm button, #dataForm .button { width: 100%; margin-bottom: 5px; }
+    th, td { padding: 7px 9px; font-size: 0.8rem; } /* Reduced */
+    tfoot th, tfoot td { font-size: 0.8rem; }
+    .edit-btn, .delete-btn { padding: 4px 8px; font-size: 0.75rem; min-width: 45px; }
+     .net-balance-item span { font-size: 1.0rem; } /* Adjust net balance font on mobile */
+     .net-balance-item label { font-size: 0.85rem; }
+}
+@media (max-width: 480px) {
+    h1 { font-size: 1.4rem; } h2 { font-size: 1.2rem; } .container { padding: 10px; }
+    #dataForm { gap: 8px; } /* Further reduce gap */
+     input[type="text"], input[type="date"], input[type="number"] { padding: 6px 8px; font-size: 0.85rem;}
+     button, .button { padding: 7px 12px; font-size: 0.85rem;}
+}
+
+</style>
+<div class="container">
+    <h1>Data Entry & Management</h1>
+
+    <h3>Enter or Update Data</h3>
+    <form id="dataForm">
+        <input type="hidden" id="editEntryId">
+         <div class="form-group">
+            <label for="stackNumber">Stack Number:</label>
+            <input type="number" id="stackNumber" required>
+        </div>
+         <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+        </div>
+         <div class="form-group">
+            <label for="countVan">Count Van:</label>
+            <input type="text" id="countVan" required>
+        </div>
+         <div class="form-group">
+            <label for="cadNo">CAD No:</label>
+            <input type="number" id="cadNo" required>
+        </div>
+         <div class="form-group">
+            <label for="entryBag">Entry Bag:</label>
+            <input type="number" id="entryBag" placeholder="e.g., 100">
+        </div>
+         <div class="form-group">
+            <label for="entryWeight">Entry Weight (MT):</label>
+            <input type="number" step="any" id="entryWeight" placeholder="e.g., 5.75">
+        </div>
+         <div class="form-group">
+            <label for="outBag">Out Bag:</label>
+            <input type="number" id="outBag" placeholder="e.g., 50">
+        </div>
+         <div class="form-group">
+            <label for="outWeight">Out Weight (MT):</label>
+            <input type="number" step="any" id="outWeight" placeholder="e.g., 2.50">
+        </div>
+         <div class="form-buttons">
+             <button type="submit" id="submitButton">Submit Data</button>
+             <button type="button" id="cancelUpdateButton" class="cancel-btn" style="display: none;">Cancel Update</button>
+         </div>
+    </form>
+    <div class="net-balance-section">
+         <div class="net-balance-item">
+             <label>Net Bags:</label>
+             <span id="netTotalBag">0</span>
+         </div>
+         <div class="net-balance-item">
+             <label>Net Weight (MT):</label>
+             <span id="netTotalWeight">0.00</span>
+         </div>
+     </div>
+     <hr>
+
+    <h2>View & Filter Entries</h2>
+
+    <div class="filter-section">
+        <h3>Filter Controls</h3>
+        <div class="filter-controls">
+             <div class="form-group">
+                <label for="filterDate">Filter by Date:</label>
+                <input type="date" id="filterDate">
+            </div>
+             <div class="form-group">
+                <label for="filterStack">Filter by Stack No:</label>
+                <input type="number" id="filterStack" placeholder="Enter Stack No">
+            </div>
+             <div class="form-group">
+                <label for="filterCad">Filter by CAD No:</label>
+                <input type="number" id="filterCad" placeholder="Enter CAD No">
+            </div>
+             <button id="clearFilters" class="button">Clear Filters</button>
+        </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Stack No</th>
+                    <th>CAD No</th>
+                    <th>Count Van</th>
+                    <th>Entry Bag</th>
+                    <th>Entry Wt (MT)</th>
+                    <th>Out Bag</th>
+                    <th>Out Wt (MT)</th>
+                    <th>Actions</th> </tr>
+            </thead>
+            <tbody id="dataTableBody">
+                <tr><td colspan="9">Loading data...</td></tr> </tbody>
+            <tfoot>
+                <tr>
+                     <th colspan="4">Totals (Filtered):</th> <td id="totalEntryBag">0</td>
+                    <td id="totalEntryWeight">0.00</td>
+                    <td id="totalOutBag">0</td>
+                    <td id="totalOutWeight">0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    </div> <script>
+    // --- Firebase Configuration --- (Keep as before)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA", // Keep your actual API key secure
+        authDomain: "rrr-64363.firebaseapp.com",
+        databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "rrr-64363",
+        storageBucket: "rrr-64363.appspot.com",
+        messagingSenderId: "475232352781",
+        appId: "1:475232352781:web:4d1178de814502caadf344"
+    };
+
+    // --- Initialize Firebase ---
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const entriesRef = database.ref('entries');
+
+    // --- DOM Elements ---
+    const dataForm = document.getElementById('dataForm');
+    const editEntryId = document.getElementById('editEntryId');
+    const submitButton = document.getElementById('submitButton');
+    const cancelUpdateButton = document.getElementById('cancelUpdateButton');
+
+    // Form Inputs
+    const stackNumberInput = document.getElementById('stackNumber');
+    const dateInput = document.getElementById('date');
+    const countVanInput = document.getElementById('countVan');
+    const cadNoInput = document.getElementById('cadNo');
+    const entryBagInput = document.getElementById('entryBag');
+    const entryWeightInput = document.getElementById('entryWeight');
+    const outBagInput = document.getElementById('outBag');
+    const outWeightInput = document.getElementById('outWeight');
+
+    // Table Body
+    const dataTableBody = document.getElementById('dataTableBody');
+
+    // Filter elements
+    const filterDateInput = document.getElementById('filterDate');
+    const filterStackInput = document.getElementById('filterStack');
+    const filterCadInput = document.getElementById('filterCad');
+    const clearFiltersButton = document.getElementById('clearFilters');
+
+    // Total cells in footer
+    const totalEntryBagCell = document.getElementById('totalEntryBag');
+    const totalEntryWeightCell = document.getElementById('totalEntryWeight');
+    const totalOutBagCell = document.getElementById('totalOutBag');
+    const totalOutWeightCell = document.getElementById('totalOutWeight');
+
+     // ** NEW: Net Balance Display Elements **
+     const netTotalBagDisplay = document.getElementById('netTotalBag');
+     const netTotalWeightDisplay = document.getElementById('netTotalWeight');
+
+    let allEntries = []; // Stores all fetched data
+
+    // --- Functions ---
+
+    /**
+     * Resets the form to its initial state.
+     */
+    function resetFormState() {
+        dataForm.reset();
+        editEntryId.value = '';
+        submitButton.textContent = 'Submit Data';
+        cancelUpdateButton.style.display = 'none';
+        dataForm.classList.remove('editing');
+         // Optional: Focus first field only if not on very small screen?
+         // stackNumberInput.focus();
+    }
+
+    /**
+     * Populates the form for editing an entry.
+     * @param {string} entryId - The Firebase ID of the entry.
+     */
+    function populateFormForEdit(entryId) {
+        const entryToEdit = allEntries.find(entry => entry.id === entryId);
+        if (entryToEdit) {
+            editEntryId.value = entryId;
+            stackNumberInput.value = entryToEdit.stackNumber || '';
+            dateInput.value = entryToEdit.date || '';
+            countVanInput.value = entryToEdit.countVan || '';
+            cadNoInput.value = entryToEdit.cadNo || '';
+            entryBagInput.value = entryToEdit.entryBag || '';
+            entryWeightInput.value = entryToEdit.entryWeight || '';
+            outBagInput.value = entryToEdit.outBag || '';
+            outWeightInput.value = entryToEdit.outWeight || '';
+            submitButton.textContent = 'Update Data';
+            cancelUpdateButton.style.display = 'inline-block';
+            dataForm.classList.add('editing');
+            dataForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+             stackNumberInput.focus();
+        } else {
+            console.error("Could not find entry data for ID:", entryId);
+            alert("Error: Could not load data for editing.");
+        }
+    }
+
+    /**
+     * Deletes an entry after confirmation.
+     * @param {string} entryId - The Firebase ID of the entry.
+     */
+     function deleteEntry(entryId) {
+         if (window.confirm("Are you sure you want to delete this entry? This action cannot be undone.")) {
+             database.ref('entries/' + entryId).remove()
+                 .then(() => {
+                     console.log("Entry deleted successfully:", entryId);
+                      if (editEntryId.value === entryId) { resetFormState(); }
+                      // Table & Net balance will update via onValue listener triggering applyFilters -> renderTable
+                 })
+                 .catch((error) => {
+                     console.error("Error deleting data: ", error);
+                     alert("Error deleting entry. Please try again.");
+                 });
+         } else {
+             console.log("Delete cancelled for entry:", entryId);
+         }
+     }
+
+    /**
+     * Renders the table with data, calculates totals AND net balance.
+     * @param {Array} dataToRender - Array of entry objects to display.
+     */
+    function renderTable(dataToRender) {
+        dataTableBody.innerHTML = '';
+        dataTableBody.classList.remove('loading');
+
+        let totalEntryBag = 0;
+        let totalEntryWeight = 0;
+        let totalOutBag = 0;
+        let totalOutWeight = 0;
+
+        const hasData = dataToRender && dataToRender.length > 0;
+
+        if (!hasData) {
+            dataTableBody.innerHTML = `<tr><td colspan="9">No data found matching filters.</td></tr>`; // Colspan 9
+        } else {
+            dataToRender.forEach(entry => {
+                const row = document.createElement('tr');
+                const entryId = entry.id;
+
+                const entryBagNum = parseInt(entry.entryBag) || 0;
+                const entryWeightNum = parseFloat(entry.entryWeight) || 0;
+                const outBagNum = parseInt(entry.outBag) || 0;
+                const outWeightNum = parseFloat(entry.outWeight) || 0;
+
+                const displayEntryWeight = entryWeightNum !== 0 ? entryWeightNum.toFixed(2) : '-';
+                const displayOutWeight = outWeightNum !== 0 ? outWeightNum.toFixed(2) : '-';
+                const displayEntryBag = entryBagNum !== 0 ? entryBagNum : '-';
+                const displayOutBag = outBagNum !== 0 ? outBagNum : '-';
+
+                row.innerHTML = `
+                    <td>${entry.date || '-'}</td>
+                    <td>${entry.stackNumber || '-'}</td>
+                    <td>${entry.cadNo || '-'}</td>
+                    <td>${entry.countVan || '-'}</td>
+                    <td>${displayEntryBag}</td>
+                    <td>${displayEntryWeight}</td>
+                    <td>${displayOutBag}</td>
+                    <td>${displayOutWeight}</td>
+                    <td>
+                        <button class="edit-btn" data-id="${entryId}" title="Edit Entry">Edit</button>
+                        <button class="delete-btn" data-id="${entryId}" title="Delete Entry">Delete</button>
+                    </td>
+                `;
+                dataTableBody.appendChild(row);
+
+                totalEntryBag += entryBagNum;
+                totalEntryWeight += entryWeightNum;
+                totalOutBag += outBagNum;
+                totalOutWeight += outWeightNum;
+            });
+        }
+
+        // --- Calculate and Display Totals (Footer) ---
+        totalEntryBagCell.textContent = totalEntryBag;
+        totalEntryWeightCell.textContent = totalEntryWeight.toFixed(2);
+        totalOutBagCell.textContent = totalOutBag;
+        totalOutWeightCell.textContent = totalOutWeight.toFixed(2);
+
+        // --- Calculate and Display Net Balance (Above Filters) ---
+        const netBag = totalEntryBag - totalOutBag;
+        const netWeight = totalEntryWeight - totalOutWeight;
+
+        netTotalBagDisplay.textContent = netBag;
+        netTotalWeightDisplay.textContent = netWeight.toFixed(2);
+    }
+
+    /**
+     * Fetches data, sorts it, and triggers filtering/rendering.
+     */
+    function fetchAndDisplayData() {
+        dataTableBody.classList.add('loading');
+        dataTableBody.innerHTML = '<tr><td colspan="9">Loading data...</td></tr>'; // Colspan 9
+
+        // Reset totals and net balance while loading
+        totalEntryBagCell.textContent = '0';
+        totalEntryWeightCell.textContent = '0.00';
+        totalOutBagCell.textContent = '0';
+        totalOutWeightCell.textContent = '0.00';
+        netTotalBagDisplay.textContent = '0';
+        netTotalWeightDisplay.textContent = '0.00';
+
+
+        entriesRef.on('value', (snapshot) => {
+            allEntries = [];
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                allEntries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                allEntries.sort((a, b) => {
+                    const dateA = a.date ? new Date(a.date) : 0;
+                    const dateB = b.date ? new Date(b.date) : 0;
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    return dateB - dateA;
+                });
+            }
+            if (!editEntryId.value) {
+                 // Reset form only if NOT currently editing something
+                 // resetFormState(); // Let's not reset the form automatically on data refresh
+            }
+            applyFilters(); // This calls renderTable which updates everything
+        }, (error) => {
+            console.error("Error fetching data: ", error);
+            dataTableBody.classList.remove('loading');
+            dataTableBody.innerHTML = '<tr><td colspan="9">Error loading data. Check console.</td></tr>'; // Colspan 9
+             // Reset totals and net on error
+            totalEntryBagCell.textContent = '0';
+            totalEntryWeightCell.textContent = '0.00';
+            totalOutBagCell.textContent = '0';
+            totalOutWeightCell.textContent = '0.00';
+            netTotalBagDisplay.textContent = '0';
+            netTotalWeightDisplay.textContent = '0.00';
+        });
+    }
+
+    /**
+     * Applies filters and calls renderTable.
+     */
+    function applyFilters() {
+        const filterDate = filterDateInput.value;
+        const filterStack = filterStackInput.value.toString().trim().toLowerCase();
+        const filterCad = filterCadInput.value.toString().trim().toLowerCase();
+
+        let filteredData = allEntries;
+
+        if (filterDate) {
+            filteredData = filteredData.filter(entry => entry.date === filterDate);
+        }
+        if (filterStack) {
+            filteredData = filteredData.filter(entry => entry.stackNumber && entry.stackNumber.toString().toLowerCase().includes(filterStack));
+        }
+        if (filterCad) {
+            filteredData = filteredData.filter(entry => entry.cadNo && entry.cadNo.toString().toLowerCase().includes(filterCad));
+        }
+        renderTable(filteredData); // Render table with filtered data (this also updates net balance)
+    }
+
+
+    // --- Event Listeners ---
+
+    // Form Submission
+    dataForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = {
+            stackNumber: stackNumberInput.value,
+            date: dateInput.value,
+            countVan: countVanInput.value.trim(),
+            cadNo: cadNoInput.value,
+            entryBag: entryBagInput.value ? Number(entryBagInput.value) : null,
+            entryWeight: entryWeightInput.value ? Number(entryWeightInput.value) : null,
+            outBag: outBagInput.value ? Number(outBagInput.value) : null,
+            outWeight: outWeightInput.value ? Number(outWeightInput.value) : null,
+        };
+
+        // Validation Logic (simplified slightly)
+        const hasEntryBag = formData.entryBag !== null && formData.entryBag !== '';
+        const hasEntryWeight = formData.entryWeight !== null && formData.entryWeight !== '';
+        const hasOutBag = formData.outBag !== null && formData.outBag !== '';
+        const hasOutWeight = formData.outWeight !== null && formData.outWeight !== '';
+        const isEntryComplete = hasEntryBag && hasEntryWeight;
+        const isOutComplete = hasOutBag && hasOutWeight;
+
+         if (!formData.stackNumber || !formData.date || !formData.countVan || !formData.cadNo) {
+             alert("Validation Error: Please fill Stack Number, Date, Count Van, and CAD No."); return;
+         }
+         if (isEntryComplete && isOutComplete) {
+             alert("Validation Error: Fill EITHER Entry OR Out details, not both."); return;
+         }
+         if (!isEntryComplete && !isOutComplete) {
+             alert("Validation Error: Fill EITHER complete Entry OR complete Out details."); return;
+         }
+         if ((hasEntryBag && !hasEntryWeight) || (!hasEntryBag && hasEntryWeight)) {
+             alert("Validation Error: Fill both Entry Bag and Entry Weight, or leave both empty."); return;
+         }
+         if ((hasOutBag && !hasOutWeight) || (!hasOutBag && hasOutWeight)) {
+             alert("Validation Error: Fill both Out Bag and Out Weight, or leave both empty."); return;
+         }
+
+        // Add/Update Logic
+        const entryIdToUpdate = editEntryId.value;
+        if (entryIdToUpdate) {
+            // UPDATE
+            delete formData.timestamp;
+            database.ref('entries/' + entryIdToUpdate).set(formData)
+                .then(() => { console.log("Updated:", entryIdToUpdate); resetFormState(); })
+                .catch((error) => { console.error("Update Error: ", error); alert("Error updating."); });
+        } else {
+            // ADD
+            formData.timestamp = firebase.database.ServerValue.TIMESTAMP;
+            entriesRef.push(formData)
+                .then(() => { console.log("Saved new entry"); resetFormState(); })
+                .catch((error) => { console.error("Save Error: ", error); alert("Error saving."); });
+        }
+    });
+
+    // Edit/Delete Button Clicks (Event Delegation)
+    dataTableBody.addEventListener('click', (e) => {
+        const targetButton = e.target;
+        const entryId = targetButton.getAttribute('data-id');
+
+        if (targetButton && entryId) {
+             if (targetButton.classList.contains('edit-btn')) {
+                 populateFormForEdit(entryId);
+             } else if (targetButton.classList.contains('delete-btn')) {
+                 deleteEntry(entryId);
+             }
+         }
+    });
+
+    // Cancel Update Button
+    cancelUpdateButton.addEventListener('click', resetFormState);
+
+    // Filter Input Listeners
+    filterDateInput.addEventListener('input', applyFilters);
+    filterStackInput.addEventListener('input', applyFilters);
+    filterCadInput.addEventListener('input', applyFilters);
+
+    // Clear Filters Button
+    clearFiltersButton.addEventListener('click', () => {
+        filterDateInput.value = '';
+        filterStackInput.value = '';
+        filterCadInput.value = '';
+        applyFilters();
+    });
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+
+</script>
+</body>
+</html>
