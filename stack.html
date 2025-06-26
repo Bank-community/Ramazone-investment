@@ -7,218 +7,75 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
         /* --- Design Variables & Base --- */
         :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --secondary-color: #95a5a6;
-            --secondary-dark: #7f8c8d;
-            --success-color: #2ecc71;
-            --success-dark: #27ae60;
-            --danger-color: #e74c3c;
-            --danger-dark: #c0392b;
-            --info-color: #3498db; /* Using primary blue for weights now */
-            --info-dark: #2980b9;
-            --light-bg: #f8f9fa;
-            --body-bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --text-dark: #2c3e50;
-            --text-normal: #34495e;
-            --text-muted: #7f8c8d;
-            --border-color: #e1e5e8;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --card-radius: 8px;
-            --input-height: 38px;
-            --transition-speed: 0.3s;
+            --primary-color: #3498db; --primary-dark: #2980b9; --secondary-color: #95a5a6;
+            --success-color: #2ecc71; --success-dark: #27ae60; --danger-color: #e74c3c;
+            --light-bg: #f8f9fa; --body-bg: #f0f4f8; --card-bg: #ffffff;
+            --text-dark: #2c3e50; --text-normal: #34495e; --text-muted: #7f8c8d;
+            --border-color: #e1e5e8; --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --card-radius: 8px; --input-height: 38px;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Inter', sans-serif; line-height: 1.6; color: var(--text-normal);
-            background-color: var(--body-bg); padding: 20px; min-height: 100vh;
-        }
-        .container { max-width: 1400px; margin: 20px auto; background: transparent; padding: 0; } /* Max-width thoda badhaya gaya */
-        .card {
-            background-color: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color); margin-bottom: 25px; padding: 20px 25px; overflow: hidden;
-        }
-
-        /* --- Typography & Icons --- */
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: var(--text-normal); background-color: var(--body-bg); padding: 15px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 20px auto; background: transparent; padding: 0; }
+        .card { background-color: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--card-shadow); border: 1px solid var(--border-color); margin-bottom: 25px; padding: 20px 25px; overflow: hidden; }
         h1 { text-align: center; color: var(--text-dark); margin-bottom: 8px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.8rem; }
         .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 1rem; font-weight: 400; }
-        .section-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .section-header h3 { color: var(--text-dark); font-weight: 600; margin: 0; font-size: 1.2rem; font-family: 'Poppins', sans-serif; }
-        .icon { margin-right: 8px; color: var(--primary-color); width: 1em; text-align: center; }
-        .summary-item .label .icon { color: var(--text-muted); }
-        .form-group label .icon { color: var(--text-dark); }
-        th .icon { color: var(--primary-dark); margin-right: 5px; }
-        .clear-btn .icon { color: white; }
+        .section-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        .section-header h3 { color: var(--text-dark); font-weight: 600; margin: 0; font-size: 1.2rem; font-family: 'Poppins', sans-serif; display: flex; align-items: center; }
+        .icon { margin-right: 10px; color: var(--primary-color); }
 
-        /* --- Controls and Summary Section --- */
-        .controls-summary-section { padding-bottom: 15px; }
-        .summary-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color); }
-        .summary-item { padding: 5px; border: none; background-color: transparent; display: flex; flex-direction: column; align-items: flex-start; }
+        /* --- Updated Two-Column Summary Area --- */
+        .summary-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two equal columns */
+            gap: 15px 25px; /* Row and column gap */
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .summary-item { display: flex; flex-direction: column; }
         .summary-item .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; }
-        .summary-item strong { font-weight: 600; font-size: 1.15rem; color: var(--text-dark); line-height: 1.3; word-break: break-word; padding-left: 24px; }
-        .summary-item strong.net-bag, .summary-item strong.net-wt { font-weight: 700; }
-        .summary-item strong.net-bag.positive { color: var(--success-dark); }
-        .summary-item strong.net-bag.negative { color: var(--danger-dark); }
-        .summary-item strong.net-wt.positive { color: var(--info-dark); }
-        .summary-item strong.net-wt.negative { color: var(--danger-dark); }
-        .summary-item strong#summaryTotalCountVan { font-weight: 700;}
+        .summary-item strong { font-weight: 600; font-size: 1.15rem; color: var(--text-dark); word-break: break-word; }
+        .summary-item strong.positive { color: var(--success-dark); }
+        .summary-item strong.negative { color: var(--danger-dark); }
+        .summary-item strong#summaryTotalCountVan { font-weight: 700; }
 
         /* Filter Controls */
-        .filter-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive columns */
-            gap: 15px 20px; /* Spacing between grid items */
-            align-items: end; /* Align items to the bottom */
-        }
+        .filter-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px 20px; align-items: end; }
+        .form-group label { display: flex; align-items: center; margin-bottom: 5px; font-weight: 500; font-size: 0.8rem; color: var(--text-dark); }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 0.9rem; font-family: 'Inter', sans-serif; height: var(--input-height); }
+        .form-group select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 10px center; padding-right: 35px; }
+        .clear-btn { background-color: var(--secondary-color); color: #fff; border: none; cursor: pointer; font-weight: 500; transition: background-color 0.2s; height: var(--input-height); display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 5px; width: 100%; }
+        .clear-btn:hover { background-color: #7f8c8d; }
 
-        .form-group label {
-            display: flex;
-            margin-bottom: 5px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            color: var(--text-dark);
-            align-items: center;
-        }
-
-        .filter-controls input[type="text"],
-        .filter-controls input[type="date"],
-        .filter-controls input[type="number"],
-        .filter-controls select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 0.9rem;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--card-bg);
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            height: var(--input-height);
-            color: var(--text-normal);
-            box-sizing: border-box;
-        }
-
-        .filter-controls select {
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%2334495e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 18px 18px;
-            padding-right: 35px;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-        }
-
-        .filter-controls input[type="text"]:focus,
-        .filter-controls input[type="date"]:focus,
-        .filter-controls input[type="number"]:focus,
-        .filter-controls select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            cursor: pointer; opacity: 0.7; transition: opacity var(--transition-speed) ease; padding-left: 5px;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
-        ::placeholder { color: var(--text-muted); opacity: 0.8; }
-
-        .filter-controls input[type="number"]::-webkit-outer-spin-button,
-        .filter-controls input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
-        .filter-controls input[type="number"] { -moz-appearance: textfield; }
-
-        .clear-btn {
-            background-color: var(--secondary-color); color: #fff; padding: 0 20px; border: none;
-            border-radius: 5px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
-            transition: background-color var(--transition-speed) ease, transform 0.1s ease;
-            height: var(--input-height); line-height: var(--input-height); text-align: center;
-            width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .clear-btn:hover { background-color: var(--secondary-dark); }
-        .clear-btn:active { transform: translateY(1px); }
-
-        /* --- Table Styling --- */
+        /* --- Manual Stack Calculator --- */
+        #aggregatorCommodityFilter { margin-bottom: 15px; }
+        .stack-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; max-height: 220px; overflow-y: auto; padding: 15px; border: 1px solid var(--border-color); border-radius: 5px; background-color: #fcfdff; margin-bottom: 20px; }
+        .stack-checkbox-grid label { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px; border-radius: 4px; transition: background-color 0.2s; font-size: 0.9rem; }
+        .stack-checkbox-grid label:hover { background-color: #eef4f8; }
+        .stack-checkbox-grid input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+        #aggregatorResultArea { display: flex; gap: 25px; align-items: center; background-color: var(--light-bg); padding: 15px; border-radius: 5px; flex-wrap: wrap; }
+        #aggregatorResultArea .result-item { font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; }
+        #aggregatorResultArea strong { font-size: 1.25rem; margin-left: 8px; font-family: 'Courier New', monospace; font-weight: 700; }
+        
+        /* Table Styling */
         .table-container { margin-top: 25px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; border: 1px solid var(--border-color); border-radius: var(--card-radius); overflow: hidden; }
-        th, td { border: none; border-bottom: 1px solid var(--border-color); padding: 10px 15px; text-align: center; white-space: nowrap; vertical-align: middle; color: var(--text-normal); }
-        tbody tr:last-child td, tfoot tr:last-child td { border-bottom: none; }
-
-        thead th {
-            background-color: var(--light-bg); font-weight: 600; color: var(--text-dark);
-            position: sticky; top: 0; z-index: 1; border-bottom: 2px solid var(--primary-color);
-            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 15px;
-        }
-        thead th .icon { vertical-align: middle; }
-        tbody tr { transition: background-color var(--transition-speed) ease; }
-        tbody tr:nth-child(even) { background-color: #fdfdfe; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th, td { border-bottom: 1px solid var(--border-color); padding: 12px 15px; text-align: center; white-space: nowrap; }
+        thead th { background-color: var(--light-bg); font-weight: 600; color: var(--text-dark); position: sticky; top: 0; z-index: 1; border-bottom: 2px solid var(--primary-color); }
         tbody tr:hover { background-color: #eef4f8; }
-
-        /* Specific Column Styles */
-        td:nth-child(6), td:nth-child(8) { text-align: center; } /* Entry/Out Bag - Naya column index */
-        td:nth-child(7), td:nth-child(9) { text-align: center; font-family: 'Courier New', Courier, monospace; } /* Entry/Out Wt - Naya column index */
-        td.count-van-text { font-style: italic; color: var(--text-normal); font-family: 'Inter', sans-serif; white-space: normal; word-break: break-word; }
-        td.count-van-numeric { font-style: normal; color: var(--text-normal); font-family: 'Inter', sans-serif; }
-        td:nth-child(1), td:nth-child(3) { white-space: normal; word-break: break-word; } /* Date & CAD */
-        tbody td:nth-child(2) { font-weight: 700; color: #000000; } /* Stack No */
-        tbody td:nth-child(4) { white-space: normal; word-break: break-word; } /* Commodity */
-
-
-        .message-container { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 1rem; background-color: var(--light-bg); border-radius: 0 0 var(--card-radius) var(--card-radius); }
-        .message-container .icon { margin-right: 10px; font-size: 1.2em; vertical-align: middle;}
+        .message-container { text-align: center; padding: 40px 20px; color: var(--text-muted); }
         .fa-spinner { animation: fa-spin 2s infinite linear; }
         @keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         tfoot { border-top: 2px solid var(--primary-color); background-color: var(--light-bg); }
-        tfoot th, tfoot td { font-weight: 700; color: var(--text-dark); font-size: 0.9rem; padding: 12px 15px; vertical-align: middle; }
-        tfoot th { text-align: right; padding-right: 20px; color: var(--text-muted); }
-        tfoot td { text-align: center; font-family: 'Courier New', Courier, monospace; }
-        tfoot td.entry-bag, tfoot td.out-bag { color: var(--success-dark); }
-        tfoot td.entry-wt, tfoot td.out-wt { color: var(--info-dark); }
-
-        @media (max-width: 1024px) { /* Adjusted breakpoint for better summary layout */
-            .summary-area { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-             .filter-controls { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-        }
-        @media (max-width: 768px) {
-            body { padding: 15px; }
-            .card { padding: 15px 20px; }
-            h1 { font-size: 1.6rem; }
-            .subtitle { font-size: 0.9rem; margin-bottom: 20px;}
-            .summary-area { grid-template-columns: 1fr 1fr; gap: 10px 15px; padding-bottom: 15px; margin-bottom: 20px; } /* 2 columns for summary */
-            .summary-item strong { font-size: 1.1rem; padding-left: 20px;}
-            .filter-controls { grid-template-columns: 1fr 1fr; gap: 12px 15px;} /* Filters 2 columns */
-            .form-group.button-group { grid-column: span 2; margin-top: 10px; }
-            th, td { padding: 8px 10px; }
-            thead th { padding: 10px 10px; font-size: 0.75rem; }
-            tfoot th, tfoot td { padding: 10px 10px; font-size: 0.85rem; }
-            .message-container { padding: 30px 15px; }
-            td.count-van-text { white-space: normal; }
-        }
-        @media (max-width: 540px) { /* Adjusted for smaller screens */
-             body { padding: 10px; }
-             .card { padding: 15px; }
-             h1 { font-size: 1.4rem; }
-             .subtitle { font-size: 0.85rem;}
-             .summary-area { grid-template-columns: 1fr 1fr; } /* Keep 2 columns for summary */
-             .summary-item strong { font-size: 1rem; padding-left: 0; } /* Remove padding for smaller items */
-             .filter-controls { grid-template-columns: 1fr; } /* Filters 1 column */
-             .form-group.button-group { grid-column: span 1; }
-             th, td { font-size: 0.8rem; padding: 6px 8px; }
-             thead th { font-size: 0.7rem; }
-             tfoot th { text-align: center; font-size: 0.75rem; }
-             tfoot td { font-size: 0.8rem; padding: 8px 5px;}
-        }
+        tfoot th, tfoot td { font-weight: 700; color: var(--text-dark); }
+        tfoot th { text-align: right; }
     </style>
 </head>
 <body>
@@ -228,344 +85,294 @@
 
         <div class="controls-summary-section card">
             <div class="summary-area">
-                 <div class="summary-item"> <span class="label"><i class="fas fa-truck icon"></i>Count Van:</span> <strong id="summaryTotalCountVan">0</strong> </div>
-                 <div class="summary-item"> <span class="label"><i class="fas fa-calendar-alt icon"></i> Date:</span> <strong id="selectedDate">Any</strong> </div>
-                 <div class="summary-item"> <span class="label"><i class="fas fa-layer-group icon"></i> Stack:</span> <strong id="selectedStack">All</strong> </div>
-                 <div class="summary-item"> <span class="label"><i class="fas fa-barcode icon"></i> CAD/CDF:</span> <strong id="selectedCad">None</strong> </div>
-                 <div class="summary-item"> <span class="label"><i class="fas fa-seedling icon"></i> Commodity:</span> <strong id="selectedCommodity">All</strong> </div> <div class="summary-item"> <span class="label"><i class="fas fa-weight-hanging icon"></i>Net Bag:</span> <strong id="summaryNetBag" class="net-bag">0</strong> </div>
-                 <div class="summary-item"> <span class="label"><i class="fas fa-balance-scale-left icon"></i>Net Wt (MT):</span> <strong id="summaryNetWeight" class="net-wt">0.000</strong> </div>
+                 <!-- Left Column -->
+                 <div class="summary-item"> <span class="label"><i class="fas fa-truck icon"></i>Count Van</span> <strong id="summaryTotalCountVan">0</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-layer-group icon"></i>Filtered Stack</span> <strong id="selectedStack">All</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-weight-hanging icon"></i>Net Bag</span> <strong id="summaryNetBag">0</strong> </div>
+                 <!-- Right Column -->
+                 <div class="summary-item"> <span class="label"><i class="fas fa-calendar-alt icon"></i>Filtered Date</span> <strong id="selectedDate">Any</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-seedling icon"></i>Filtered Commodity</span> <strong id="selectedCommodity">All</strong> </div>
+                 <div class="summary-item"> <span class="label"><i class="fas fa-balance-scale-left icon"></i>Net Wt (MT)</span> <strong id="summaryNetWeight">0.000</strong> </div>
             </div>
             <div class="filter-controls">
-                 <div class="form-group"> <label for="filterDate"><i class="fas fa-calendar-day icon"></i>Filter by Date</label> <input type="date" id="filterDate" title="Select a date to filter entries"> </div>
-                 <div class="form-group"> <label for="filterStack"><i class="fas fa-layer-group icon"></i>Filter by Stack No</label> <select id="filterStack" title="Select a stack number"><option value="">All Stacks</option></select> </div>
-                 <div class="form-group"> <label for="filterCad"><i class="fas fa-barcode icon"></i>Filter by CAD/CDF No</label> <input type="number" id="filterCad" placeholder="Enter CAD/CDF No." title="Enter full or partial CAD number"> </div>
+                 <div class="form-group"> <label for="filterDate"><i class="fas fa-calendar-day icon"></i>Filter by Date</label> <input type="date" id="filterDate"> </div>
+                 <div class="form-group"> <label for="filterStack"><i class="fas fa-layer-group icon"></i>Filter by Stack No</label> <select id="filterStack"><option value="">All Stacks</option></select> </div>
                  <div class="form-group">
                     <label for="filterCommodity"><i class="fas fa-seedling icon"></i>Filter by Commodity</label>
-                    <select id="filterCommodity" title="Select a commodity">
-                        <option value="">All Commodities</option>
-                        <option value="Wheat">Wheat</option>
-                        <option value="Maize">Maize</option>
-                        </select>
+                    <select id="filterCommodity"> <option value="">All Commodities</option> <option value="Wheat">Wheat</option> <option value="Maize">Maize</option> </select>
                 </div>
-                 <div class="form-group button-group"> <label for="clearFilters" style="visibility: hidden; height: 0; margin: 0;">Actions</label> <button id="clearFilters" class="clear-btn" title="Clear all filters"><i class="fas fa-times-circle icon"></i>Clear Filters</button> </div>
+                 <div class="form-group"> <label style="visibility: hidden; height: 0; margin: 0;">Actions</label> <button id="clearFilters" class="clear-btn"><i class="fas fa-times-circle icon"></i>Clear Filters</button> </div>
+            </div>
+        </div>
+
+        <div class="card stack-aggregator-section">
+            <div class="section-header"> <h3><i class="fas fa-calculator icon"></i>Manual Stack Calculator</h3> </div>
+            <div class="form-group">
+                <label for="aggregatorCommodityFilter"><i class="fas fa-filter icon"></i>Filter Stacks by Commodity</label>
+                <select id="aggregatorCommodityFilter">
+                    <option value="All">All Commodities</option>
+                    <option value="Wheat">Wheat</option>
+                    <option value="Maize">Maize</option>
+                </select>
+            </div>
+            <div id="stackAggregatorList" class="stack-checkbox-grid"></div>
+            <div id="aggregatorResultArea">
+                <div class="result-item"><i class="fas fa-weight-hanging icon"></i>Net Bag: <strong id="aggregatorResultNetBag">0</strong></div>
+                <div class="result-item"><i class="fas fa-balance-scale-left icon"></i>Net Wt (MT): <strong id="aggregatorResultNetWeight">0.000</strong></div>
             </div>
         </div>
 
         <div class="table-section card">
-             <div class="section-header"> <h3><i class="fas fa-filter icon"></i>Filtered Stack Data</h3> </div>
+             <div class="section-header"> <h3><i class="fas fa-table icon"></i>Filtered Stack Data</h3> </div>
              <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th><i class="fas fa-calendar-alt icon"></i>Issu of Date</th>
                             <th><i class="fas fa-layer-group icon"></i>Stack No</th>
-                            <th><i class="fas fa-barcode icon"></i>CAD/CDF No</th>
-                            <th><i class="fas fa-seedling icon"></i>Commodity</th> <th><i class="fas fa-truck icon"></i>Count Van</th>
+                            <th><i class="fas fa-seedling icon"></i>Commodity</th>
+                            <th><i class="fas fa-truck icon"></i>Count Van</th>
                             <th><i class="fas fa-sign-in-alt icon"></i>Entry Bag</th>
                             <th><i class="fas fa-weight-hanging icon"></i>Entry Wt (MT)</th>
                             <th><i class="fas fa-sign-out-alt icon"></i>Out Bag</th>
                             <th><i class="fas fa-weight-hanging icon"></i>Out Wt (MT)</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody">
-                         </tbody>
+                    <tbody id="dataTableBody"></tbody>
                     <tfoot id="dataTableFooter">
                         <tr>
-                            <th colspan="5">Totals:</th>
-                            <td id="footerTotalEntryBag" class="entry-bag">0</td>
-                            <td id="footerTotalEntryWeight" class="entry-wt">0.000</td>
-                            <td id="footerTotalOutBag" class="out-bag">0</td>
-                            <td id="footerTotalOutWeight" class="out-wt">0.000</td>
+                            <th colspan="4">Totals:</th>
+                            <td id="footerTotalEntryBag">0</td>
+                            <td id="footerTotalEntryWeight">0.000</td>
+                            <td id="footerTotalOutBag">0</td>
+                            <td id="footerTotalOutWeight">0.000</td>
                         </tr>
                     </tfoot>
                 </table>
              </div>
-             <div id="messageContainer" class="message-container" style="display: none;"> <span id="messageText"></span> </div>
+             <div id="messageContainer" class="message-container" style="display: none;"><span id="messageText"></span></div>
         </div>
     </div>
 
     <script>
-        // --- Firebase Configuration --- (Pehle jaisa hi rakhein)
         const firebaseConfig = {
-            apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA",
-            authDomain: "rrr-64363.firebaseapp.com",
-            databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "rrr-64363",
-            storageBucket: "rrr-64363.appspot.com",
-            messagingSenderId: "475232352781",
-            appId: "1:475232352781:web:4d1178de814502caadf344"
+            apiKey: "AIzaSyAFzn4A1PzeXAOB_2zQT5C-bnaTmOC00gA", authDomain: "rrr-64363.firebaseapp.com",
+            databaseURL: "https://rrr-64363-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "rrr-64363",
+            storageBucket: "rrr-64363.appspot.com", messagingSenderId: "475232352781", appId: "1:475232352781:web:4d1178de814502caadf344"
         };
-
-        // --- Initialize Firebase ---
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const entriesRef = database.ref('entries');
 
-        // --- DOM Elements ---
+        // DOM Elements
         const dataTableBody = document.getElementById('dataTableBody');
         const dataTableFooter = document.getElementById('dataTableFooter');
         const filterDateInput = document.getElementById('filterDate');
         const filterStackSelect = document.getElementById('filterStack');
-        const filterCadInput = document.getElementById('filterCad');
-        const filterCommoditySelect = document.getElementById('filterCommodity'); // Naya commodity filter
+        const filterCommoditySelect = document.getElementById('filterCommodity');
         const clearFiltersButton = document.getElementById('clearFilters');
         const messageContainer = document.getElementById('messageContainer');
         const messageText = document.getElementById('messageText');
-
-        // Summary Elements
         const summaryTotalCountVanEl = document.getElementById('summaryTotalCountVan');
         const selectedDateEl = document.getElementById('selectedDate');
         const selectedStackEl = document.getElementById('selectedStack');
-        const selectedCadEl = document.getElementById('selectedCad');
-        const selectedCommodityEl = document.getElementById('selectedCommodity'); // Naya commodity summary display
+        const selectedCommodityEl = document.getElementById('selectedCommodity');
         const summaryNetBagEl = document.getElementById('summaryNetBag');
         const summaryNetWeightEl = document.getElementById('summaryNetWeight');
-
-        // Footer Total Elements
         const footerTotalEntryBagCell = document.getElementById('footerTotalEntryBag');
         const footerTotalEntryWeightCell = document.getElementById('footerTotalEntryWeight');
         const footerTotalOutBagCell = document.getElementById('footerTotalOutBag');
         const footerTotalOutWeightCell = document.getElementById('footerTotalOutWeight');
+        
+        // Manual Calculator DOM Elements
+        const aggregatorCommodityFilter = document.getElementById('aggregatorCommodityFilter');
+        const stackAggregatorList = document.getElementById('stackAggregatorList');
+        const aggregatorResultNetBagEl = document.getElementById('aggregatorResultNetBag');
+        const aggregatorResultNetWeightEl = document.getElementById('aggregatorResultNetWeight');
 
         let allEntries = [];
-        const retroactiveDateCutoff = new Date('2025-05-12'); // 12 May 2025 se pehle ki dates ke liye
+        const retroactiveDateCutoff = new Date('2025-05-12');
 
-        // --- Helper Functions ---
         function formatDateDDMMYYYY(dateStr) {
             if (!dateStr || dateStr === '-') { return '-'; }
             try {
-                const parts = dateStr.split('-'); // Expect YYYY-MM-DD
-                if (parts.length === 3) { const [y, m, d] = parts; if (y.length === 4 && m.length === 2 && d.length === 2) { return `${d}/${m}/${y}`; } }
-                return dateStr; // Fallback to original if not in expected format
-            } catch (e) { console.warn("Date format error:", dateStr, e); return dateStr; }
-         }
-        function applyNetValueStyle(element, value) {
-             element.classList.remove('positive', 'negative');
-             if (value > 0) element.classList.add('positive');
-             else if (value < 0) element.classList.add('negative');
-         }
-
-        /**
-         * Commodity nirdharit karta hai, retroactive logic ke saath.
-         * @param {object} entryData - Firebase se entry ka raw data.
-         * @returns {string|null} Effective commodity ya null.
-         */
-        function getEffectiveCommodity(entryData) {
-            // Agar commodity field hai aur non-empty hai (whitespace trim karne ke baad)
-            if (entryData.commodity && entryData.commodity.trim() !== "") {
-                return entryData.commodity.trim();
-            }
-            // Agar commodity field nahi hai ya khali hai, toh date check karein
-            if (entryData.date) {
-                const entryDate = new Date(entryData.date); // YYYY-MM-DD format mein
-                if (entryDate < retroactiveDateCutoff) {
-                    return 'Wheat'; // Retroactively "Wheat" assign karein
-                }
-            }
-            // Agar date cutoff ke baad hai aur commodity khali/missing thi, ya date nahi hai
-            return entryData.commodity ? entryData.commodity.trim() : null; // Original (shayad null/empty) return karein
+                const parts = dateStr.split('-');
+                if (parts.length === 3) { const [y, m, d] = parts; if (y.length === 4) { return `${d}/${m}/${y}`; } }
+                return dateStr;
+            } catch (e) { return dateStr; }
         }
 
+        function applyNetValueStyle(element, value) {
+            element.classList.remove('positive', 'negative');
+            if (value > 0) element.classList.add('positive');
+            else if (value < 0) element.classList.add('negative');
+        }
 
-        // --- Core Functions ---
+        function getEffectiveCommodity(entryData) {
+            if (entryData.commodity && entryData.commodity.trim()) { return entryData.commodity.trim(); }
+            if (entryData.date && new Date(entryData.date) < retroactiveDateCutoff) { return 'Wheat'; }
+            return entryData.commodity ? entryData.commodity.trim() : null;
+        }
+
         function populateStackFilterDropdown(entries) {
-            const stackNumbers = [...new Set(entries.map(entry => entry.stackNumber).filter(Boolean))]
-                                 .sort((a, b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+            const stackNumbers = [...new Set(entries.map(entry => entry.stackNumber).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), { numeric: true }));
             filterStackSelect.innerHTML = '<option value="">All Stacks</option>';
             stackNumbers.forEach(stack => {
-                const option = document.createElement('option');
-                option.value = stack; option.textContent = stack;
-                filterStackSelect.appendChild(option);
+                const option = new Option(stack, stack);
+                filterStackSelect.add(option);
             });
-         }
+        }
 
         function renderSummary(filterCriteria, totals) {
             summaryTotalCountVanEl.textContent = (totals.countVan || 0).toLocaleString();
             selectedDateEl.textContent = filterCriteria.date ? formatDateDDMMYYYY(filterCriteria.date) : 'Any';
-            selectedStackEl.textContent = filterCriteria.stack ? filterCriteria.stack : 'All';
-            selectedCadEl.textContent = filterCriteria.cad ? `"${filterCriteria.cad}"` : 'None';
-            selectedCommodityEl.textContent = filterCriteria.commodity ? filterCriteria.commodity : 'All'; // Commodity summary
-
+            selectedStackEl.textContent = filterCriteria.stack || 'All';
+            selectedCommodityEl.textContent = filterCriteria.commodity || 'All';
             const netBag = (totals.entryBag || 0) - (totals.outBag || 0);
             const netWt = (totals.entryWt || 0) - (totals.outWt || 0);
             summaryNetBagEl.textContent = netBag.toLocaleString();
             summaryNetWeightEl.textContent = netWt.toFixed(3);
             applyNetValueStyle(summaryNetBagEl, netBag);
             applyNetValueStyle(summaryNetWeightEl, netWt);
-         }
+        }
 
         function renderTable(dataToRender) {
             dataTableBody.innerHTML = '';
-            let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0, numericTotalCountVan = 0;
-            const hasData = dataToRender && dataToRender.length > 0;
-
-            if (hasData) {
+            let totals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
+            if (dataToRender && dataToRender.length > 0) {
                 hideMessage();
-                dataToRender.forEach(entry => { // entry ab {id, ...firebaseData, effectiveCommodity} hoga
+                dataToRender.forEach(entry => {
                     const row = dataTableBody.insertRow();
-
-                    const countVanRaw = entry.countVan;
-                    let countVanDisplay = '-';
-                    let isNumericVan = false;
-                    let isTextVan = false;
-
-                    if (countVanRaw !== null && countVanRaw !== undefined) {
-                        const countVanString = String(countVanRaw).trim();
-                        if (countVanString !== '') {
-                            const countVanParsed = parseInt(countVanString);
-                            if (!isNaN(countVanParsed)) {
-                                if (countVanParsed !== 0) {
-                                    countVanDisplay = countVanParsed.toLocaleString();
-                                    numericTotalCountVan += countVanParsed;
-                                    isNumericVan = true;
-                                } else {
-                                    countVanDisplay = '0';
-                                    isNumericVan = true;
-                                }
-                            } else {
-                                countVanDisplay = countVanString;
-                                isTextVan = true;
-                            }
-                        }
-                    }
-
                     const entryBag = parseInt(entry.entryBag) || 0;
                     const entryWeight = parseFloat(entry.entryWeight) || 0.0;
                     const outBag = parseInt(entry.outBag) || 0;
                     const outWeight = parseFloat(entry.outWeight) || 0.0;
-
                     row.insertCell().textContent = formatDateDDMMYYYY(entry.date || '-');
                     row.insertCell().textContent = entry.stackNumber || '-';
-                    row.insertCell().textContent = entry.cadNo || '-';
-                    row.insertCell().textContent = entry.effectiveCommodity || '-'; // Commodity column
-                    const vanCell = row.insertCell();
-                    vanCell.textContent = countVanDisplay;
-                    if (isTextVan) vanCell.classList.add('count-van-text');
-                    else if (isNumericVan) vanCell.classList.add('count-van-numeric');
-
+                    row.insertCell().textContent = entry.effectiveCommodity || '-';
+                    row.insertCell().textContent = entry.countVan || '-';
+                    if (!isNaN(parseInt(entry.countVan))) { totals.countVan += parseInt(entry.countVan) || 0; }
                     row.insertCell().textContent = entryBag > 0 ? entryBag.toLocaleString() : '-';
                     row.insertCell().textContent = entryWeight > 0 ? entryWeight.toFixed(3) : '-';
                     row.insertCell().textContent = outBag > 0 ? outBag.toLocaleString() : '-';
                     row.insertCell().textContent = outWeight > 0 ? outWeight.toFixed(3) : '-';
-
-                    totalEntryBag += entryBag;
-                    totalEntryWeight += entryWeight;
-                    totalOutBag += outBag;
-                    totalOutWeight += outWeight;
+                    totals.entryBag += entryBag; totals.entryWt += entryWeight;
+                    totals.outBag += outBag; totals.outWt += outWeight;
                 });
             }
-
-            footerTotalEntryBagCell.textContent = totalEntryBag.toLocaleString();
-            footerTotalEntryWeightCell.textContent = totalEntryWeight.toFixed(3);
-            footerTotalOutBagCell.textContent = totalOutBag.toLocaleString();
-            footerTotalOutWeightCell.textContent = totalOutWeight.toFixed(3);
-
-            return {
-                entryBag: totalEntryBag, entryWt: totalEntryWeight,
-                outBag: totalOutBag, outWt: totalOutWeight,
-                countVan: numericTotalCountVan
-            };
+            footerTotalEntryBagCell.textContent = totals.entryBag.toLocaleString();
+            footerTotalEntryWeightCell.textContent = totals.entryWt.toFixed(3);
+            footerTotalOutBagCell.textContent = totals.outBag.toLocaleString();
+            footerTotalOutWeightCell.textContent = totals.outWt.toFixed(3);
+            return totals;
         }
-
+        
         function showMessage(text, showSpinner = false) {
-            messageText.innerHTML = `${showSpinner ? '<i class="fas fa-spinner icon"></i>' : '<i class="fas fa-info-circle icon"></i>'} ${text}`;
+            messageText.innerHTML = `${showSpinner ? '<i class="fas fa-spinner fa-spin icon"></i>' : '<i class="fas fa-info-circle icon"></i>'} ${text}`;
             messageContainer.style.display = 'block';
             dataTableBody.style.display = 'none';
             dataTableFooter.style.display = 'none';
         }
+
         function hideMessage() {
             messageContainer.style.display = 'none';
             dataTableBody.style.display = '';
             dataTableFooter.style.display = '';
         }
 
+        function updateAggregatorStackList() {
+            const commodityFilter = aggregatorCommodityFilter.value;
+            const filteredEntries = commodityFilter === 'All' ? allEntries : allEntries.filter(entry => entry.effectiveCommodity === commodityFilter);
+            const stackNumbers = [...new Set(filteredEntries.map(entry => entry.stackNumber).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), { numeric: true }));
+            
+            stackAggregatorList.innerHTML = '';
+            if (stackNumbers.length === 0) {
+                stackAggregatorList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No stacks for this commodity.</p>';
+            } else {
+                stackNumbers.forEach(stack => {
+                    const label = document.createElement('label');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox'; checkbox.value = stack;
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(` ${stack}`));
+                    stackAggregatorList.appendChild(label);
+                });
+            }
+            // Reset and calculate totals automatically
+            calculateAggregatorTotals();
+        }
+
+        function calculateAggregatorTotals() {
+            const selectedStacks = Array.from(stackAggregatorList.querySelectorAll('input:checked')).map(cb => cb.value);
+            let netBag = 0, netWt = 0;
+
+            if (selectedStacks.length > 0) {
+                const relevantEntries = allEntries.filter(entry => selectedStacks.includes(entry.stackNumber));
+                let totalEntryBag = 0, totalEntryWeight = 0, totalOutBag = 0, totalOutWeight = 0;
+                relevantEntries.forEach(entry => {
+                    totalEntryBag += parseInt(entry.entryBag) || 0;
+                    totalEntryWeight += parseFloat(entry.entryWeight) || 0.0;
+                    totalOutBag += parseInt(entry.outBag) || 0;
+                    totalOutWeight += parseFloat(entry.outWeight) || 0.0;
+                });
+                netBag = totalEntryBag - totalOutBag;
+                netWt = totalEntryWeight - totalOutWeight;
+            }
+
+            aggregatorResultNetBagEl.textContent = netBag.toLocaleString();
+            aggregatorResultNetWeightEl.textContent = netWt.toFixed(3);
+            applyNetValueStyle(aggregatorResultNetBagEl, netBag);
+            applyNetValueStyle(aggregatorResultNetWeightEl, netWt);
+        }
+
         function fetchAndDisplayData() {
-             dataTableBody.innerHTML = '';
-             showMessage("Loading data, please wait...", true);
-
-             const zeroTotals = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
-             renderSummary({ date: '', stack: '', cad: '', commodity: '' }, zeroTotals); // Commodity ko reset karein
-             footerTotalEntryBagCell.textContent = '0';
-             footerTotalEntryWeightCell.textContent = '0.000';
-             footerTotalOutBagCell.textContent = '0';
-             footerTotalOutWeightCell.textContent = '0.000';
-
-             entriesRef.on('value', (snapshot) => {
+            showMessage("Loading data, please wait...", true);
+            entriesRef.on('value', (snapshot) => {
                 allEntries = [];
                 if (snapshot.exists()) {
                     const firebaseData = snapshot.val();
-                    allEntries = Object.keys(firebaseData).map(key => {
-                        const entry = firebaseData[key];
-                        return {
-                            id: key,
-                            ...entry,
-                            effectiveCommodity: getEffectiveCommodity(entry) // Effective commodity calculate karein
-                        };
-                    });
-                    allEntries.sort((a, b) => (b.date || '').localeCompare(a.date || '')); // Date se sort karein
+                    allEntries = Object.keys(firebaseData).map(key => ({ id: key, ...firebaseData[key], effectiveCommodity: getEffectiveCommodity(firebaseData[key]) }));
+                    allEntries.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
                     populateStackFilterDropdown(allEntries);
-                    // populateCommodityFilterDropdown(allEntries); // Agar dynamic commodity filter chahiye
+                    updateAggregatorStackList();
                     applyFilters();
                 } else {
-                    allEntries = [];
-                    populateStackFilterDropdown(allEntries);
-                    // populateCommodityFilterDropdown(allEntries);
-                    applyFilters();
+                    showMessage("No data available in the database.", false);
                 }
             }, (error) => {
                 console.error("Firebase data fetch error: ", error);
-                allEntries = [];
-                showMessage("Error loading data. Please check console or try again.", false);
-                populateStackFilterDropdown(allEntries);
-                const zeroTotalsOnError = { entryBag: 0, entryWt: 0, outBag: 0, outWt: 0, countVan: 0 };
-                renderSummary({ date: '', stack: '', cad: '', commodity: '' }, zeroTotalsOnError);
-                footerTotalEntryBagCell.textContent = '0';
-                footerTotalEntryWeightCell.textContent = '0.000';
-                footerTotalOutBagCell.textContent = '0';
-                footerTotalOutWeightCell.textContent = '0.000';
+                showMessage("Error loading data. Please try again.", false);
             });
         }
 
         function applyFilters() {
-            const filterCriteria = {
-                date: filterDateInput.value,
-                stack: filterStackSelect.value,
-                cad: filterCadInput.value.trim(),
-                commodity: filterCommoditySelect.value // Commodity filter value
-            };
-            const filterCadLower = filterCriteria.cad.toLowerCase();
+            const filterCriteria = { date: filterDateInput.value, stack: filterStackSelect.value, commodity: filterCommoditySelect.value };
             let filteredData = allEntries;
-
             if (filterCriteria.date) filteredData = filteredData.filter(e => e.date === filterCriteria.date);
             if (filterCriteria.stack) filteredData = filteredData.filter(e => e.stackNumber === filterCriteria.stack);
-            if (filterCadLower) filteredData = filteredData.filter(e => e.cadNo && String(e.cadNo).toLowerCase().includes(filterCadLower));
-            if (filterCriteria.commodity) filteredData = filteredData.filter(e => e.effectiveCommodity === filterCriteria.commodity); // Commodity se filter
-
+            if (filterCriteria.commodity) filteredData = filteredData.filter(e => e.effectiveCommodity === filterCriteria.commodity);
             const totals = renderTable(filteredData);
             renderSummary(filterCriteria, totals);
-
-             if (filteredData.length === 0 && allEntries.length >= 0) { // Check allEntries.length for initial load
-                 if (!messageText.textContent.includes("Loading")) { showMessage("No data found matching the current filters.", false); }
-             } else if (filteredData.length > 0) {
-                  hideMessage();
-             }
+            if (filteredData.length === 0 && allEntries.length > 0) {
+                showMessage("No data found matching the current filters.", false);
+            }
         }
 
-        // --- Event Listeners ---
+        // Event Listeners
         filterDateInput.addEventListener('input', applyFilters);
         filterStackSelect.addEventListener('change', applyFilters);
-        filterCadInput.addEventListener('input', applyFilters);
-        filterCommoditySelect.addEventListener('change', applyFilters); // Commodity filter listener
+        filterCommoditySelect.addEventListener('change', applyFilters);
         clearFiltersButton.addEventListener('click', () => {
-            filterDateInput.value = '';
-            filterStackSelect.value = '';
-            filterCadInput.value = '';
-            filterCommoditySelect.value = ''; // Commodity filter reset
+            filterDateInput.value = ''; filterStackSelect.value = ''; filterCommoditySelect.value = '';
             applyFilters();
         });
+        
+        aggregatorCommodityFilter.addEventListener('change', updateAggregatorStackList);
+        stackAggregatorList.addEventListener('change', calculateAggregatorTotals); // Auto-calculate on check/uncheck
 
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => { fetchAndDisplayData(); });
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
     </script>
 </body>
 </html>
+
