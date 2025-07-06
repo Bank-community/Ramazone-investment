@@ -1,1709 +1,723 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>RMZ Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --success: #4cc9f0;
-    --danger: #f72585;
-    --warning: #f8961e;
-    --info: #4895ef;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --gray: #6c757d;
-    --red: #e63946;
-    --black: #1a1a1a;
-    --yellow: #ffd166;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #f5f7fa;
-    color: #333;
-    line-height: 1.5;
-    /* Removed fixed height and centering to allow scrolling */
-    min-height: 100vh;
-    padding: 20px 0; /* Add some padding */
-  }
-
-  /* Password Protection Styles */
-  .login-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    /* Center login screen specifically */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  /* Ensure dashboard is not absolutely positioned */
-  #dashboard {
-      display: none; /* Initially hidden */
-      position: relative;
-      top: auto;
-      left: auto;
-      transform: none;
-      margin: 0 auto; /* Center dashboard content */
-  }
-
-
-  .login-container h2 {
-    color: var(--primary);
-    margin-bottom: 20px;
-  }
-
-  .login-input {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-
-  .login-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    width: 100%;
-    margin-top: 10px;
-    transition: background 0.3s;
-  }
-
-  .login-btn:hover {
-    background: var(--secondary);
-  }
-
-  .error-message {
-    color: var(--danger);
-    margin-top: 10px;
-    display: none;
-  }
-
-  /* Dashboard Styles */
-  .container {
-    /* display: none; */ /* Controlled by JS now */
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px;
-    width: 100%;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 20px; /* Increased margin for better visibility */
-    padding: 10px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-
-  .header h1 {
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 1.8rem; /* Increased font size */
-  }
-
-  /* Compact Cards */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  .card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
-    text-align: center; /* Center the content */
-    cursor: pointer; /* Indicate it's clickable */
-  }
-
-  .card:hover {
-    transform: translateY(-3px);
-  }
-
-  .card h3 {
-    color: var(--gray);
-    font-size: 0.85rem;
-    margin-bottom: 5px;
-  }
-
-  .card .value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--primary);
-  }
-
-  .notification-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-  }
-
-  .notification-card i {
-    font-size: 2rem;
-    color: var(--warning);
-    margin-bottom: 10px;
-  }
-
-  .notification-card span {
-    font-size: 1rem;
-    color: var(--dark);
-    font-weight: 500;
-  }
-
-  /* Shares Info Cards */
-  .shares-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  .shares-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    text-align: center;
-  }
-
-  .shares-card h3 {
-    color: var(--gray);
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-  }
-
-  .shares-card .value {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .total-shares {
-    color: var(--black);
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  }
-
-  .available-shares {
-    color: var(--red);
-    background: linear-gradient(135deg, #ffefba 0%, #ffffff 100%);
-  }
-
-  .add-member-card {
-    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .add-member-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-
-  .add-member-card i {
-    font-size: 2rem;
-    color: var(--primary);
-    margin-bottom: 10px;
-  }
-
-  .add-member-card h3 {
-    color: var(--dark);
-    font-size: 1rem;
-    margin-bottom: 5px;
-  }
-
-  /* Notification Update Section */
-  .notification-update-section {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-
-  .notification-update-section h2 {
-    color: var(--primary);
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-  }
-
-  .notification-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    color: var(--dark);
-  }
-
-  .notification-form input[type="text"],
-  .notification-form input[type="file"], /* Added file type */
-  .notification-form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    box-sizing: border-box;
-  }
-
-  .notification-form textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .notification-form button {
-    background: var(--success);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.3s ease;
-  }
-
-  .notification-form button:hover {
-    background: var(--info);
-  }
-
-   .image-preview-small { /* Style for notification image preview */
-      max-width: 100px;
-      max-height: 100px;
-      margin-top: 5px;
-      display: none; /* Initially hidden */
-      border: 1px solid #ddd;
-      padding: 2px;
-   }
-
-   .upload-status { /* Style for upload status messages */
-        font-size: 0.8rem;
-        margin-top: -5px;
-        margin-bottom: 10px;
-        color: var(--gray);
-   }
-
-
-  .search-card {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .search-input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-  }
-
-  .btn {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-  }
-
-  .btn-primary {
-    background: var(--primary);
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: var(--secondary);
-  }
-
-  .btn-success {
-    background: var(--success);
-    color: white;
-  }
-
-  /* Users Section */
-  .users-section {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-
-  .section-header h2 {
-    color: var(--primary);
-    font-size: 1.2rem;
-  }
-
-  .toggle-users {
-    background: var(--light);
-    color: var(--primary);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  /* Compact User List */
-  .user-list {
-    display: none;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
-    list-style: none;
-  }
-
-  .user-list.show {
-    display: grid;
-  }
-
-  .user-item {
-    background: var(--light);
-    padding: 8px;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.85rem;
-  }
-
-  .user-item:hover {
-    background: var(--primary);
-    color: white;
-  }
-
-  /* Search and Filter Row */
-  .search-filter-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-  }
-
-  .search-filter-row input,
-  .search-filter-row select {
-    flex: 1;
-    min-width: 150px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 0.9rem;
-  }
-
-  /* Add Member Button */
-  .add-member-btn {
-    background: var(--success);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-left: auto;
-  }
-
-  /* Profile Picture Preview */
-  .profile-pic-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-
-  .profile-pic-preview {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--primary);
-    margin-bottom: 10px;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; /* Ensures image stays within bounds */
-  }
-
- .profile-pic-preview img { /* Style for the image inside preview */
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
- }
-
-
-  .profile-pic-preview i {
-    font-size: 2rem;
-    color: var(--gray);
-  }
-
-   /* Style for file input - visually hidden but accessible */
-   .file-input-label {
-       display: inline-block;
-       padding: 6px 12px;
-       cursor: pointer;
-       background-color: var(--light);
-       color: var(--primary);
-       border: 1px solid var(--primary);
-       border-radius: 5px;
-       font-size: 0.85rem;
-       transition: background-color 0.3s;
-   }
-   .file-input-label:hover {
-       background-color: #e2e6ea;
-   }
-   .file-input {
-       display: none; /* Hide the default file input */
-   }
-
-
-  /* User Details Modal */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    overflow-y: auto; /* Allow modal scroll */
-    padding: 20px 0; /* Add padding for scroll */
-  }
-
-  .modal-content {
-    background: white;
-    margin: 30px auto;
-    max-width: 600px;
-    width: 95%;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-  }
-
-  .modal-header h2 {
-    color: var(--primary);
-    font-size: 1.3rem;
-  }
-
-  .close-modal {
-    background: none;
-    border: none;
-    font-size: 1.3rem;
-    cursor: pointer;
-    color: var(--gray);
-  }
-
-  .form-group {
-    margin-bottom: 15px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    font-size: 0.9rem;
-  }
-
-  .form-control {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 0.9rem;
-  }
-
-  .btn-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-  }
-
-  .btn-danger {
-    background: var(--danger);
-    color: white;
-  }
-
-  .btn-secondary {
-    background: var(--gray);
-    color: white;
-  }
-
-  .history-list {
-    margin-top: 15px;
-    max-height: 150px;
-    overflow-y: auto;
-    padding: 8px;
-    background: var(--light);
-    border-radius: 5px;
-    font-size: 0.85rem;
-  }
-
-  .history-item {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .history-item:last-child {
-    border-bottom: none;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .shares-container {
-      grid-template-columns: 1fr;
-    }
-
-    .search-filter-row {
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .add-member-btn {
-      margin-left: 0;
-      width: 100%;
-      justify-content: center;
-    }
-
-    .btn-group {
-      flex-direction: column;
-    }
-
-    .btn-group button {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .user-list {
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    }
-     .login-container {
-       width: 95%;
-     }
-  }
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramazone - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Modern Icon Pack -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /*
+         * ======================================================================
+         * === HOW TO RUN THIS FILE ===
+         * ======================================================================
+         * 1. You must run this file from a local web server.
+         * 2. Use VS Code's "Live Server" extension for the easiest setup.
+         * ======================================================================
+        */
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f3f4f6; color: #111827; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+
+        /* === SIDEBAR STYLES === */
+        .sidebar { background-image: linear-gradient(180deg, #1f2937, #111827); transition: transform 0.3s ease; }
+        .sidebar-brand { background-image: linear-gradient(to right, var(--primary-dark), var(--primary)); }
+        .sidebar-link { display: flex; align-items: center; padding: 0.875rem 1.5rem; color: #d1d5db; font-weight: 500; transition: all 0.2s ease; border-left: 4px solid transparent; margin: 0 0.5rem 2px 0; border-radius: 0 8px 8px 0; }
+        .sidebar-link:hover { background-color: rgba(255, 255, 255, 0.08); color: #ffffff; }
+        .sidebar-link.active { background-color: var(--primary); color: #ffffff; border-left-color: var(--secondary); }
+        .sidebar-link i { font-size: 1.1rem; width: 1.5rem; text-align: center; margin-right: 0.875rem; color: #9ca3af; transition: all 0.2s ease; }
+        .sidebar-link:hover i, .sidebar-link.active i { color: #ffffff; }
+
+        /* === FORMS & CARDS === */
+        .admin-card { background-color: #ffffff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb; }
+        .card-header h3 { font-size: 1.125rem; font-weight: 600; }
+        .card-body { padding: 1.5rem; }
+        .card-footer { padding: 1rem 1.5rem; border-top: 1px solid #e5e7eb; background-color: #f9fafb; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; }
+        .form-control { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.625rem 0.875rem; transition: all 0.15s ease; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); outline: none; }
+        .form-file-preview { width: 100%; aspect-ratio: 16 / 9; border-radius: 0.5rem; background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; }
+        .form-file-preview:hover { border-color: var(--primary); }
+        .form-file-preview img { width: 100%; height: 100%; object-fit: contain; }
+        .form-file-preview .placeholder { color: #9ca3af; text-align: center; }
+        .form-file-preview img:not([src=""]) + .placeholder { display: none; }
+        .form-file-upload { opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; }
+
+        /* === BUTTONS === */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 500; transition: all 0.15s ease; border: none; }
+        .btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover:not(:disabled) { background-color: #c82333; }
+
+        /* === ITEM CARDS (for lists) === */
+        .item-card { background-color: white; border-radius: 0.5rem; border: 1px solid #e5e7eb; position: relative; }
+        .item-card-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.25rem; border-bottom: 1px solid #f3f4f6; }
+        .item-card-title { font-weight: 600; color: #111827; }
+        .item-card-body { padding: 1.25rem; }
+
+        /* === LOADER === */
+        .loader { border-radius: 50%; width: 40px; height: 40px; margin: 0 auto; border-top: 5px solid rgba(79, 70, 229, 0.2); border-right: 5px solid rgba(79, 70, 229, 0.2); border-bottom: 5px solid rgba(79, 70, 229, 0.2); border-left: 5px solid var(--primary); transform: translateZ(0); animation: loader 1.1s infinite linear; }
+        @keyframes loader { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* === LOGIN PAGE === */
+        .auth-container { min-height: 100vh; background-image: linear-gradient(135deg, #4f46e5, #3730a3); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .auth-card { width: 100%; max-width: 420px; background-color: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .auth-header { padding: 2rem; background-image: linear-gradient(to right, #4f46e5, #6366f1); color: white; text-align: center; }
+        .auth-logo { width: 80px; height: 80px; margin: 0 auto 1rem; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--primary); box-shadow: 0 0 0 5px rgba(255,255,255,0.2); }
+
+        /* === NOTIFICATION === */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { padding: 1rem; border-radius: 0.5rem; background-color: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); display: flex; align-items: center; max-width: 350px; transform: translateX(calc(100% + 20px)); opacity: 0; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast-icon { margin-right: 0.75rem; width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background-color: rgba(0,0,0,0.1); }
+        .toast-progress-bar { height: 100%; width: 0; transition: width linear; }
+        .toast-success .toast-icon, .toast-success .toast-progress-bar { background-color: var(--success); }
+        .toast-error .toast-icon, .toast-error .toast-progress-bar { background-color: var(--danger); }
+        .toast-info .toast-icon, .toast-info .toast-progress-bar { background-color: var(--primary); }
+
+        /* === ANIMATIONS === */
+        .page-enter-active { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
-
-<div id="loginScreen" class="login-container">
-  <h2>Admin Panel Access</h2>
-  <p>Please enter the 6-digit password to continue</p>
-  <input type="password" id="passwordInput" class="login-input" placeholder="Enter password" maxlength="6" inputmode="numeric">
-  <button class="login-btn" onclick="checkPassword()">Submit</button>
-  <p id="errorMsg" class="error-message">Incorrect password. Please try again.</p>
-</div>
-
-<div class="container" id="dashboard">
-  <header class="header">
-    <h1>RMZ Admin Dashboard</h1>
-    <p>Manage members, shares, and transactions</p>
-  </header>
-
-  <div class="shares-container">
-    <div class="shares-card total-shares">
-      <h3>Total Shares</h3>
-      <div class="value" id="totalSharesValue">1000</div>
-    </div>
-
-    <div class="shares-card available-shares">
-      <h3>Available Shares</h3>
-      <div class="value" id="availableSharesValue">1000</div>
-    </div>
-  </div>
-
-  <div class="dashboard-grid">
-    <div class="card">
-      <h3>Total Members</h3>
-      <div class="value" id="totalUsers">0</div>
-    </div>
-
-    <div class="card">
-      <h3>Shares Sold</h3>
-      <div class="value" id="totalShares">0</div>
-    </div>
-
-    <div class="add-member-card" onclick="showAddMemberForm()">
-      <i class="fas fa-user-plus"></i>
-      <h3>Add New Member</h3>
-    </div>
-
-    <div class="card notification-card" onclick="toggleNotificationSection()">
-      <i class="fas fa-bell"></i>
-      <span>Manage Notifications</span>
-    </div>
-  </div>
-
-  <section id="notificationSection" class="notification-update-section" style="display: none;">
-    <h2>Update Notifications</h2>
-    <div class="notification-form">
-      <label for="notificationHeadline">Headline:</label>
-      <input type="text" id="notificationHeadline" placeholder="Enter headline">
-
-      <label for="notificationSummary">Summary Text:</label>
-      <textarea id="notificationSummary" placeholder="Enter summary text"></textarea>
-
-      <label for="notificationLink">Link (Optional):</label>
-      <input type="text" id="notificationLink" placeholder="Enter link URL">
-
-      <label for="notificationImageFile">Image (Optional):</label>
-      <input type="file" id="notificationImageFile" class="file-input" accept="image/*">
-      <label for="notificationImageFile" class="file-input-label">Choose Image</label>
-      <img id="notificationImagePreview" class="image-preview-small" src="#" alt="Image Preview"/>
-      <div id="notificationImageStatus" class="upload-status"></div>
-      <input type="hidden" id="notificationImageLink"> <button onclick="saveNotification()" id="saveNotificationBtn">Update Notification</button>
-      <p id="notificationStatus" style="margin-top: 10px; display: none;"></p>
-
-      <h3>Previous Notifications</h3>
-      <ul id="previousNotifications"></ul>
-    </div>
-  </section>
-
-  <div class="search-filter-row">
-    <input type="text" id="searchBox" class="search-input" placeholder="Search by ID, name or mobile">
-    <select id="filterShares" class="search-input">
-      <option value="">All Shares</option>
-      <option value="0-10">0-10 Shares</option>
-      <option value="11-30">11-30 Shares</option>
-      <option value="31-50">31-50 Shares</option>
-      <option value="51-100">51-100 Shares</option>
-      <option value="101+">101+ Shares</option>
-    </select>
-    <button class="btn btn-primary" onclick="searchAndFilter()">Apply</button>
-  </div>
-
-  <section class="users-section">
-    <div class="section-header">
-      <h2>All Members</h2>
-      <button class="toggle-users" onclick="toggleUserList()">Show/Hide</button>
-    </div>
-
-    <ul class="user-list" id="userList"></ul>
-  </section>
-</div>
-
-<div class="modal" id="userModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 id="modalTitle">Member Details</h2>
-      <button class="close-modal" onclick="closeModal()">&times;</button>
-    </div>
-
-    <div class="profile-pic-container">
-      <div class="profile-pic-preview" id="profilePicPreview">
-        <i class="fas fa-user"></i> </div>
-      <input type="file" id="editProfilePicFile" class="file-input" accept="image/*">
-      <label for="editProfilePicFile" class="file-input-label">Change Picture</label>
-       <div id="editProfilePicStatus" class="upload-status"></div>
-      <input type="hidden" id="editProfilePicUrl"> </div>
-
-    <div class="form-group">
-      <label>Name</label>
-      <input type="text" id="editName" class="form-control">
-    </div>
-
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="editEmail" class="form-control">
-    </div>
-
-    <div class="form-group">
-      <label>Mobile</label>
-      <input type="text" id="editMobile" class="form-control">
-    </div>
-
-    <div class="form-group">
-      <label>Shares</label>
-      <input type="number" id="editShares" class="form-control">
-    </div>
-
-    <div class="form-group">
-      <label>RMZ ID</label>
-      <p id="rmzIdDisplay">-</p>
-    </div>
-
-
-    <div class="form-group">
-      <label>Created At</label>
-      <p id="createdAt">-</p>
-    </div>
-
-    <div class="form-group">
-      <label>Last Login</label>
-      <p id="lastLogin">-</p>
-    </div>
-
-    <div class="form-group">
-      <label>Transaction History</label>
-      <div class="history-list" id="historyList"></div>
-    </div>
-
-    <div class="btn-group">
-      <button class="btn btn-success" onclick="saveUser()" id="saveUserBtn">Save Changes</button>
-      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-      <button class="btn btn-danger" onclick="deleteUser()">Delete Member</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="addMemberModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Add New Member</h2>
-      <button class="close-modal" onclick="closeAddModal()">&times;</button>
-    </div>
-
-    <div class="profile-pic-container">
-      <div class="profile-pic-preview" id="newProfilePicPreview">
-         <i class="fas fa-user"></i> </div>
-       <input type="file" id="newUserProfilePicFile" class="file-input" accept="image/*">
-       <label for="newUserProfilePicFile" class="file-input-label">Upload Picture</label>
-       <div id="newUserProfilePicStatus" class="upload-status"></div>
-       <input type="hidden" id="newUserProfilePicUrl"> </div>
-
-
-    <div class="form-group">
-      <label>Name</label>
-      <input type="text" id="newUserName" class="form-control" placeholder="Enter full name" required>
-    </div>
-
-    <div class="form-group">
-      <label>Mobile Number</label>
-      <input type="tel" id="newUserMobile" class="form-control" placeholder="Enter mobile number" required>
-    </div>
-
-    <div class="form-group">
-      <label>Email (Optional)</label> <input type="email" id="newUserEmail" class="form-control" placeholder="Enter email address">
-    </div>
-
-    <div class="form-group">
-      <label>Initial Shares</label>
-      <input type="number" id="newUserShares" class="form-control" value="0" min="0" required>
-    </div>
-
-    <div class="btn-group">
-      <button class="btn btn-success" onclick="addNewMember()" id="addMemberBtn">Add Member</button>
-      <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-
-<script>
-  // Firebase configuration (Keep yours)
-  const firebaseConfig = {
-    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc", // Replace with your actual API key
-    authDomain: "re-sh-51ff6.firebaseapp.com",
-    databaseURL: "https://re-sh-51ff6-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "re-sh-51ff6",
-    storageBucket: "re-sh-51ff6.appspot.com", // This is no longer used by the script but fine to keep
-    messagingSenderId: "870340778217",
-    appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
-    measurementId: "G-E3884F19J2"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  // const storage = firebase.storage(); // Firebase Storage is no longer used
-
-  let currentUserId = ''; // Stores the Firebase key of the user being edited
-  let originalProfilePicUrl = ''; // Store original URL when editing
-  let originalNotificationImageUrl = ''; // Store original URL when editing notification
-  const TOTAL_SHARES_CAP = 1000; // कुल शेयर्स की सीमा
-  const MAX_NOTIFICATIONS_DISPLAY = 5; // पिछली सूचनाओं की संख्या
-
-  // --- ImgBB Configuration ---
-  const imgbbApiKey = '65bbcf742486328061382f03949b47c6'; // <-- IMPORTANT: Replace with your actual ImgBB API key
-  const imgbbUploadUrl = 'https://api.imgbb.com/1/upload';
-
-  // Password Protection
-  const ADMIN_PASSWORD = "753690"; // अपना सुरक्षित पासवर्ड यहाँ सेट करें
-
-  function checkPassword() {
-    const enteredPassword = document.getElementById('passwordInput').value;
-    const errorMsg = document.getElementById('errorMsg');
-
-    if (enteredPassword === ADMIN_PASSWORD) {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block'; // Show dashboard
-      loadDashboard();
-      loadNotifications(); // मौजूदा सूचनाएं लोड करें
-    } else {
-      errorMsg.style.display = 'block';
-      document.getElementById('passwordInput').value = '';
-      setTimeout(() => {
-        errorMsg.style.display = 'none';
-      }, 3000);
-    }
-  }
-
-  // Enter दबाने पर पासवर्ड सबमिट करने की अनुमति दें
-  document.getElementById('passwordInput').addEventListener('keyup', function(event) {
-    if (event.key === 'Enter') {
-      checkPassword();
-    }
-  });
-
-  // --- ImgBB Image Upload Function ---
-  async function uploadImageToImgBB(fileInputId, statusElementId) {
-      const fileInput = document.getElementById(fileInputId);
-      const statusElement = document.getElementById(statusElementId);
-
-      if (!imgbbApiKey || imgbbApiKey === 'YOUR_IMGBB_API_KEY') {
-           console.error("ImgBB API Key is not configured.");
-           if (statusElement) statusElement.textContent = 'Upload Error: API Key missing.';
-           return null;
-      }
-
-      if (!fileInput.files || fileInput.files.length === 0) {
-          if (statusElement) statusElement.textContent = ''; // Clear previous status
-          return null; // No file selected
-      }
-
-      const file = fileInput.files[0];
-      const formData = new FormData();
-      formData.append('image', file);
-      // Optional: Set expiration if needed (e.g., '600' for 10 minutes)
-      // formData.append('expiration', '600');
-
-      if (statusElement) statusElement.textContent = 'Uploading...';
-
-      try {
-          const response = await fetch(`${imgbbUploadUrl}?key=${imgbbApiKey}`, {
-              method: 'POST',
-              body: formData,
-          });
-
-          const result = await response.json();
-
-          if (response.ok && result.success) {
-              if (statusElement) statusElement.textContent = 'Upload successful!';
-              setTimeout(() => { if (statusElement) statusElement.textContent = ''; }, 2000);
-              console.log("ImgBB Upload Result:", result);
-              return result.data.url; // Return the direct image URL
-          } else {
-              console.error("ImgBB Upload Error:", result);
-              const errorMessage = result?.error?.message || `HTTP error! status: ${response.status}`;
-              if (statusElement) statusElement.textContent = `Upload failed: ${errorMessage}`;
-              return null;
-          }
-      } catch (error) {
-          console.error("ImgBB Fetch Error:", error);
-          if (statusElement) statusElement.textContent = 'Upload failed. Check console.';
-          return null; // Indicate failure
-      }
-  }
-
-
-  // --- Image Preview Functions ---
- function displayImagePreview(fileInputId, previewElementId) {
-      const fileInput = document.getElementById(fileInputId);
-      const previewElement = document.getElementById(previewElementId);
-
-      if (fileInput.files && fileInput.files[0]) {
-          const reader = new FileReader();
-
-          reader.onload = function(e) {
-              // मुख्य प्रोफाइल पिक प्रीव्यू के लिए, सामग्री बदलें
-              if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview') {
-                 previewElement.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-              }
-              // छोटे नोटिफिकेशन प्रीव्यू के लिए, src सेट करें और दिखाएं
-              else if (previewElementId === 'notificationImagePreview') {
-                  previewElement.src = e.target.result;
-                  previewElement.style.display = 'block';
-              }
-          }
-          reader.readAsDataURL(fileInput.files[0]);
-      } else {
-          // यदि कोई फ़ाइल नहीं चुनी गई है तो वैकल्पिक रूप से प्रीव्यू छिपाएं (नोटिफिकेशन के लिए)
-           if (previewElementId === 'notificationImagePreview') {
-                previewElement.src = '#';
-                previewElement.style.display = 'none';
-            }
-            // प्रोफाइल पिक के लिए डिफ़ॉल्ट आइकन पर रीसेट करें
-           else if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview'){
-                 previewElement.innerHTML = '<i class="fas fa-user"></i>';
-           }
-      }
-  }
-
- function setPreviewFromUrl(url, previewElementId) {
-    const previewElement = document.getElementById(previewElementId);
-     if (previewElementId === 'profilePicPreview' || previewElementId === 'newProfilePicPreview') {
-        if (url) {
-            previewElement.innerHTML = `<img src="${url}" alt="Profile Picture">`;
-        } else {
-            previewElement.innerHTML = '<i class="fas fa-user"></i>'; // डिफ़ॉल्ट आइकन
-        }
-     }
-     else if (previewElementId === 'notificationImagePreview') {
-         if(url) {
-             previewElement.src = url;
-             previewElement.style.display = 'block';
-         } else {
-             previewElement.src = '#';
-             previewElement.style.display = 'none';
-         }
-     }
-  }
-
-  // Event listeners for image previews when file is selected
-  document.getElementById('newUserProfilePicFile').addEventListener('change', () => displayImagePreview('newUserProfilePicFile', 'newProfilePicPreview'));
-  document.getElementById('editProfilePicFile').addEventListener('change', () => displayImagePreview('editProfilePicFile', 'profilePicPreview'));
-  document.getElementById('notificationImageFile').addEventListener('change', () => displayImagePreview('notificationImageFile', 'notificationImagePreview'));
-
-
-  function formatDateTime(isoString) {
-    if (!isoString) return "N/A";
-    try {
-        const dateObj = new Date(isoString);
-        // जांचें कि क्या तारीख मान्य है
-        if (isNaN(dateObj.getTime())) {
-            return "Invalid Date";
-        }
-        return dateObj.toLocaleString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
-    } catch (e) {
-        console.error("Error formatting date:", isoString, e);
-        return "Date Error";
-    }
-}
-
-
-  function loadDashboard() {
-    db.ref('users').orderByKey().once('value', snapshot => { // Order by Firebase key
-      const data = snapshot.val();
-      let totalUsersCount = 0;
-      let totalSharesSold = 0;
-      let html = '';
-
-      if (data) {
-         // Firebase द्वारा कुंजी के अनुसार क्रमबद्ध डेटा पहले से ही है
-         Object.keys(data).forEach(id => {
-            if (data[id]) { // सुनिश्चित करें कि उपयोगकर्ता डेटा मौजूद है
-                 totalUsersCount++;
-                 totalSharesSold += parseInt(data[id].shares || 0);
-                 const displayId = data[id].rmzID || id; // प्रदर्शन के लिए RMZ ID का उपयोग करें
-                 html += `<li class="user-item" onclick="loadUserData('${id}')">${displayId}</li>`;
-            }
-        });
-      }
-
-      if (html === '') {
-        html = '<li>No members found</li>';
-      }
-
-      document.getElementById('totalUsers').innerText = totalUsersCount;
-      document.getElementById('totalShares').innerText = totalSharesSold;
-      document.getElementById('availableSharesValue').innerText = Math.max(0, TOTAL_SHARES_CAP - totalSharesSold);
-      document.getElementById('userList').innerHTML = html;
-    }, error => {
-        console.error("Error loading users:", error);
-        alert("Could not load user data. Please check console.");
-        document.getElementById('userList').innerHTML = '<li>Error loading members</li>';
-    });
-  }
-
-  function toggleUserList() {
-    const userList = document.getElementById('userList');
-    userList.classList.toggle('show');
-  }
-
-  function searchAndFilter() {
-    const searchTerm = document.getElementById('searchBox').value.trim().toLowerCase();
-    const shareFilter = document.getElementById('filterShares').value;
-
-    db.ref('users').orderByKey().once('value', snapshot => { // Order by Firebase key
-      const data = snapshot.val();
-      let html = '';
-      let filteredCount = 0;
-      let filteredSharesSold = 0;
-      let allUsersTotalShares = 0; // सभी उपयोगकर्ताओं के कुल शेयर गणना करने के लिए
-
-      if (data) {
-        Object.keys(data).forEach(id => {
-          const user = data[id];
-          if (!user) return;
-
-          // सभी उपयोगकर्ताओं के कुल शेयरों की गणना करें
-          allUsersTotalShares += parseInt(user.shares || 0);
-
-          const userName = user.name ? user.name.toLowerCase() : '';
-          const userMobile = user.mobile ? user.mobile.toLowerCase() : '';
-          const userRmzId = user.rmzID ? user.rmzID.toLowerCase() : id.toLowerCase(); // RMZ ID या कुंजी द्वारा खोजें
-          const userShares = parseInt(user.shares || 0);
-
-          // खोज शब्द जांचें (ID, नाम, मोबाइल)
-          const matchesSearch = searchTerm === '' ||
-                               userRmzId.includes(searchTerm) ||
-                               userName.includes(searchTerm) ||
-                               userMobile.includes(searchTerm);
-
-          // शेयर फ़िल्टर जांचें
-          let matchesFilter = true;
-          if (shareFilter !== '') {
-            const range = shareFilter.split('-');
-            if (range.length === 2) {
-                const min = parseInt(range[0]);
-                const max = parseInt(range[1]);
-                 // शामिल करने के लिए सीमा जांच को समायोजित करें
-                if (!isNaN(min) && !isNaN(max)) {
-                    matchesFilter = userShares >= min && userShares <= max;
-                } else {
-                    matchesFilter = false; // अमान्य सीमा
-                }
-            } else if (shareFilter === '101+') { // 101+ केस हैंडल करें
-                 matchesFilter = userShares >= 101;
-            } else {
-                matchesFilter = false; // अमान्य फ़िल्टर मान
-            }
-          }
-
-
-          if (matchesSearch && matchesFilter) {
-            filteredCount++;
-            filteredSharesSold += userShares;
-            const displayId = user.rmzID || id;
-            html += `<li class="user-item" onclick="loadUserData('${id}')">${displayId}</li>`;
-          }
-        });
-      }
-
-      if (html === '') {
-        html = '<li>No matching members found</li>';
-      }
-
-      document.getElementById('userList').innerHTML = html;
-
-      // डैशबोर्ड कार्ड अपडेट करें
-       document.getElementById('totalUsers').innerText = filteredCount; // फ़िल्टर किए गए सदस्यों की संख्या दिखाएं
-       document.getElementById('totalShares').innerText = filteredSharesSold; // केवल फ़िल्टर किए गए सदस्यों के शेयर दिखाएं
-       // उपलब्ध शेयर हमेशा कुल कैप और *सभी* बेचे गए शेयरों पर आधारित होते हैं
-       document.getElementById('availableSharesValue').innerText = Math.max(0, TOTAL_SHARES_CAP - allUsersTotalShares);
-
-       // यदि खोज/फ़िल्टर साफ़ है, तो पूर्ण डैशबोर्ड आँकड़े पुनः लोड करें
-       if(searchTerm === '' && shareFilter === '') {
-            loadDashboard(); // यह ओवरराइड करेगा और सभी सदस्यों के आँकड़े दिखाएगा
-       }
-
-
-      // फ़िल्टरिंग/खोज के बाद सूची हमेशा दिखाएं
-      document.getElementById('userList').classList.add('show');
-    }, error => {
-         console.error("Error searching/filtering users:", error);
-         alert("Could not perform search/filter. Please check console.");
-         document.getElementById('userList').innerHTML = '<li>Error during search</li>';
-    });
-  }
-
-
-  function loadUserData(id) {
-    db.ref('users/' + id).once('value', snap => {
-      if (!snap.exists()) {
-        alert("Member data not found for ID: " + id);
-        return;
-      }
-
-      const user = snap.val();
-      currentUserId = id; // Firebase कुंजी स्टोर करें
-      originalProfilePicUrl = user.profilePic || ''; // मूल पिक URL स्टोर करें
-
-      const displayId = user.rmzID || id; // प्रदर्शन के लिए RMZ ID का उपयोग करें
-      document.getElementById('modalTitle').textContent = `Member: ${displayId}`;
-
-      // फ़ॉर्म फ़ील्ड भरें
-      document.getElementById('editName').value = user.name || '';
-      document.getElementById('editEmail').value = user.email || '';
-      document.getElementById('editMobile').value = user.mobile || '';
-      document.getElementById('editShares').value = user.shares || 0;
-      document.getElementById('rmzIdDisplay').textContent = displayId; // RMZ ID प्रदर्शित करें
-      document.getElementById('createdAt').textContent = formatDateTime(user.createdAt);
-      document.getElementById('lastLogin').textContent = formatDateTime(user.lastLogin);
-
-      // पिछला फ़ाइल इनपुट स्टेटस/मान साफ़ करें
-      document.getElementById('editProfilePicFile').value = null;
-      document.getElementById('editProfilePicStatus').textContent = '';
-      document.getElementById('editProfilePicUrl').value = originalProfilePicUrl; // URL को छिपे हुए इनपुट में स्टोर करें (हालांकि सीधे उपयोग नहीं किया गया)
-
-      // संग्रहीत URL से प्रोफ़ाइल चित्र प्रीव्यू सेट करें
-      setPreviewFromUrl(originalProfilePicUrl, 'profilePicPreview');
-
-      // इतिहास सूची बनाएं
-      let historyHtml = '';
-      if (user.history) {
-         const sortedHistoryKeys = Object.keys(user.history).sort((a, b) => {
-             // सुनिश्चित करें कि दिनांक मौजूद है, अन्यथा 0 का उपयोग करें
-             const dateA = new Date(user.history[a]?.date || 0).getTime();
-             const dateB = new Date(user.history[b]?.date || 0).getTime();
-             return dateB - dateA; // नवीनतम पहले
-         });
-
-        sortedHistoryKeys.forEach(key => {
-          const tx = user.history[key];
-          // सुनिश्चित करें कि लेन-देन ऑब्जेक्ट मान्य है
-           if (tx && tx.date !== undefined && tx.shares !== undefined) {
-              historyHtml += `
-                <div class="history-item">
-                  <strong>${formatDateTime(tx.date)}</strong><br>
-                  ${tx.shares > 0 ? '+' : ''}${tx.shares} shares - ${tx.note || 'No description'}
+<body class="bg-gray-100">
+    <!-- Authentication Page -->
+    <div id="authOverlay" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fas fa-store"></i></div>
+                <h2 class="text-2xl font-bold">Ramazone Admin</h2>
+                <p class="mt-2 text-white text-opacity-80">Sign in to your admin account</p>
+            </div>
+            <div class="p-8">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="adminEmail" class="form-label"><i class="fas fa-envelope text-gray-400 mr-2"></i>Email Address</label>
+                        <input type="email" id="adminEmail" value="ramazone007@gmail.com" required class="form-control" placeholder="Enter your email">
+                    </div>
+                    <div>
+                        <label for="adminPassword" class="form-label"><i class="fas fa-lock text-gray-400 mr-2"></i>Password</label>
+                        <div class="relative">
+                            <input type="password" id="adminPassword" value="Pk79036@" required class="form-control" placeholder="Enter your password">
+                            <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button id="authButton" type="submit" class="w-full btn btn-primary py-3 font-semibold text-base"><span id="buttonText">Sign In</span><i class="fas fa-sign-in-alt ml-2"></i></button>
+                </form>
+                <div id="running-locally-warning" class="mt-6 bg-yellow-50 text-yellow-700 p-3 rounded-md text-sm border border-yellow-200 hidden">
+                    <p class="font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Important Notice: Use a local server.</p>
                 </div>
-              `;
-           }
-        });
-      }
-       if (historyHtml === '') {
-           historyHtml = '<div class="history-item">No transaction history</div>';
-       }
-      document.getElementById('historyList').innerHTML = historyHtml;
+            </div>
+        </div>
+    </div>
 
-      // मोडल दिखाएं
-      document.getElementById('userModal').style.display = 'block';
-    }, error => {
-        console.error("Error loading user data:", error);
-        alert("Could not load member details. Please check console.");
-    });
-  }
+    <!-- Main Admin Layout -->
+    <div id="adminLayout" class="hidden">
+        <aside id="sidebar" class="sidebar w-64 fixed inset-y-0 left-0 z-20 transform -translate-x-full md:translate-x-0">
+            <div class="flex flex-col h-full">
+                <div class="sidebar-brand h-16 flex items-center justify-center px-4 shadow-md flex-shrink-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white p-1.5 rounded-md"><i class="fas fa-store text-xl text-primary"></i></div>
+                        <h1 class="text-xl font-bold text-white">Ramazone</h1>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto py-5">
+                    <nav class="space-y-1">
+                        <a href="#" data-target="slider-section" class="sidebar-link active"><i class="fas fa-images"></i><span>Slider</span></a>
+                        <a href="#" data-target="marquee-section" class="sidebar-link"><i class="fas fa-stream"></i><span>Brand Marquee</span></a>
+                        <a href="#" data-target="search-section" class="sidebar-link"><i class="fas fa-search"></i><span>Search Section</span></a>
+                        <a href="#" data-target="special-categories-section" class="sidebar-link"><i class="fas fa-star"></i><span>Special Categories</span></a>
+                        <a href="#" data-target="normal-categories-section" class="sidebar-link"><i class="fas fa-th-list"></i><span>Normal Categories</span></a>
+                        <a href="#" data-target="festive-section" class="sidebar-link"><i class="fas fa-gifts"></i><span>Festive Collection</span></a>
+                        <a href="#" data-target="dynamic-sections-section" class="sidebar-link"><i class="fas fa-layer-group"></i><span>Dynamic Sections</span></a>
+                        <a href="#" data-target="info-marquee-section" class="sidebar-link"><i class="fas fa-info-circle"></i><span>Info Marquee</span></a>
+                        <a href="#" data-target="sponsor-section" class="sidebar-link"><i class="fas fa-ad"></i><span>Sponsor</span></a>
+                        <a href="#" data-target="flipcard-section" class="sidebar-link"><i class="fas fa-clone"></i><span>Flip Card</span></a>
+                        <a href="#" data-target="advantages-section" class="sidebar-link"><i class="fas fa-check-circle"></i><span>Advantages</span></a>
+                        <a href="#" data-target="footer-section" class="sidebar-link"><i class="fas fa-link"></i><span>Footer & Social</span></a>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-gray-700 mt-auto flex-shrink-0">
+                    <button id="signOutButton" class="w-full btn btn-light hover:bg-gray-200"><i class="fas fa-sign-out-alt mr-2"></i><span>Sign Out</span></button>
+                </div>
+            </div>
+        </aside>
 
- async function saveUser() {
-    if (!currentUserId) return;
+        <div class="md:ml-64 flex-1 flex flex-col">
+            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6 flex-shrink-0 sticky top-0 z-10">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="text-gray-500 focus:outline-none md:hidden mr-4"><i class="fas fa-bars text-lg"></i></button>
+                    <h2 id="contentTitle" class="text-xl font-semibold text-gray-800">Slider</h2>
+                </div>
+            </header>
+            <main id="main-content-area" class="flex-1 overflow-y-auto p-6">
+                <div id="adminLoadingIndicator" class="text-center py-20">
+                    <div class="loader"></div>
+                    <p class="text-primary font-medium mt-6">Loading Data...</p>
+                </div>
+                <div id="sections-container" class="hidden">
+                    <section id="slider-section" class="content-section hidden"></section>
+                    <section id="marquee-section" class="content-section hidden"></section>
+                    <section id="search-section" class="content-section hidden"></section>
+                    <section id="special-categories-section" class="content-section hidden"></section>
+                    <section id="normal-categories-section" class="content-section hidden"></section>
+                    <section id="festive-section" class="content-section hidden"></section>
+                    <section id="dynamic-sections-section" class="content-section hidden"></section>
+                    <section id="info-marquee-section" class="content-section hidden"></section>
+                    <section id="sponsor-section" class="content-section hidden"></section>
+                    <section id="flipcard-section" class="content-section hidden"></section>
+                    <section id="advantages-section" class="content-section hidden"></section>
+                    <section id="footer-section" class="content-section hidden"></section>
+                </div>
+            </main>
+        </div>
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black opacity-50 z-10 hidden md:hidden"></div>
+    </div>
 
-    const saveButton = document.getElementById('saveUserBtn');
-    saveButton.disabled = true; // सेव के दौरान बटन अक्षम करें
-    saveButton.textContent = 'Saving...';
+    <div id="toast-container"></div>
 
-    let newProfilePicUrl = originalProfilePicUrl; // डिफ़ॉल्ट रूप से मूल URL रखें
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script>
+        // --- CONFIGURATIONS ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAgzs3GqaafEHQSnEyZqrjQT0r_6jXMaGQ",
+            authDomain: "re-store-7f2b3.firebaseapp.com",
+            databaseURL: "https://re-store-7f2b3-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "re-store-7f2b3",
+            storageBucket: "re-store-7f2b3.appspot.com",
+            messagingSenderId: "774895588253",
+            appId: "1:774895588253:web:dad6c40fed92bce7c39574"
+        };
+        const IMGBB_API_KEY = '65bbcf742486328061382f03949b47c6';
+        const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+        const DB_BASE_PATH = 'ramazone/homepage';
+        const ADMIN_UID = 'U5qHhCFEJEWD1dU8cHDkbVe3cpv1';
 
-    // जांचें कि क्या अपलोड के लिए नई फ़ाइल चुनी गई थी
-    if (document.getElementById('editProfilePicFile').files.length > 0) {
-        // ImgBB पर अपलोड करें
-        const uploadedUrl = await uploadImageToImgBB('editProfilePicFile', 'editProfilePicStatus');
-        if (uploadedUrl) {
-             newProfilePicUrl = uploadedUrl; // यदि सफल हो तो नए URL का उपयोग करें
-        } else {
-             // अपलोड विफल - मूल URL रखें, उपयोगकर्ता को सूचित करें
-             alert("Profile picture upload failed. Changes saved without updating picture.");
-             // newProfilePicUrl पहले से ही originalProfilePicUrl पर सेट है
-        }
-    }
+        // --- GLOBAL VARIABLES ---
+        let app, auth, db;
 
-    const updatedShares = parseInt(document.getElementById('editShares').value);
-    // उपलब्ध शेयरों की गणना करें (यह गणना केवल वर्तमान दृश्य पर आधारित है, बेहतर सटीकता के लिए डीबी से जांचें)
-    // const availableShares = parseInt(document.getElementById('availableSharesValue').innerText || '0');
-    // const currentSharesOnScreen = parseInt(document.getElementById('totalShares').innerText || '0'); // कुल बेचे गए शेयर (स्क्रीन पर)
-
-    // Fetch current shares directly from DB for accurate comparison and validation
-    db.ref('users/' + currentUserId + '/shares').once('value', async currentSharesSnap => {
-        const currentDbShares = parseInt(currentSharesSnap.val() || 0);
-        const shareChange = updatedShares - currentDbShares;
-
-        // Validate against total available shares (only if increasing shares)
-        if (shareChange > 0) {
-            const totalSoldSharesSnapshot = await db.ref('users').once('value');
-            let totalSoldShares = 0;
-            if (totalSoldSharesSnapshot.exists()) {
-                Object.values(totalSoldSharesSnapshot.val()).forEach(u => {
-                    if (u && typeof u.shares !== 'undefined') {
-                        totalSoldShares += parseInt(u.shares || 0);
+        // --- UTILITY FUNCTIONS ---
+        const showToast = (title, message, type = 'info', duration = 5000) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const iconClass = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.innerHTML = `<div class="toast-icon"><i class="fas ${iconClass}"></i></div><div class="flex-1"><div class="font-semibold">${title}</div><div class="text-sm text-gray-600">${message}</div></div><div class="toast-progress"><div class="toast-progress-bar"></div></div>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            const progressBar = toast.querySelector('.toast-progress-bar');
+            progressBar.style.transitionDuration = `${duration}ms`;
+            setTimeout(() => progressBar.style.width = '100%', 50);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, duration);
+        };
+        
+        const uploadImage = async (file) => {
+            if (!file) return null;
+            const formData = new FormData();
+            formData.append('key', IMGBB_API_KEY);
+            formData.append('image', file);
+            showToast('Uploading...', `Uploading ${file.name}`, 'info', 10000);
+            const response = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: formData });
+            const result = await response.json();
+            if (!result.success) throw new Error(result.error.message || 'Image upload failed');
+            return result.data.url;
+        };
+        
+        const setupImagePreview = (container) => {
+            container.addEventListener('change', (e) => {
+                if (e.target.matches('.form-file-upload')) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const previewImg = e.target.closest('.form-file-preview').querySelector('img');
+                        const reader = new FileReader();
+                        reader.onload = (event) => { previewImg.src = event.target.result; };
+                        reader.readAsDataURL(file);
                     }
-                });
-            }
-            // Calculate shares excluding the current user's *original* count before this update
-            const sharesExcludingCurrentUser = totalSoldShares - currentDbShares;
-            const totalAvailableCap = TOTAL_SHARES_CAP - sharesExcludingCurrentUser; // How many shares can *this* user take max
-
-            if (updatedShares > totalAvailableCap) {
-                 alert(`Error: Cannot set shares to ${updatedShares}. Only ${totalAvailableCap} shares are available for this member considering the total cap of ${TOTAL_SHARES_CAP}.`);
-                 saveButton.disabled = false;
-                 saveButton.textContent = 'Save Changes';
-                 return; // Stop saving
-            }
-        }
-
-
-        const updatedData = {
-          name: document.getElementById('editName').value.trim(),
-          email: document.getElementById('editEmail').value.trim(),
-          mobile: document.getElementById('editMobile').value.trim(),
-          shares: isNaN(updatedShares) ? 0 : updatedShares, // Ensure shares is a number
-          profilePic: newProfilePicUrl, // Use the determined URL (new or original)
-          updatedAt: new Date().toISOString()
-          // rmzID should generally not be updated here
+                }
+            });
         };
 
-        try {
-            // Add transaction history if shares changed
-            if (!isNaN(updatedData.shares) && shareChange !== 0) {
-                const historyEntry = {
-                    date: updatedData.updatedAt, // Use update timestamp
-                    shares: shareChange,
-                    note: `Shares updated by admin (${shareChange > 0 ? '+' : ''}${shareChange})`
-                };
-                // Push new history entry
-                await db.ref('users/' + currentUserId + '/history').push(historyEntry);
+        // --- DYNAMIC CONTENT RENDERING ---
+        const createItemCard = (title, contentHtml, data) => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div class="item-card-header">
+                    <h4 class="item-card-title">${title}</h4>
+                    <button type="button" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></button>
+                </div>
+                <div class="item-card-body">${contentHtml}</div>
+            `;
+            card.querySelector('.btn-danger').addEventListener('click', () => card.remove());
+            if (data) {
+                for (const key in data) {
+                    const input = card.querySelector(`[data-key="${key}"]`);
+                    if (!input) continue;
+                    if (input.type === 'file') {
+                        const preview = card.querySelector(`[data-preview-for="${key}"]`);
+                        if (preview) preview.src = data[key] || '';
+                    } else {
+                        input.value = data[key] || '';
+                    }
+                }
             }
+            return card;
+        };
 
-            // Now update the main user data
-            await db.ref('users/' + currentUserId).update(updatedData);
-
-            alert("Member updated successfully!");
-            loadDashboard(); // Refresh dashboard data
-            closeModal();
-        } catch (error) {
-            console.error("Error updating member:", error);
-            alert("Error updating member: " + error.message);
-        } finally {
-            // Re-enable button regardless of success/failure
-            saveButton.disabled = false;
-            saveButton.textContent = 'Save Changes';
-        }
-
-    }).catch(error => {
-         console.error("Error fetching current shares:", error);
-          alert("Could not fetch current shares for validation or history. Update aborted.");
-          saveButton.disabled = false;
-          saveButton.textContent = 'Save Changes';
-    });
- }
-
- async function deleteUser() {
-    if (!currentUserId) return;
-
-    const userRef = db.ref('users/' + currentUserId);
-
-    try {
-        // Get RMZ ID for confirmation message
-        const snap = await userRef.once('value');
-        if (!snap.exists()) {
-            alert("Member data not found, cannot delete.");
-            return;
-        }
-        const userData = snap.val();
-        const displayId = userData?.rmzID || currentUserId;
-        // We don't need the profilePicUrl for deletion anymore
-
-        if (!confirm(`Are you sure you want to permanently delete member ${displayId}? This action cannot be undone.`)) {
-          return;
-        }
-
-        // --- Remove Firebase Storage Deletion ---
-        // The profile picture hosted on ImgBB will remain, but will be orphaned.
-        // No action needed here to delete the image.
-
-        // Delete user data from Realtime Database
-        await userRef.remove();
-
-        alert(`Member ${displayId} deleted successfully from the database!`);
-        loadDashboard(); // Refresh dashboard
-        closeModal(); // Close modal
-
-    } catch (error) {
-        console.error("Error deleting member:", error);
-        alert("Error deleting member: " + error.message + ". Please check the console for details.");
-        // Don't close modal on error so user can see what went wrong
-    }
- }
-
-
-  function closeModal() {
-    document.getElementById('userModal').style.display = 'none';
-    currentUserId = ''; // Reset current ID
-    originalProfilePicUrl = ''; // Reset original URL
-    // Reset preview to default
-    setPreviewFromUrl(null, 'profilePicPreview');
-    document.getElementById('editProfilePicStatus').textContent = ''; // Clear status
-    document.getElementById('editProfilePicFile').value = null; // Clear file input
-  }
-
-  function showAddMemberForm() {
-      // Reset previous values
-      document.getElementById('newUserName').value = '';
-      document.getElementById('newUserMobile').value = '';
-      document.getElementById('newUserEmail').value = '';
-      document.getElementById('newUserShares').value = '0';
-      document.getElementById('newUserProfilePicFile').value = null; // Clear file input
-      setPreviewFromUrl(null, 'newProfilePicPreview'); // Reset preview
-      document.getElementById('newUserProfilePicStatus').textContent = ''; // Clear status
-      document.getElementById('newUserProfilePicUrl').value = ''; // Clear hidden URL field (not strictly needed now)
-      document.getElementById('addMemberModal').style.display = 'block';
-  }
-
-  function closeAddModal() {
-     document.getElementById('addMemberModal').style.display = 'none';
-  }
-
-  async function addNewMember() {
-      const name = document.getElementById('newUserName').value.trim();
-      const mobile = document.getElementById('newUserMobile').value.trim();
-      const email = document.getElementById('newUserEmail').value.trim();
-      const shares = parseInt(document.getElementById('newUserShares').value);
-      const addButton = document.getElementById('addMemberBtn');
-
-      if (!name || !mobile) {
-          alert("Please enter Name and Mobile number.");
-          return;
-      }
-      if (isNaN(shares) || shares < 0) {
-          alert("Please enter a valid non-negative number for Initial Shares.");
-          return;
-      }
-
-       // Check available shares
-        const totalSoldSharesSnapshot = await db.ref('users').once('value');
-        let totalSoldShares = 0;
-        if (totalSoldSharesSnapshot.exists()) {
-            Object.values(totalSoldSharesSnapshot.val()).forEach(u => {
-                if (u && typeof u.shares !== 'undefined') {
-                    totalSoldShares += parseInt(u.shares || 0);
+        const renderListSection = (sectionId, dbKey, sectionTitle, itemTitle, itemHtml, data, dataKeys) => {
+            const section = document.getElementById(sectionId);
+            section.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">${sectionTitle}</h2>
+                    <button class="btn btn-primary add-item-btn"><i class="fas fa-plus mr-2"></i> Add ${itemTitle}</button>
+                </div>
+                <form class="list-form">
+                    <div class="space-y-4 item-container"></div>
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i> Save Section</button>
+                    </div>
+                </form>
+            `;
+            
+            const container = section.querySelector('.item-container');
+            if (data) data.forEach(item => container.appendChild(createItemCard(itemTitle, itemHtml, item)));
+            
+            section.querySelector('.add-item-btn').addEventListener('click', () => {
+                container.appendChild(createItemCard(itemTitle, itemHtml));
+            });
+            
+            section.querySelector('.list-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showToast('Saving...', `Saving ${sectionTitle}`, 'info');
+                try {
+                    const items = [];
+                    for (const card of container.children) {
+                        const itemData = {};
+                        for (const key of dataKeys) {
+                            const input = card.querySelector(`[data-key="${key}"]`);
+                            if (input.type === 'file') {
+                                let imageUrl = card.querySelector(`[data-preview-for="${key}"]`).src;
+                                if (input.files[0]) imageUrl = await uploadImage(input.files[0]);
+                                itemData[key] = imageUrl;
+                            } else {
+                                itemData[key] = input.value;
+                            }
+                        }
+                        items.push(itemData);
+                    }
+                    await db.ref(`${DB_BASE_PATH}/${dbKey}`).set(items);
+                    showToast('Success', `${sectionTitle} saved successfully!`, 'success');
+                } catch (err) {
+                    showToast('Error', `Failed to save: ${err.message}`, 'error');
                 }
             });
-        }
-        const availableShares = TOTAL_SHARES_CAP - totalSoldShares;
-
-        if (shares > availableShares) {
-            alert(`Error: Cannot add ${shares} shares. Only ${availableShares} shares are available in total.`);
-            return;
-        }
-
-
-      addButton.disabled = true;
-      addButton.textContent = 'Adding...';
-
-      let profilePicUrl = null;
-      // Upload image if file selected
-      if (document.getElementById('newUserProfilePicFile').files.length > 0) {
-           profilePicUrl = await uploadImageToImgBB('newUserProfilePicFile', 'newUserProfilePicStatus');
-          if (profilePicUrl === null) {
-              alert("Profile picture upload failed, but member will be added without a picture.");
-              // Continue, but URL will be null
-          }
-      }
-
-       // Get next RMZ ID
-      db.ref('users').orderByKey().limitToLast(1).once('value', async lastUserSnap => {
-           let nextIdNumber = 1;
-           if (lastUserSnap.exists()) {
-                const lastUserKey = Object.keys(lastUserSnap.val())[0]; // Get the last key (which is the RMZ ID)
-                // Extract number part, handle potential non-RMZ keys if any edge cases exist
-                const match = lastUserKey.match(/RMZ(\d+)/);
-                if (match && match[1]) {
-                     const lastNum = parseInt(match[1], 10);
-                     if (!isNaN(lastNum)) {
-                         nextIdNumber = lastNum + 1;
-                     }
+            setupImagePreview(container);
+        };
+        
+        const renderSingleFormSection = (sectionId, dbKey, sectionTitle, formHtml, data, saveHandler) => {
+            const section = document.getElementById(sectionId);
+            section.innerHTML = `
+                <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">${sectionTitle}</h2></div>
+                <form id="${sectionId}-form" class="admin-card">
+                    <div class="card-body">${formHtml}</div>
+                    <div class="card-footer flex justify-end">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i> Save Section</button>
+                    </div>
+                </form>
+            `;
+            if (data) {
+                for (const key in data) {
+                    const input = section.querySelector(`[data-key="${key}"]`);
+                    if (input) {
+                        if (input.type === 'file') {
+                           const preview = section.querySelector(`[data-preview-for="${key}"]`);
+                           if(preview) preview.src = data[key] || '';
+                        } else {
+                           input.value = data[key] || '';
+                        }
+                    }
                 }
-           }
-           const newRmzID = `RMZ${nextIdNumber.toString().padStart(4, '0')}`; // e.g., RMZ0001
+            }
+            setupImagePreview(section);
+            section.querySelector('form').addEventListener('submit', saveHandler);
+        };
+        
+        // --- ALL SECTIONS IMPLEMENTATION ---
+        
+        const renderAllSections = (data) => {
+            const imageAndLinkHtml = `<div class="form-group"><label class="form-label">Link URL</label><input type="url" class="form-control" data-key="linkUrl" placeholder="https://example.com"></div><div class="form-group"><label class="form-label">Image</label><div class="form-file-preview"><img data-preview-for="imageUrl" src=""><div class="placeholder"><i class="fas fa-image text-2xl"></i><p>Upload Image</p></div><input type="file" class="form-file-upload" data-key="imageUrl" accept="image/*"></div></div>`;
+            renderListSection('slider-section', 'slider', 'Homepage Slider', 'Slide', imageAndLinkHtml, data.slider, ['linkUrl', 'imageUrl']);
+            renderListSection('marquee-section', 'imageMarquee', 'Brand Marquee', 'Brand', imageAndLinkHtml, data.imageMarquee, ['linkUrl', 'imageUrl']);
 
-            const newUserData = {
-                rmzID: newRmzID,
-                name: name,
-                mobile: mobile,
-                email: email,
-                shares: shares,
-                profilePic: profilePicUrl, // Either uploaded URL or null
-                createdAt: new Date().toISOString(),
-                lastLogin: null, // New user, no previous login
-                history: {} // Start with empty history object
+            const categoryHtml = `<div class="form-group"><label class="form-label">Name</label><input type="text" class="form-control" data-key="name" placeholder="Category Name"></div>${imageAndLinkHtml}`;
+            renderListSection('special-categories-section', 'specialCategories', 'Special Categories', 'Category', categoryHtml, data.specialCategories, ['name', 'linkUrl', 'imageUrl']);
+            renderListSection('normal-categories-section', 'normalCategories', 'Normal Categories', 'Category', categoryHtml, data.normalCategories, ['name', 'linkUrl', 'imageUrl']);
+
+            renderSearchSection(data.search);
+            renderFestiveSection(data.festiveCollection);
+            renderDynamicSections(data.dynamicSection1, data.dynamicSection2);
+            renderInfoMarqueeSection(data.infoMarquee);
+            renderSponsorSection(data.sponsor);
+            renderFlipCardSection(data.flipCard);
+            renderAdvantagesSection(data.advantages);
+            renderFooterSection(data.footer);
+        };
+
+        const renderSearchSection = (data) => {
+            const formHtml = `<div class="form-group"><label class="form-label">Redirect URL</label><input type="url" class="form-control" data-key="redirectUrl"></div><div class="form-group"><label class="form-label">Scrolling Texts (comma-separated)</label><input type="text" class="form-control" data-key="scrollingTexts"></div>`;
+            renderSingleFormSection('search-section', 'search', 'Search Section', formHtml, { ...data, scrollingTexts: (data?.scrollingTexts || []).join(', ') }, async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Search Section', 'info');
+                try {
+                    const redirectUrl = e.target.querySelector('[data-key="redirectUrl"]').value;
+                    const scrollingTexts = e.target.querySelector('[data-key="scrollingTexts"]').value.split(',').map(s => s.trim()).filter(Boolean);
+                    await db.ref(`${DB_BASE_PATH}/search`).set({ redirectUrl, scrollingTexts });
+                    showToast('Success', 'Search Section saved!', 'success');
+                } catch (err) { showToast('Error', err.message, 'error'); }
+            });
+        };
+        
+        const renderFestiveSection = (data) => {
+            const section = document.getElementById('festive-section');
+            data = data || {};
+            section.innerHTML = `
+                <div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Festive Collection</h2></div>
+                <form id="festive-form">
+                    <div class="admin-card mb-6"><div class="card-body grid md:grid-cols-2 gap-6">
+                        <div class="form-group"><label class="form-label">Section Title</label><input type="text" class="form-control" id="festive-title" value="${data.title || ''}"></div>
+                        <div class="form-group"><label class="form-label">Background Image</label><div class="form-file-preview"><img id="festive-bg-preview" src="${data.backgroundImageUrl || ''}"><input type="file" id="festive-bg-image" class="form-file-upload" accept="image/*"></div></div>
+                    </div></div>
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-gray-800">Products</h3><button type="button" id="add-festive-product-btn" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Add Product</button></div>
+                    <div id="festive-products-container" class="space-y-4"></div>
+                    <div class="flex justify-end mt-6"><button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i>Save Festive Section</button></div>
+                </form>`;
+            
+            const container = section.querySelector('#festive-products-container');
+            const productHtml = `<div class="grid md:grid-cols-2 gap-6">
+                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-control" data-key="name"></div>
+                <div class="form-group"><label class="form-label">Offer Text</label><input type="text" class="form-control" data-key="offer"></div>
+                <div class="form-group"><label class="form-label">Link URL</label><input type="url" class="form-control" data-key="linkUrl"></div>
+                <div class="form-group"><label class="form-label">Image</label><div class="form-file-preview"><img data-preview-for="imageUrl" src=""><input type="file" class="form-file-upload" data-key="imageUrl" accept="image/*"></div></div>
+            </div>`;
+
+            if (data.products) data.products.forEach(p => container.appendChild(createItemCard('Product', productHtml, p)));
+            section.querySelector('#add-festive-product-btn').addEventListener('click', () => container.appendChild(createItemCard('Product', productHtml)));
+            
+            section.querySelector('#festive-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Festive Collection', 'info');
+                try {
+                    let backgroundImageUrl = section.querySelector('#festive-bg-preview').src;
+                    if(section.querySelector('#festive-bg-image').files[0]) backgroundImageUrl = await uploadImage(section.querySelector('#festive-bg-image').files[0]);
+
+                    const products = [];
+                    for(const card of container.children) {
+                        let imageUrl = card.querySelector('[data-preview-for="imageUrl"]').src;
+                        if(card.querySelector('[data-key="imageUrl"]').files[0]) imageUrl = await uploadImage(card.querySelector('[data-key="imageUrl"]').files[0]);
+                        products.push({
+                            name: card.querySelector('[data-key="name"]').value,
+                            offer: card.querySelector('[data-key="offer"]').value,
+                            linkUrl: card.querySelector('[data-key="linkUrl"]').value,
+                            imageUrl
+                        });
+                    }
+                    await db.ref(`${DB_BASE_PATH}/festiveCollection`).set({ title: section.querySelector('#festive-title').value, backgroundImageUrl, products });
+                    showToast('Success', 'Festive Collection saved!', 'success');
+                } catch(err) { showToast('Error', err.message, 'error'); }
+            });
+            setupImagePreview(section);
+        };
+
+        const renderDynamicSections = (data1, data2) => {
+            const section = document.getElementById('dynamic-sections-section');
+            data1 = data1 || {}; data2 = data2 || {};
+            const formHtml = (num, d) => `<div class="admin-card">
+                <div class="card-header"><h3>Section ${num}</h3></div>
+                <form id="dynamic-section-${num}-form" class="card-body space-y-4">
+                    <input type="hidden" data-key="id" value="dynamicSection${num}">
+                    <div><label class="form-label">Title</label><input type="text" class="form-control" data-key="title" value="${d.title || ''}"></div>
+                    <div><label class="form-label">Title Color</label><input type="color" class="form-control h-10" data-key="titleColor" value="${d.titleColor || '#000000'}"></div>
+                    <div><label class="form-label">Text</label><input type="text" class="form-control" data-key="text" value="${d.text || ''}"></div>
+                    <div><label class="form-label">Button Text</label><input type="text" class="form-control" data-key="buttonText" value="${d.buttonText || ''}"></div>
+                    <div><label class="form-label">Link URL</label><input type="url" class="form-control" data-key="linkUrl" value="${d.linkUrl || ''}"></div>
+                    <div><label class="form-label">Image</label><div class="form-file-preview"><img data-preview-for="imageUrl" src="${d.imageUrl || ''}"><input type="file" class="form-file-upload" data-key="imageUrl" accept="image/*"></div></div>
+                    <div class="flex justify-end"><button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i>Save Section ${num}</button></div>
+                </form></div>`;
+            
+            section.innerHTML = `<div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Dynamic Info Sections</h2></div><div class="grid lg:grid-cols-2 gap-6">${formHtml(1, data1)}${formHtml(2, data2)}</div>`;
+            
+            const saveHandler = async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const id = form.querySelector('[data-key="id"]').value;
+                showToast('Saving...', `Saving ${id}`, 'info');
+                try {
+                    let imageUrl = form.querySelector('[data-preview-for="imageUrl"]').src;
+                    if(form.querySelector('[data-key="imageUrl"]').files[0]) imageUrl = await uploadImage(form.querySelector('[data-key="imageUrl"]').files[0]);
+                    const saveData = {
+                        title: form.querySelector('[data-key="title"]').value,
+                        titleColor: form.querySelector('[data-key="titleColor"]').value,
+                        text: form.querySelector('[data-key="text"]').value,
+                        buttonText: form.querySelector('[data-key="buttonText"]').value,
+                        linkUrl: form.querySelector('[data-key="linkUrl"]').value,
+                        imageUrl
+                    };
+                    await db.ref(`${DB_BASE_PATH}/${id}`).set(saveData);
+                    showToast('Success', `${id} saved!`, 'success');
+                } catch(err) { showToast('Error', err.message, 'error'); }
             };
+            section.querySelector('#dynamic-section-1-form').addEventListener('submit', saveHandler);
+            section.querySelector('#dynamic-section-2-form').addEventListener('submit', saveHandler);
+            setupImagePreview(section);
+        };
 
-            // If initial shares > 0, add an initial history entry
-            if (shares > 0) {
-                const initialHistoryEntry = {
-                    date: newUserData.createdAt,
-                    shares: shares,
-                    note: "Initial shares allocated"
-                };
-                // Add with a key (e.g., 'initial') into the history object
-                 newUserData.history['initial'] = initialHistoryEntry;
-                 // Alternatively, if you wanted Firebase to generate a unique key:
-                 // delete newUserData.history; // Remove the empty object first
-                 // const historyRef = db.ref('users/' + newRmzID + '/history');
-                 // await historyRef.push(initialHistoryEntry);
-            }
-
-           try {
-               // Save the new member using their RMZ ID as the key
-                await db.ref('users/' + newRmzID).set(newUserData);
-               alert(`Member ${newRmzID} added successfully!`);
-               loadDashboard(); // Refresh dashboard
-               closeAddModal(); // Close modal
-           } catch (error) {
-               console.error("Error adding new member:", error);
-               alert("Error adding member: " + error.message);
-                // No need for image rollback as we aren't managing the external storage deletion easily
-           } finally {
-               addButton.disabled = false;
-               addButton.textContent = 'Add Member';
-           }
-      }).catch(error => {
-           console.error("Error fetching last user ID:", error);
-           alert("Could not determine the next RMZ ID. Member not added.");
-           addButton.disabled = false;
-           addButton.textContent = 'Add Member';
-      });
-  }
-
-  // --- Notification Section ---
-
- function toggleNotificationSection() {
-     const section = document.getElementById('notificationSection');
-     section.style.display = section.style.display === 'none' ? 'block' : 'none';
-     if (section.style.display === 'block') {
-         loadNotifications(); // Load/refresh notifications when shown
-     }
- }
-
- async function saveNotification() {
-     const headline = document.getElementById('notificationHeadline').value.trim();
-     const summary = document.getElementById('notificationSummary').value.trim();
-     const link = document.getElementById('notificationLink').value.trim();
-     const statusP = document.getElementById('notificationStatus');
-     const saveBtn = document.getElementById('saveNotificationBtn');
-
-     if (!headline || !summary) {
-         alert("Please enter both Headline and Summary.");
-         return;
-     }
-
-     saveBtn.disabled = true;
-     saveBtn.textContent = 'Saving...';
-     statusP.style.display = 'none'; // Hide previous status
-
-     let imageUrl = originalNotificationImageUrl || document.getElementById('notificationImageLink').value || null; // Start with original or hidden link value
-
-     // Check if new image file is selected
-     if (document.getElementById('notificationImageFile').files.length > 0) {
-         // Upload new image to ImgBB
-         const uploadedUrl = await uploadImageToImgBB('notificationImageFile', 'notificationImageStatus');
-         if (uploadedUrl) {
-             // --- Removed Firebase Storage Deletion of Old Image ---
-             // No action needed to delete the old image from ImgBB here.
-             imageUrl = uploadedUrl; // Use the new URL
-         } else {
-             // Upload failed, notify user, but save text
-             alert("Image upload failed. Notification will be saved without the new image.");
-             // imageUrl retains the old value (or null)
-         }
-     }
-
-
-     const notificationData = {
-         headline: headline,
-         summary: summary,
-         link: link || null, // Save null if empty
-         imageUrl: imageUrl, // Either new URL, original URL, or null
-         timestamp: new Date().toISOString()
-     };
-
-     // Update/set at 'current_notification' path in Firebase
-     db.ref('current_notification').set(notificationData)
-         .then(() => {
-             // On success, also add to history
-             return db.ref('notification_history').push(notificationData);
-         })
-         .then(() => {
-             statusP.textContent = "Notification updated successfully!";
-             statusP.style.color = 'green';
-             statusP.style.display = 'block';
-             // Clear form fields and reset preview
-             document.getElementById('notificationHeadline').value = '';
-             document.getElementById('notificationSummary').value = '';
-             document.getElementById('notificationLink').value = '';
-             document.getElementById('notificationImageFile').value = null;
-             document.getElementById('notificationImageLink').value = ''; // Clear hidden link
-             setPreviewFromUrl(null, 'notificationImagePreview');
-             document.getElementById('notificationImageStatus').textContent = '';
-             originalNotificationImageUrl = ''; // Reset original URL holder
-             loadNotifications(); // Refresh list
-         })
-         .catch((error) => {
-             console.error("Error saving notification:", error);
-             statusP.textContent = "Error saving notification: " + error.message;
-             statusP.style.color = 'red';
-             statusP.style.display = 'block';
-             // No image rollback needed for ImgBB
-         })
-         .finally(() => {
-             saveBtn.disabled = false;
-             saveBtn.textContent = 'Update Notification';
-         });
- }
-
-
- function loadNotifications() {
-     const previousList = document.getElementById('previousNotifications');
-     previousList.innerHTML = '<li>Loading...</li>'; // Loading indicator
-
-     // 1. Load current active notification (if any) and populate form
-     db.ref('current_notification').once('value', snapshot => {
-         if (snapshot.exists()) {
-             const currentNotif = snapshot.val();
-             document.getElementById('notificationHeadline').value = currentNotif.headline || '';
-             document.getElementById('notificationSummary').value = currentNotif.summary || '';
-             document.getElementById('notificationLink').value = currentNotif.link || '';
-             document.getElementById('notificationImageLink').value = currentNotif.imageUrl || ''; // Store URL in hidden input (useful if reusing without new upload)
-             originalNotificationImageUrl = currentNotif.imageUrl || ''; // Store original URL
-             setPreviewFromUrl(currentNotif.imageUrl, 'notificationImagePreview');
-             document.getElementById('notificationImageFile').value = null; // Reset file input
-             document.getElementById('notificationImageStatus').textContent = '';
-         } else {
-             // Clear form if no current notification
-              document.getElementById('notificationHeadline').value = '';
-              document.getElementById('notificationSummary').value = '';
-              document.getElementById('notificationLink').value = '';
-              document.getElementById('notificationImageFile').value = null;
-              document.getElementById('notificationImageLink').value = '';
-              setPreviewFromUrl(null, 'notificationImagePreview');
-              document.getElementById('notificationImageStatus').textContent = '';
-              originalNotificationImageUrl = '';
-         }
-     });
-
-     // 2. Load history of previous notifications
-     db.ref('notification_history')
-       .orderByChild('timestamp') // Order by timestamp
-       .limitToLast(MAX_NOTIFICATIONS_DISPLAY) // Get latest N
-       .once('value', snapshot => {
-         let html = '';
-         if (snapshot.exists()) {
-             const notifications = [];
-             snapshot.forEach(childSnapshot => {
-                 notifications.push({ key: childSnapshot.key, ...childSnapshot.val() });
-             });
-             // Reverse to show latest first
-             notifications.reverse();
-
-             notifications.forEach(notif => {
-                 html += `<li>
-                     <strong>${notif.headline}</strong> (${formatDateTime(notif.timestamp)})<br>
-                     <small>${notif.summary.substring(0, 50)}...</small>
-                     <button onclick="deleteNotificationHistory('${notif.key}')" style="margin-left: 10px; font-size: 0.7rem; padding: 2px 5px; cursor: pointer; background: #ffdddd; border: 1px solid #f7a7a7; border-radius: 3px;">Delete</button>
-                     <button onclick="reuseNotification('${notif.key}')" style="margin-left: 5px; font-size: 0.7rem; padding: 2px 5px; cursor: pointer; background: #ddeeff; border: 1px solid #a7c7f7; border-radius: 3px;">Reuse</button>
-                 </li>`;
-             });
-         } else {
-             html = '<li>No previous notifications found.</li>';
-         }
-         previousList.innerHTML = html;
-     }).catch(error => {
-         console.error("Error loading notification history:", error);
-         previousList.innerHTML = '<li>Error loading history.</li>';
-     });
- }
-
- // Function to delete a specific historical notification
- function deleteNotificationHistory(key) {
-    if (!key) return;
-    if (confirm("Are you sure you want to delete this notification from history?")) {
-        // Note: This only deletes the history record in Firebase.
-        // The image (if any) will remain hosted on ImgBB.
-        db.ref('notification_history/' + key).remove()
-            .then(() => {
-                console.log("Notification history entry deleted:", key);
-                loadNotifications(); // Refresh list
-            })
-            .catch(error => {
-                console.error("Error deleting notification history:", error);
-                alert("Could not delete notification history entry.");
+        const renderInfoMarqueeSection = (data) => {
+            renderSingleFormSection('info-marquee-section', 'infoMarquee', 'Info Marquee', `<div><label class="form-label">Marquee Text</label><input type="text" class="form-control" data-key="text"></div>`, {text: data}, async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Info Marquee', 'info');
+                try {
+                    await db.ref(`${DB_BASE_PATH}/infoMarquee`).set(e.target.querySelector('[data-key="text"]').value);
+                    showToast('Success', 'Info Marquee saved!', 'success');
+                } catch(err) { showToast('Error', err.message, 'error'); }
             });
-    }
- }
+        };
 
-// Function to reload a previous notification into the form for editing
-function reuseNotification(key) {
-    if (!key) return;
-    db.ref('notification_history/' + key).once('value', snapshot => {
-        if (snapshot.exists()) {
-            const notif = snapshot.val();
-             document.getElementById('notificationHeadline').value = notif.headline || '';
-             document.getElementById('notificationSummary').value = notif.summary || '';
-             document.getElementById('notificationLink').value = notif.link || '';
-             document.getElementById('notificationImageLink').value = notif.imageUrl || ''; // Store URL in hidden input
-             originalNotificationImageUrl = notif.imageUrl || ''; // Store as original for potential save
-             setPreviewFromUrl(notif.imageUrl, 'notificationImagePreview');
-             document.getElementById('notificationImageFile').value = null; // Reset file input
-             document.getElementById('notificationImageStatus').textContent = '';
-             alert("Notification content loaded into the form. You can now edit and click 'Update Notification' to make it the current one.");
-        } else {
-            alert("Could not find the selected notification history entry.");
-        }
-    }).catch(error => {
-        console.error("Error reusing notification:", error);
-        alert("Error loading notification data for reuse.");
-    });
-}
+        const renderSponsorSection = (data) => {
+            const formHtml = `<div class="form-group"><label class="form-label">Link URL</label><input type="url" class="form-control" data-key="linkUrl"></div><div class="form-group"><label class="form-label">Image</label><div class="form-file-preview"><img data-preview-for="imageUrl" src=""><input type="file" class="form-file-upload" data-key="imageUrl" accept="image/*"></div></div>`;
+            renderSingleFormSection('sponsor-section', 'sponsor', 'Sponsor Section', formHtml, data, async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Sponsor Section', 'info');
+                try {
+                    let imageUrl = e.target.querySelector('[data-preview-for="imageUrl"]').src;
+                    if(e.target.querySelector('[data-key="imageUrl"]').files[0]) imageUrl = await uploadImage(e.target.querySelector('[data-key="imageUrl"]').files[0]);
+                    await db.ref(`${DB_BASE_PATH}/sponsor`).set({ linkUrl: e.target.querySelector('[data-key="linkUrl"]').value, imageUrl });
+                    showToast('Success', 'Sponsor Section saved!', 'success');
+                } catch(err) { showToast('Error', err.message, 'error'); }
+            });
+        };
+        
+        const renderFlipCardSection = (data) => {
+            const section = document.getElementById('flipcard-section');
+            data = data || { front: {}, back: {} };
+            section.innerHTML = `<div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Flip Card</h2></div>
+                <form id="flipcard-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="admin-card"><div class="card-header"><h3>Front Side</h3></div><div class="card-body space-y-4">
+                            <div><label class="form-label">Link URL</label><input type="url" class="form-control" id="flipcard-front-link" value="${data.front.linkUrl || ''}"></div>
+                            <div><label class="form-label">Image</label><div class="form-file-preview"><img id="flipcard-front-preview" src="${data.front.imageUrl || ''}"><input type="file" id="flipcard-front-image" class="form-file-upload" accept="image/*"></div></div>
+                        </div></div>
+                        <div class="admin-card"><div class="card-header"><h3>Back Side</h3></div><div class="card-body space-y-4">
+                            <div><label class="form-label">Link URL</label><input type="url" class="form-control" id="flipcard-back-link" value="${data.back.linkUrl || ''}"></div>
+                            <div><label class="form-label">Image</label><div class="form-file-preview"><img id="flipcard-back-preview" src="${data.back.imageUrl || ''}"><input type="file" id="flipcard-back-image" class="form-file-upload" accept="image/*"></div></div>
+                        </div></div>
+                    </div>
+                    <div class="flex justify-center mt-6"><button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i> Save Flip Card</button></div>
+                </form>`;
+            setupImagePreview(section);
+            section.querySelector('#flipcard-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Flip Card', 'info');
+                try {
+                    let frontImageUrl = document.getElementById('flipcard-front-preview').src;
+                    let backImageUrl = document.getElementById('flipcard-back-preview').src;
+                    if (document.getElementById('flipcard-front-image').files[0]) frontImageUrl = await uploadImage(document.getElementById('flipcard-front-image').files[0]);
+                    if (document.getElementById('flipcard-back-image').files[0]) backImageUrl = await uploadImage(document.getElementById('flipcard-back-image').files[0]);
+                    await db.ref(`${DB_BASE_PATH}/flipCard`).set({
+                        front: { linkUrl: document.getElementById('flipcard-front-link').value, imageUrl: frontImageUrl },
+                        back: { linkUrl: document.getElementById('flipcard-back-link').value, imageUrl: backImageUrl }
+                    });
+                    showToast('Success', 'Flip Card saved!', 'success');
+                } catch (err) { showToast('Error', err.message, 'error'); }
+            });
+        };
 
+        const renderAdvantagesSection = (data) => {
+            const section = document.getElementById('advantages-section');
+            section.innerHTML = `<div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Advantages Section</h2></div>
+                <form id="advantages-form">
+                    <div id="advantages-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                    <div class="flex justify-center mt-6"><button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i> Save Advantages</button></div>
+                </form>`;
+            const container = section.querySelector('#advantages-container');
+            const advantages = data && data.length === 4 ? data : [{}, {}, {}, {}];
+            advantages.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'admin-card';
+                card.innerHTML = `<div class="card-header"><h3>Advantage ${i + 1}</h3></div><div class="card-body space-y-4">
+                    <div><label class="form-label">Title</label><input type="text" class="form-control data-title" value="${item.title || ''}"></div>
+                    <div><label class="form-label">Image</label><div class="form-file-preview"><img class="data-imageUrl-preview" src="${item.imageUrl || ''}"><input type="file" class="form-file-upload data-imageUrl" accept="image/*"></div></div>
+                </div>`;
+                container.appendChild(card);
+            });
+            setupImagePreview(container);
+            section.querySelector('#advantages-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Advantages', 'info');
+                try {
+                    const items = [];
+                    for(const card of container.children) {
+                        let imageUrl = card.querySelector('.data-imageUrl-preview').src;
+                        if (card.querySelector('.data-imageUrl').files[0]) imageUrl = await uploadImage(card.querySelector('.data-imageUrl').files[0]);
+                        items.push({ title: card.querySelector('.data-title').value, imageUrl });
+                    }
+                    await db.ref(`${DB_BASE_PATH}/advantages`).set(items);
+                    showToast('Success', 'Advantages saved!', 'success');
+                } catch (err) { showToast('Error', err.message, 'error'); }
+            });
+        };
 
-  // Initial load is triggered by checkPassword() upon successful login
- // loadDashboard(); // Called after password check is successful
-</script>
+        const renderFooterSection = (data) => {
+            const section = document.getElementById('footer-section');
+            data = data || { followLinks: {} };
+            const formHtml = `<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="form-group"><label class="form-label">Shop Link</label><input type="url" class="form-control" data-key="shopLink" value="${data.shopLink || ''}"></div>
+                <div class="form-group"><label class="form-label">Play Link</label><input type="url" class="form-control" data-key="playLink" value="${data.playLink || ''}"></div>
+                <div class="form-group"><label class="form-label">Profile Link</label><input type="url" class="form-control" data-key="profileLink" value="${data.profileLink || ''}"></div>
+                <div class="form-group"><label class="form-label">YouTube Link</label><input type="url" class="form-control" data-key="youtube" value="${data.followLinks.youtube || ''}"></div>
+                <div class="form-group"><label class="form-label">Facebook Link</label><input type="url" class="form-control" data-key="facebook" value="${data.followLinks.facebook || ''}"></div>
+                <div class="form-group"><label class="form-label">Instagram Link</label><input type="url" class="form-control" data-key="instagram" value="${data.followLinks.instagram || ''}"></div>
+                <div class="form-group"><label class="form-label">WhatsApp Link</label><input type="url" class="form-control" data-key="whatsapp" value="${data.followLinks.whatsapp || ''}"></div>
+            </div>`;
+            renderSingleFormSection('footer-section', 'footer', 'Footer & Social Links', {}, async (e) => {
+                e.preventDefault();
+                showToast('Saving...', 'Saving Footer Links', 'info');
+                try {
+                    const saveData = {
+                        shopLink: e.target.querySelector('[data-key="shopLink"]').value,
+                        playLink: e.target.querySelector('[data-key="playLink"]').value,
+                        profileLink: e.target.querySelector('[data-key="profileLink"]').value,
+                        followLinks: {
+                            youtube: e.target.querySelector('[data-key="youtube"]').value,
+                            facebook: e.target.querySelector('[data-key="facebook"]').value,
+                            instagram: e.target.querySelector('[data-key="instagram"]').value,
+                            whatsapp: e.target.querySelector('[data-key="whatsapp"]').value,
+                        }
+                    };
+                    await db.ref(`${DB_BASE_PATH}/footer`).set(saveData);
+                    showToast('Success', 'Footer Links saved!', 'success');
+                } catch(err) { showToast('Error', err.message, 'error'); }
+            });
+            // Manual data population for nested object
+            const form = section.querySelector('form');
+            for (const key in data) {
+                if (key !== 'followLinks') form.querySelector(`[data-key="${key}"]`).value = data[key] || '';
+            }
+            for (const key in data.followLinks) {
+                form.querySelector(`[data-key="${key}"]`).value = data.followLinks[key] || '';
+            }
+        };
 
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.protocol === 'file:') {
+                document.getElementById('running-locally-warning').classList.remove('hidden');
+            }
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.database();
+                
+                auth.onAuthStateChanged(user => {
+                    const sectionsContainer = document.getElementById('sections-container');
+                    const adminLoading = document.getElementById('adminLoadingIndicator');
+                    if (user && user.uid === ADMIN_UID) {
+                        document.getElementById('authOverlay').style.display = 'none';
+                        document.getElementById('adminLayout').classList.remove('hidden');
+                        adminLoading.classList.remove('hidden');
+                        sectionsContainer.classList.add('hidden');
+                        db.ref(DB_BASE_PATH).get().then(snapshot => {
+                            renderAllSections(snapshot.val() || {});
+                            adminLoading.classList.add('hidden');
+                            sectionsContainer.classList.remove('hidden');
+                            document.querySelector('.sidebar-link.active').click();
+                            showToast('Welcome!', 'Admin panel loaded successfully.', 'success');
+                        }).catch(err => showToast('Error', err.message, 'error'));
+                    } else {
+                        if(user) auth.signOut();
+                        document.getElementById('authOverlay').style.display = 'flex';
+                        document.getElementById('adminLayout').classList.add('hidden');
+                    }
+                });
+                
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const btn = document.getElementById('authButton');
+                    btn.disabled = true;
+                    btn.querySelector('span').textContent = 'Signing In...';
+                    auth.signInWithEmailAndPassword(document.getElementById('adminEmail').value, document.getElementById('adminPassword').value)
+                        .catch(err => {
+                            showToast('Login Failed', err.message, 'error');
+                            btn.disabled = false;
+                            btn.querySelector('span').textContent = 'Sign In';
+                        });
+                });
+                
+                document.getElementById('signOutButton').addEventListener('click', () => auth.signOut());
+                
+                document.getElementById('togglePassword').addEventListener('click', (e) => {
+                    const input = document.getElementById('adminPassword');
+                    const icon = e.currentTarget.querySelector('i');
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    icon.className = `fas ${isPassword ? 'fa-eye-slash' : 'fa-eye'}`;
+                });
+
+                const sidebar = document.getElementById('sidebar');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                document.getElementById('sidebarToggle').addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                    sidebarOverlay.classList.toggle('hidden');
+                });
+                sidebarOverlay.addEventListener('click', () => {
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('hidden');
+                });
+                
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.addEventListener('click', e => {
+                        e.preventDefault();
+                        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+                        const targetSection = document.getElementById(link.dataset.target);
+                        if (targetSection) {
+                            targetSection.classList.remove('hidden');
+                            targetSection.classList.add('page-enter-active');
+                        }
+                        document.getElementById('contentTitle').textContent = link.querySelector('span').textContent;
+                        if (window.innerWidth < 768) {
+                            sidebar.classList.add('-translate-x-full');
+                            sidebarOverlay.classList.add('hidden');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                showToast("Fatal Error", "Could not initialize Firebase. Check console.", 'error');
+                console.error("Firebase Init Error:", error);
+            }
+        });
+    </script>
 </body>
 </html>
+
