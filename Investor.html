@@ -3,1117 +3,968 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RMZ Investment Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Ramazone</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-    /* ==== Root Variables and Basic Styles ==== */
-:root {
-  --primary: #4361ee; --primary-dark: #3a56d4; --secondary: #3f37c9;
-  --success: #4cc9f0; --danger: #f72585; --warning: #f8961e;
-  --info: #4895ef; --light: #f8f9fa; --dark: #212529;
-  --gray: #6c757d; --light-gray: #e9ecef;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-body { background-color: #f5f7fa; color: #333; line-height: 1.6; }
+       body { 
+           font-family: 'Poppins', sans-serif; 
+           background-color: #f0f2f5;
+       }
+        .animate-left { animation: slideLeft 1s forwards; }
+        .animate-right { animation: slideRight 1s forwards; }
+        @keyframes slideLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .marquee { white-space: nowrap; overflow: hidden; }
+        .marquee p { display: inline-block; animation: marquee 15s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        img { border-radius: 12px; }
+        .smooth-scroll { scroll-behavior: smooth; }
 
-/* ==== Login Styles ==== */
-.login-container { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f5f7fa; }
-.login-form { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
-.login-form h2 { color: var(--primary); margin-bottom: 20px; }
-.login-input { width: 100%; padding: 12px 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
-.login-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px; transition: background 0.3s; }
-.login-btn:hover { background: var(--primary-dark); }
-.error-message { color: var(--danger); margin-top: 10px; display: none; }
+        /* Custom Slider Styles */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 1rem auto;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: 200px; /* Default height for mobile */
+        }
+        @media (min-width: 768px) {
+            .slider-container {
+                height: 400px;
+            }
+        }
+        .slider {
+            display: flex;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .slider a {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+        }
+        .slider img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1rem;
+        }
+        .slider-nav button {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .slider-nav button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        .slider-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .slider-dots .dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .slider-dots .dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+                
+        .social-media-links {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateX(100px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .social-media-links.active {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-/* ==== Dashboard Styles ==== */
-.dashboard { display: none; max-width: 1200px; margin: 0 auto; padding: 10px; }
-.ad-banner { width: 100%; height: 150px; border-radius: 8px; margin-bottom: 20px; overflow: hidden; position: relative; }
-.ad-slide { width: 100%; height: 100%; position: absolute; opacity: 0; transition: opacity .5s ease-in-out; }
-.ad-slide.active { opacity: 1; }
-.ad-slide img { width: 100%; height: 100%; object-fit: cover; }
+        /* Search System Style */
+        #fakeSearchInput {
+            font-size: 16px;
+            padding: 12px 20px;
+            cursor: pointer;
+            text-align: left;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 50px;
+            border: 1px solid #e0e0e0;
+            width: 95%;
+            max-width: 600px;
+            margin: 1.5rem auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .search-icon {
+            width: 24px;
+            height: 24px;
+        }
 
-/* ==== Top Investors Styles ==== */
-.top-investors { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-.top-investors h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.3rem; display: flex; align-items: center; }
-.top-investors h2 i { margin-right: 10px; color: var(--warning); }
-.investor-list { display: flex; gap: 15px; flex-wrap: wrap; }
-.investor-card { flex: 1; min-width: 250px; padding: 15px; border-radius: 8px; display: flex; align-items: center; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; color: white; background-size: cover; background-position: center; }
-.investor-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-.investor-card .investor-details, .investor-card .investor-avatar { text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); }
-.investor-list .investor-card:nth-child(1) { background-image: url('https://i.postimg.cc/W19PngLL/image-search-1743881691568.jpg'); }
-.investor-list .investor-card:nth-child(2) { background-image: url('https://i.postimg.cc/8zvhdBrs/1743882273499.jpg'); }
-.investor-list .investor-card:nth-child(3) { background-image: url('https://i.postimg.cc/KzTSxWKx/image-search-1743881642421.jpg'); }
-.investor-avatar { width: 60px; height: 60px; border-radius: 50%; background-color: rgba(67, 97, 238, 0.5); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; margin-right: 15px; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.5); flex-shrink: 0; }
-.investor-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.investor-details { flex: 1; }
-.investor-rank { font-size: 0.8rem; color: white; background: var(--warning); padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 5px; }
-.investor-name { font-weight: 600; margin-bottom: 3px; color: white; }
-.investor-shares { color: var(--light-gray); font-size: 0.9rem; display: flex; align-items: center; flex-wrap: wrap; }
-.investor-shares i { margin-right: 5px; color: var(--success); }
-.investor-amount { font-size: 0.9rem; font-weight: bold; color: white; margin-left: 5px; }
+        /* UPDATED: Image Marquee Styles */
+        .image-marquee {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            margin: 1.5rem 0;
+            background-color: white;
+            padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .marquee-content {
+            display: flex;
+            gap: 60px; /* Increased gap */
+            align-items: center; /* Vertically center images */
+            width: max-content;
+            animation: marqueeAnimation 20s linear infinite;
+        }
+        .image-marquee img {
+            height: 40px; /* Fixed height for all logos */
+            width: auto; /* Maintain aspect ratio */
+            max-width: 120px; /* Prevent oversized logos */
+            display: inline-block;
+            border-radius: 0; /* Logos usually don't have rounded corners */
+        }
+        @keyframes marqueeAnimation {
+            from { transform: translateX(0%); }
+            to { transform: translateX(-50%); }
+        }
 
-/* ==== User Profile Card Styles ==== */
-.profile-card { background: linear-gradient(135deg, #8A2BE2, #DDA0DD); color: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; text-align: center; }
-.profile-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: rgba(255, 255, 255, 0.15); transform: rotate(-45deg) translate(0, -50%); }
-.profile-avatar { width: 100px; height: 100px; border-radius: 50%; background-color: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 2.5rem; margin-bottom: 5px; overflow: hidden; cursor: pointer; position: relative; border: 2px solid rgba(255, 255, 255, 0.5); }
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-avatar::after { content: '\f044'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; bottom: 5px; right: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 5px; border-radius: 50%; font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; /* Prevent icon from interfering with clicks */ }
-.profile-avatar:hover::after { opacity: 1; }
-#uploadStatus { font-size: 0.8rem; margin-top: 0px; color: white; height: 1.2em; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); }
-.profile-details { width: 100%; margin-top: 10px; }
-.profile-name { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; color: inherit; }
-.profile-id { color: rgba(255, 255, 255, 0.8); margin-bottom: 5px; font-size: 0.9rem; }
-.profile-mobile { color: rgba(255, 255, 255, 0.8); margin-bottom: 10px; font-size: 0.9rem; }
-.profile-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
-.stat-item { background: rgba(255, 255, 255, 0.15); padding: 10px; border-radius: 6px; }
-.stat-label { font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 3px; }
-.stat-value { font-weight: 600; font-size: 1.1rem; color: inherit; }
+        /* UPDATED: Flip Card Styles */
+        .flip-card {
+            width: 95%; /* Use percentage for responsiveness */
+            max-width: 500px; /* Max width for larger screens */
+            height: 50vw; /* Responsive height */
+            max-height: 280px;
+            perspective: 1500px;
+            margin: 2rem auto;
+        }
+        .flip-card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: flipAnimation 6s infinite ease-in-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 16px;
+        }
+        .flip-card-front, .flip-card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .flip-card-front a, .flip-card-back a {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .flip-card-front img, .flip-card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        @keyframes flipAnimation {
+            0%, 35% { transform: rotateY(0deg); }
+            50%, 85% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        @media (min-width: 600px) { .flip-card { max-width: 720px; height: 400px; } }
+        @media (min-width: 1024px) { .flip-card { max-width: 1280px; height: 500px; } }
 
-/* ==== Menu and Notification Button Styles ==== */
-.menu-button-container { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; }
-.notification-icon { background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem; padding: 5px; margin-right: 10px; position: relative; }
-.notification-icon:hover { color: var(--light-gray); }
-.notification-dot { height: 10px; width: 10px; /* Slightly larger */ background-color: red; border-radius: 50%; position: absolute; top: 3px; /* Adjust position */ right: 3px; /* Adjust position */ display: none; /* Hidden by default */ border: 1.5px solid white; }
-.menu-button { background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem; padding: 5px; transition: color 0.3s; }
-.menu-button:hover { color: var(--light-gray); }
-.menu-dropdown { position: absolute; top: 40px; right: 10px; background-color: white; border: 1px solid var(--light-gray); border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; display: none; width: 150px; }
-.menu-dropdown.open { display: block; }
-.menu-dropdown button { display: block; width: 100%; padding: 10px 15px; text-align: left; border: none; background: none; color: var(--dark); cursor: pointer; transition: background-color 0.3s; }
-.menu-dropdown button:hover { background-color: var(--light-gray); }
+        /* UPDATED: Special Category Section Styles */
+        .special-category-container {
+            padding: 20px 10px;
+            background-color: #ffffff; /* Clean white background */
+        }
+        .special-category-wrapper {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .special-category-wrapper::-webkit-scrollbar { display: none; /* Chrome, Safari */ }
+        .special-category-item {
+            flex: 0 0 120px;
+            text-align: center;
+        }
+        .special-category-image-wrapper {
+            border-radius: 16px; /* Squarish round */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .special-category-item:hover .special-category-image-wrapper {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        }
+        .special-category-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0; /* Image fits wrapper */
+        }
+        .special-category-item p {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
 
-/* ==== Notifications Modal Styles ==== */
-#notificationsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
-.notification-popup { background: white; padding: 20px 30px; border-radius: 10px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-.notification-popup h2 { color: var(--primary); margin-bottom: 15px; font-size: 1.4rem; }
-.notification-popup .notification-image { max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px; display: block; }
-.notification-popup p { margin-bottom: 20px; line-height: 1.6; color: var(--dark); }
-.notification-link-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-block; transition: background 0.3s; }
-.notification-link-btn:hover { background: var(--primary-dark); }
-.close-modal-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; color: var(--gray); cursor: pointer; font-size: 1.8rem; line-height: 1; padding: 0; }
-.close-modal-btn:hover { color: var(--dark); }
+        /* Normal Category Section Styles */
+        .category-container {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin: 10px 0;
+            padding: 10px 0;
+        }
+        .category-wrapper {
+            display: flex;
+            gap: 10px;
+            padding: 0 15px;
+        }
+        .category-item {
+            display: inline-block;
+            text-align: center;
+            width: 90px;
+            transition: transform 0.3s ease;
+            vertical-align: top;
+        }
+        .category-item:hover {
+            transform: scale(1.1);
+        }
+        .category-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .category-item p {
+            margin: 8px 0 0;
+            font-size: 12px;
+            color: #333;
+            font-weight: 600;
+            line-height: 16px;
+            height: 32px;
+            overflow: hidden;
+            white-space: normal;
+        }
 
-/* ==== Full Picture Modal Styles ==== */
-#fullPictureModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 1050; justify-content: center; align-items: center; padding: 20px; display: flex; }
-.full-picture-popup { position: relative; max-width: 90%; max-height: 90vh; display: flex; justify-content: center; align-items: center; }
-.full-picture-popup img { display: block; max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-#fullPictureModal .close-modal-btn { position: absolute; top: -15px; /* Adjust position */ right: -15px; /* Adjust position */ background: rgba(0, 0, 0, 0.6); color: white; border-radius: 50%; width: 35px; /* Slightly larger */ height: 35px; line-height: 35px; text-align: center; font-size: 1.4rem; /* Adjust */ cursor: pointer; border: none; z-index: 1051; padding: 0; }
-#fullPictureModal .close-modal-btn:hover { background: rgba(255, 0, 0, 0.8); }
+        /* UPDATED: Festive Collection Styles */
+        .festive-collection {
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            border-radius: 16px;
+            color: black;
+            margin: 1.5rem 10px;
+        }
+        .festival-headline {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: black;
+            text-align: center;
+        }
+        .product-slider {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 10px;
+            scrollbar-width: none;
+        }
+        .product-slider::-webkit-scrollbar { display: none; }
+        .product-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            flex: 0 0 calc(50% - 10px);
+            max-width: 200px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .product-image-container {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .product-image-container:hover img {
+            transform: scale(1.1);
+        }
+        .product-details {
+            padding: 12px;
+            text-align: center;
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px;
+            color: #333;
+        }
+        .product-offer {
+            background-color: #111;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        @media (min-width: 768px) { .product-card { flex: 0 0 calc(25% - 15px); } }
 
+        /* UPDATED: Sponsor Section Styles */
+        .sponsor-section {
+            width: 95%;
+            max-width: 800px;
+            margin: 2rem auto;
+            border-radius: 16px;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+        .sponsor-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+        .sponsor-content {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .sponsor-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .sponsor-image-container {
+            width: 100%;
+            height: 180px;
+        }
+        .sponsor-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Changed to cover for better look */
+            border-radius: 12px;
+        }
+        
+        /* Image Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ==== Shares Chart Styles ==== */
-.shares-chart { background: white; border-radius: 5px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-.shares-chart h2 { color: var(--primary); margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; }
-.shares-chart h2 i { margin-right: 10px; color: var(--info); }
-.chart-container { position: relative; height: 300px; width: 100%; }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 8px;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #bbb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
 
-/* ==== Return Percentage Cards Styles ==== */
-.return-percentage-container { display: flex; gap: 15px; margin-top: 20px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
-.return-card { background: #f0e68c; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; min-width: 120px; flex-shrink: 0; }
-.return-card.year-1 { background: #fffacd; } .return-card.year-2 { background: #eee8aa; } .return-card.year-3 { background: #e0e080; } .return-card.year-4 { background: #ffd700; } .return-card.year-5 { background: #ffb347; }
-.return-card h3 { font-size: 1rem; color: var(--primary); margin-bottom: 5px; }
-.return-card .percentage { font-size: 1.2rem; font-weight: bold; color: var(--success); margin-bottom: 5px; }
-.return-card .amount { font-size: 0.9rem; color: var(--gray); }
-
-/* ==== Shares Summary Styles ==== */
-.shares-summary { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-.shares-summary h2 { color: var(--primary); margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; }
-.shares-summary h2 i { margin-right: 10px; color: var(--success); }
-.summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-.summary-card { background: #aed9e0; padding: 15px; border-radius: 8px; text-align: center; transition: transform 0.3s; }
-.summary-card:hover { transform: translateY(-3px); }
-.summary-card .title { font-size: 0.9rem; color: var(--gray); margin-bottom: 5px; }
-.summary-card .value { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
-.progress-container { margin-top: 15px; height: 8px; background: var(--light-gray); border-radius: 4px; overflow: hidden; }
-.progress-bar { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s ease; }
-
-/* ==== Footer Styles ==== */
-.dashboard > footer { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; font-size: 0.9rem; color: var(--gray); margin-top: 20px; }
-.footer-card { flex: 1; margin: 5px; padding: 15px 20px; border-radius: 8px; color: white; text-align: center; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 10px; }
-.footer-card i { font-size: 1.2rem; }
-.ramazone-store { background-color: red; } .whatsapp-chat { background-color: green; }
-
-/* ==== Responsive Design ==== */
-@media (max-width: 768px) { .investor-list { flex-direction: column; } .investor-card { min-width: 100%; } .profile-card { flex-direction: column; text-align: center; } .profile-avatar { margin-right: 0; margin-bottom: 5px; } .profile-details { text-align: center; } .summary-grid { grid-template-columns: 1fr 1fr; } .dashboard > footer { flex-direction: column; } .footer-card { margin: 10px 0; width: 90%; } }
-@media (max-width: 480px) { .summary-grid { grid-template-columns: 1fr; } .profile-stats { grid-template-columns: 1fr; } }
-
-/* ==== Loading States ==== */
-.loading { position: relative; overflow: hidden; background-color: var(--light-gray) !important; color: transparent !important; border: none !important; box-shadow: none !important; border-radius: 4px; /* Add radius to placeholders */ }
-.loading::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); animation: loading 1.5s infinite; }
-.loading .stat-value, .loading .profile-name, .loading .profile-id, .loading .profile-mobile, .loading .investor-name, .loading .investor-shares span, .loading .value { color: transparent !important; background-color: #e0e0e0 !important; border-radius: 4px; min-height: 1em; display: inline-block; width: 60%; vertical-align: middle; }
-.loading .investor-avatar, .loading .profile-avatar { background-color: #bdbdbd !important; }
-.loading .investor-avatar::after, .loading .profile-avatar::after { opacity: 0 !important; }
-.loading .investor-shares i, .loading .investor-shares { color: transparent !important; }
-.loading .investor-rank, .loading .stat-label { color: transparent !important; } /* Hide rank/label text during loading */
-
-
-@keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-</style>
-    </head>
-<body>
-
-    <div id="loginScreen" class="login-container">
-        <div class="login-form">
-            <h2>RMZ Investor Login</h2>
-            <input type="text" id="loginUserId" class="login-input" placeholder="Enter your User ID (e.g., RMZ0007)" required>
-            <input type="password" id="loginShares" class="login-input" placeholder="Enter your Shares Count" required>
-            <button class="login-btn" onclick="loginUser()">Login</button>
-            <p id="loginError" class="error-message">Invalid User ID or Shares Count</p>
+    <!-- Top Image Slider -->
+    <div class="slider-container">
+        <div class="slider" id="main-slider">
+            <div class="p-4 text-center">Loading Slides...</div>
         </div>
-    </div>
-
-    <div id="notificationsModal" style="display:none;">
-        <div class="notification-popup">
-            <button class="close-modal-btn" onclick="closeNotificationsModal()">&times;</button>
-            <h2 id="notificationHeadline">Notifications</h2>
-            <img id="notificationImage" src="" alt="Notification Image" class="notification-image" style="display: none;">
-            <p id="notificationSummary">Loading notifications...</p>
-            <a id="notificationLink" href="#" target="_blank" class="notification-link-btn" style="display: none;">Click Here</a>
+        <div class="slider-nav">
+            <button onclick="prevSlide()">❮</button>
+            <button onclick="nextSlide()">❯</button>
         </div>
+        <div class="slider-dots" id="slider-dots-container"></div>
     </div>
-
-    <div id="fullPictureModal" style="display: none;">
-        <div class="full-picture-popup">
-            <button class="close-modal-btn" onclick="closeFullPictureModal()">&times;</button>
-            <img id="fullProfilePic" src="" alt="Full Profile Picture">
-        </div>
+    
+    <!-- Image Marquee -->
+    <div class="image-marquee" id="image-marquee-container">
+        <div class="p-2 text-center">Loading Brands...</div>
     </div>
-
-
-    <div id="dashboard" class="dashboard">
-        <div class="ad-banner">
-             <div class="ad-slide active"><a href="#" target="_blank"><img src="https://i.postimg.cc/3J367fQT/20250405-105443.png" alt="Ad 1"></a></div>
-             <div class="ad-slide"><a href="#" target="_blank"><img src="https://i.postimg.cc/13XyR31s/20250405-111536.png" alt="Ad 2"></a></div>
-             <div class="ad-slide"><a href="#" target="_blank"><img src="https://i.postimg.cc/SxgjVPkN/20250405-111107.jpg" alt="Ad 3"></a></div>
-         </div>
-         <div class="top-investors">
-             <h2><i class="fas fa-trophy"></i> Top Investors</h2>
-             <div class="investor-list" id="topInvestors">
-                 <div class="investor-card loading"><div class="investor-avatar"></div><div class="investor-details"><div class="investor-rank">#1</div><div class="investor-name">Loading...</div><div class="investor-shares"><i class="fas fa-coins"></i> 0 Shares (<span class="investor-amount">₹0</span>)</div></div></div>
-                 <div class="investor-card loading"><div class="investor-avatar"></div><div class="investor-details"><div class="investor-rank">#2</div><div class="investor-name">Loading...</div><div class="investor-shares"><i class="fas fa-coins"></i> 0 Shares (<span class="investor-amount">₹0</span>)</div></div></div>
-                 <div class="investor-card loading"><div class="investor-avatar"></div><div class="investor-details"><div class="investor-rank">#3</div><div class="investor-name">Loading...</div><div class="investor-shares"><i class="fas fa-coins"></i> 0 Shares (<span class="investor-amount">₹0</span>)</div></div></div>
-             </div>
-         </div>
-
-
-        <div class="profile-card" id="userProfile">
-            <div class="menu-button-container">
-                <button class="notification-icon" onclick="showNotificationsModal()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-dot" id="notificationDot"></span> </button>
-                <button class="menu-button" onclick="toggleMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-            <div class="menu-dropdown" id="profileMenu">
-                <button onclick="logoutUser()">Logout</button>
-            </div>
-
-            <label id="avatarLabel" style="cursor: pointer;" title="Click to view/change profile picture">
-                <div class="profile-avatar loading">
-                    </div>
-            </label>
-            <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
-            <p id="uploadStatus" style="font-size: 0.8rem; margin-top: 5px; color: var(--primary); height: 1em;"></p>
-
-            <div class="profile-details">
-                <div class="profile-name loading">Loading...</div>
-                <div class="profile-id loading">Loading...</div>
-                <div class="profile-mobile loading">Loading...</div>
-                <div class="profile-stats">
-                    <div class="stat-item"><div class="stat-label">Shares</div><div class="stat-value" id="userShares">Loading...</div></div>
-                    <div class="stat-item"><div class="stat-label">Investment</div><div class="stat-value" id="userInvestment">Loading...</div></div>
-                    <div class="stat-item"><div class="stat-label">Member Since</div><div class="stat-value" id="memberSince">Loading...</div></div>
+    
+    <!-- Search System -->
+    <div class="flex justify-center">
+        <a id="search-link" href="#" target="_blank" class="w-full flex justify-center">
+            <div id="fakeSearchInput">
+                <div>
+                    <span style="color: #999;">Search for</span>
+                    <span>&nbsp;</span>
+                    <span id="categoryText" style="color: #000; font-weight: 600;">welcome</span>
                 </div>
+                <img src="https://www.svgrepo.com/show/522443/search.svg" class="search-icon">
             </div>
-        </div>
-
-        <div class="shares-chart">
-             <h2><i class="fas fa-chart-bar"></i> Shares Distribution</h2>
-             <div class="chart-container"><canvas id="sharesChart"></canvas></div>
-         </div>
-         <div class="return-percentage-container" id="returnPercentageCards"></div>
-         <div class="shares-summary">
-              <h2><i class="fas fa-chart-pie"></i> Shares Overview</h2>
-              <div class="summary-grid">
-                  <div class="summary-card" id="soldSharesCard"><div class="title">Sold Shares</div><div class="value loading">...</div><div class="progress-container" id="soldProgress"><div class="progress-bar" style="width: 0%;"></div></div></div>
-                  <div class="summary-card" id="availableSharesCard"><div class="title">Available Shares</div><div class="value loading">...</div><div class="progress-container" id="availableProgress"><div class="progress-bar" style="width: 0%;"></div></div></div>
-                  <div class="summary-card"><div class="title">Total Investors</div><div class="value loading" id="totalInvestors">...</div></div>
-                  <div class="summary-card"><div class="title">Total Shares</div><div class="value">1000</div></div>
-              </div>
-         </div>
-
-        <footer class="footer">
-            <a href="https://ramazone.store.shoopy.in" target="_blank" class="footer-card ramazone-store"><i class="fas fa-store"></i> Ramazone Store</a>
-             <a href="https://wa.me/917903698180?text=*Ramazone%20Investment*%0A%0Aplease%20help%20me" target="_blank" class="footer-card whatsapp-chat"><i class="fab fa-whatsapp"></i> WhatsApp Chat</a>
-        </footer>
+        </a>
     </div>
 
+    <!-- Special Premium Category Section -->
+    <div class="special-category-container">
+        <h2 class="text-2xl font-bold text-center mb-5">Top Picks For You</h2>
+        <div class="special-category-wrapper" id="special-category-wrapper">
+            <div class="p-4 text-center">Loading Categories...</div>
+        </div>
+    </div>
+
+    <!-- Normal Category Section -->
+    <div class="category-container">
+        <div class="category-wrapper" id="normal-category-wrapper">
+            <div class="p-4 text-center">Loading Categories...</div>
+        </div>
+    </div>
+
+    <!-- Festive Collection Section -->
+    <div class="festive-collection" id="festive-collection-container">
+        <h1 class="festival-headline" id="festive-headline">The Festive Collection</h1>
+        <div class="product-slider" id="festive-product-slider">
+            <div class="p-4 text-center">Loading Products...</div>
+        </div>
+    </div>
+
+    <!-- Dynamic Section 1 -->
+    <div class="p-4 bg-white shadow-md my-4 mx-2 rounded-xl" id="dynamic-section-1">
+        <div class="p-4 text-center">Loading...</div>
+    </div>
+
+    <!-- Info Marquee System -->
+    <div class="marquee bg-yellow-300 p-2 text-center my-4" id="info-marquee">
+        <p class="font-bold">Loading announcement...</p>
+    </div>
+
+    <!-- Sponsor Section -->
+    <div class="sponsor-section" id="sponsor-section-container">
+        <div class="p-4 text-center">Loading Sponsor...</div>
+    </div>
+
+    <!-- Dynamic Section 2 -->
+    <div class="p-4 bg-white shadow-md my-4 mx-2 rounded-xl" id="dynamic-section-2">
+        <div class="p-4 text-center">Loading...</div>
+    </div>
+
+    <!-- Flip Card System -->
+    <div class="flip-card" id="flip-card-container">
+        <div class="p-4 text-center">Loading...</div>
+    </div>
+
+    <!-- Advantages of Ramazone -->
+    <div class="p-4 bg-white shadow-md mb-20 mx-2 rounded-xl">
+        <h2 class="text-3xl md:text-4xl text-center mb-6" style="font-family: 'Poppins', sans-serif; font-weight: 900; color: red; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">
+            ADVANTAGES OF<br>RAMAZONE
+        </h2>
+        <div class="grid grid-cols-2 gap-4" id="advantages-grid">
+            <div class="p-4 text-center col-span-2">Loading Advantages...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer" class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-sm shadow-t-lg flex justify-around p-2 z-50 border-t border-gray-200">
+        <a href="#" id="homeButton" class="flex flex-col items-center text-gray-700 hover:text-yellow-500 transition duration-300">
+            <img src="https://www.svgrepo.com/show/521156/home-4.svg" class="w-6 h-6 mb-1" alt="Home">
+            <span class="text-xs font-semibold">Home</span>
+        </a>
+        <a href="#" id="footer-shop-link" target="_blank" class="flex flex-col items-center text-gray-700 hover:text-yellow-500 transition duration-300">
+            <img src="https://www.svgrepo.com/show/521847/shopping-cart.svg" class="w-6 h-6 mb-1" alt="Shop">
+            <span class="text-xs font-semibold">Shop</span>
+        </a>
+        <a href="#" id="footer-play-link" target="_blank" class="flex flex-col items-center text-gray-700 hover:text-yellow-500 transition duration-300">
+            <img src="https://www.svgrepo.com/show/391122/video-play.svg" class="w-6 h-6 mb-1" alt="Play">
+            <span class="text-xs font-semibold">Play</span>
+        </a>
+        <a href="#" id="footer-profile-link" target="_blank" class="flex flex-col items-center text-gray-700 hover:text-yellow-500 transition duration-300">
+            <img src="https://www.svgrepo.com/show/522319/user-1.svg" class="w-6 h-6 mb-1" alt="Profile">
+            <span class="text-xs font-semibold">Profile</span>
+        </a>
+        <a href="#" onclick="toggleSocialMedia(event)" class="flex flex-col items-center text-gray-700 hover:text-yellow-500 transition duration-300">
+            <img src="https://cdn-icons-png.flaticon.com/128/2326/2326024.png" class="w-6 h-6 mb-1" alt="Follow">
+            <span class="text-xs font-semibold">Follow</span>
+        </a>
+    </div>
+
+    <!-- Social Media Links -->
+    <div class="fixed bottom-20 right-4 flex flex-col space-y-3 social-media-links" id="social-links-container">
+        <!-- Social links will be dynamically inserted here -->
+    </div>
+    
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script> // Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCV_IDpmD35weDRi4GDegnT2m2RV_qHclc",
-    authDomain: "re-sh-51ff6.firebaseapp.com",
-    databaseURL: "https://re-sh-51ff6-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "re-sh-51ff6",
-    storageBucket: "re-sh-51ff6.firebasestorage.app",
-    messagingSenderId: "870340778217",
-    appId: "1:870340778217:web:7dd6792c2bb80cdee6b878",
-    measurementId: "G-E3884F19J2"
-};
-
-// --- ImgBB Configuration ---
-const imgbbApiKey = '65bbcf742486328061382f03949b47c6'; // !! अपनी कुंजी से बदलें !!
-const imgbbUploadUrl = 'https://api.imgbb.com/1/upload';
-
-// Initialize Firebase App and Database
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// Global variables
-let currentUserData = null;
-let allUsersData = [];
-let sharesChart = null;
-let adInterval = null;
-let notificationListenerRef = null; // Reference for the listener itself
-let currentNotificationTimestamp = null; // Timestamp of the notification currently in DB
-let lastSeenNotificationTimestamp = null; // Timestamp when user last opened the modal
-
-// --- DOM Elements ---
-const loginScreen = document.getElementById('loginScreen');
-const dashboardScreen = document.getElementById('dashboard');
-const profileMenu = document.getElementById('profileMenu');
-const notificationDot = document.getElementById('notificationDot');
-const notificationsModal = document.getElementById('notificationsModal');
-const profilePicInput = document.getElementById('profilePicInput');
-const profileAvatarElement = document.querySelector('#userProfile .profile-avatar');
-const uploadStatusElement = document.getElementById('uploadStatus');
-const avatarLabel = document.getElementById('avatarLabel');
-const fullPictureModal = document.getElementById('fullPictureModal');
-const fullProfilePic = document.getElementById('fullProfilePic');
-
-// --- Utility Functions ---
-function toggleMenu() { profileMenu.classList.toggle('open'); }
-
-function formatDate(timestamp) {
-    if (!timestamp) return 'N/A';
-    try {
-        // Attempt to handle different timestamp formats (string or number)
-        const date = new Date(isNaN(timestamp) ? timestamp : Number(timestamp));
-        if (isNaN(date.getTime())) return 'Invalid Date';
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    } catch (e) {
-        console.error("Error formatting date:", timestamp, e);
-        return 'Invalid Date';
-    }
-}
-
-function getAvatarBackgroundColor(name) {
-    if (!name) return '#4361ee';
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); }
-    const hue = hash % 360;
-    return `hsl(${hue}, 60%, 55%)`;
-}
-
-// --- Advertisement Slider Functions ---
-function startAdSlider() {
-    stopAdSlider();
-    const slides = document.querySelectorAll('.ad-slide');
-    if (slides.length === 0) return;
-    let currentSlide = 0;
-    slides.forEach((slide, index) => slide.classList.toggle('active', index === 0));
-    adInterval = setInterval(() => {
-        if(slides[currentSlide]) slides[currentSlide].classList.remove('active');
-        currentSlide = (currentSlide + 1) % slides.length;
-        if(slides[currentSlide]) slides[currentSlide].classList.add('active');
-    }, 3000);
-}
-
-function stopAdSlider() {
-    if (adInterval) { clearInterval(adInterval); adInterval = null; }
-}
-
-// --- Notification Functions ---
-function showNotificationsModal() {
-    profileMenu.classList.remove('open');
-    if (notificationsModal && notificationDot) {
-        notificationsModal.style.display = 'flex';
-        // <<< जब मॉडल खुले, वर्तमान सूचना टाइमस्टैम्प को 'देखा गया' के रूप में चिह्नित करें >>>
-        lastSeenNotificationTimestamp = currentNotificationTimestamp;
-        // <<< और लाल डॉट छुपाएं >>>
-        notificationDot.style.display = 'none';
-        loadNotifications(); // Load notification content into the modal
-    } else {
-         console.error("Notification modal or dot element not found.");
-    }
-}
-
-function closeNotificationsModal() {
-    if (notificationsModal) {
-        notificationsModal.style.display = 'none';
-    }
-}
-
-// लोड नोटिफिकेशन (अब /current_notification से)
-function loadNotifications() {
-    const headlineEl = document.getElementById('notificationHeadline');
-    const imageEl = document.getElementById('notificationImage');
-    const summaryEl = document.getElementById('notificationSummary');
-    const linkEl = document.getElementById('notificationLink');
-
-    headlineEl.textContent = 'Loading...';
-    summaryEl.textContent = '';
-    imageEl.style.display = 'none'; imageEl.src = '';
-    linkEl.style.display = 'none'; linkEl.href = '#';
-
-    // <<< Firebase पाथ बदला गया >>>
-    db.ref('current_notification').once('value', (snapshot) => {
-        if (snapshot.exists()) {
-            const notification = snapshot.val();
-            // <<< फ़ील्ड का नाम बदला गया: imageLink -> imageUrl >>>
-            headlineEl.textContent = notification.headline || 'Notification';
-            summaryEl.textContent = notification.summary || '';
-            imageEl.style.display = notification.imageUrl ? 'block' : 'none'; // imageUrl चेक करें
-            imageEl.src = notification.imageUrl || ''; // imageUrl उपयोग करें
-            linkEl.style.display = notification.link ? 'inline-block' : 'none';
-            linkEl.href = notification.link || '#';
-            // Store the timestamp globally if needed elsewhere immediately
-            currentNotificationTimestamp = notification.timestamp || null;
-        } else {
-            headlineEl.textContent = 'No Notification';
-            summaryEl.textContent = 'There is currently no notification available.';
-            currentNotificationTimestamp = null; // कोई सूचना नहीं
-        }
-    }).catch(error => {
-        console.error("Error loading current_notification:", error);
-        headlineEl.textContent = 'Error Loading Notification';
-        summaryEl.textContent = 'Could not fetch the notification.';
-        currentNotificationTimestamp = null;
-    });
-}
-
-// नोटिफिकेशन लिस्नर (अब /current_notification पर 'value' के लिए)
-function setupNotificationListener() {
-    // पिछला लिस्नर हटाएं
-    if (notificationListenerRef) {
-        notificationListenerRef.off('value'); // 'value' लिस्नर बंद करें
-        console.log("Detached previous notification value listener.");
-    }
-
-    // <<< Firebase पाथ और इवेंट बदला गया >>>
-    notificationListenerRef = db.ref('current_notification');
-    notificationListenerRef.on('value', (snapshot) => {
-        if (!currentUserData) return; // अगर यूजर लॉग आउट हो गया तो कुछ न करें
-
-        const notification = snapshot.val();
-        const newTimestamp = notification?.timestamp || null; // नई सूचना का टाइमस्टैम्प
-
-        console.log("Notification listener update:", newTimestamp, "Last seen:", lastSeenNotificationTimestamp);
-
-        // वर्तमान टाइमस्टैम्प स्टोर करें
-        currentNotificationTimestamp = newTimestamp;
-
-        // यदि नई सूचना का टाइमस्टैम्प मौजूद है और यह आखिरी देखे गए टाइमस्टैम्प से अलग है, तो डॉट दिखाएं
-        if (newTimestamp && newTimestamp !== lastSeenNotificationTimestamp) {
-            console.log("<<< New/Updated notification detected, showing dot >>>");
-            if (notificationDot) {
-                notificationDot.style.display = 'block';
-            }
-        } else {
-            // अन्यथा डॉट छुपाएं (या तो कोई नई सूचना नहीं है या यह वही है जिसे देख लिया गया है)
-             if (notificationDot) {
-                notificationDot.style.display = 'none';
-            }
-        }
-    }, (error) => {
-        console.error("Error in notification value listener:", error);
-        if (notificationDot) notificationDot.style.display = 'none'; // त्रुटि पर डॉट छुपाएं
-         // लिस्नर को हटाने का प्रयास करें यदि त्रुटि हो
-         if (notificationListenerRef) notificationListenerRef.off('value');
-         notificationListenerRef = null;
-    });
-
-    console.log("Notification value listener attached to /current_notification.");
-    // प्रारंभिक डॉट स्थिति सेट करने के लिए एक बार जांचें (लिस्नर अटैच होने के बाद)
-    db.ref('current_notification').once('value', snapshot => {
-         const initialNotification = snapshot.val();
-         const initialTimestamp = initialNotification?.timestamp || null;
-         currentNotificationTimestamp = initialTimestamp; // Store initial timestamp
-         if(currentUserData && initialTimestamp && initialTimestamp !== lastSeenNotificationTimestamp) {
-              if (notificationDot) notificationDot.style.display = 'block';
-         } else {
-              if (notificationDot) notificationDot.style.display = 'none';
-         }
-    });
-}
-
-// --- Full Picture Modal Functions ---
-function showFullPictureModal(imageUrl) {
-    if (imageUrl && fullPictureModal && fullProfilePic) {
-        fullProfilePic.src = imageUrl;
-        fullPictureModal.style.display = 'flex'; // Use flex to enable centering
-    } else {
-        console.warn("Cannot show full picture: Invalid URL or modal elements not found.");
-    }
-}
-
-function closeFullPictureModal() {
-    if (fullPictureModal) {
-        fullPictureModal.style.display = 'none';
-        fullProfilePic.src = ''; // Clear src
-    }
-}
-
-
-// --- Profile Picture Upload Functions ---
-function setupProfilePicUploadListener() {
-    if (avatarLabel && profilePicInput && profileAvatarElement) {
-        // Click handler for the avatar's Label
-        avatarLabel.onclick = () => {
-            if (!currentUserData) return; // Not logged in
-
-            const existingImg = profileAvatarElement.querySelector('img');
-
-            // Check if a real image source exists (not empty or placeholder)
-            if (existingImg && existingImg.src && !existingImg.src.startsWith('data:')) {
-                // If picture exists, show full view
-                showFullPictureModal(existingImg.src);
-            } else {
-                // If no picture or only placeholder, trigger file upload
-                profilePicInput.click();
-            }
+    <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAgzs3GqaafEHQSnEyZqrjQT0r_6jXMaGQ",
+            authDomain: "re-store-7f2b3.firebaseapp.com",
+            databaseURL: "https://re-store-7f2b3-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "re-store-7f2b3",
+            storageBucket: "re-store-7f2b3.appspot.com",
+            messagingSenderId: "774895588253",
+            appId: "1:774895588253:web:dad6c40fed92bce7c39574",
+            measurementId: "G-0FCZPC3TXL"
         };
 
-        // File input change handler
-        profilePicInput.onchange = (event) => {
-            if (!currentUserData) return;
-            const file = event.target.files[0];
-            if (file) {
-                // Basic validation
-                if (!file.type.startsWith('image/')) {
-                    uploadStatusElement.textContent = 'Please select an image file.';
-                    profilePicInput.value = ''; // Reset input
-                    setTimeout(() => { uploadStatusElement.textContent = ''; }, 3000);
-                    return;
-                }
-                // Optional: Add file size validation here
-                uploadProfilePicture(file);
-            }
-        };
-        console.log("Profile picture upload/view listener attached.");
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-    } else {
-        console.error("Avatar label, input or element not found for profile pic handling!");
-    }
-}
-
-// Upload picture to ImgBB and update Firebase
-function uploadProfilePicture(file) {
-    if (!imgbbApiKey) {
-        uploadStatusElement.textContent = 'Image upload not configured.';
-        console.error("ImgBB API Key is missing!");
-        return;
-    }
-    if (!currentUserData || !currentUserData.id) {
-        uploadStatusElement.textContent = 'User not logged in.';
-        return;
-    }
-
-    uploadStatusElement.textContent = 'Uploading...';
-    profileAvatarElement.style.opacity = '0.6'; // Indicate loading
-
-    const formData = new FormData();
-    formData.append('key', imgbbApiKey);
-    formData.append('image', file);
-
-    fetch(imgbbUploadUrl, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            // Try to get error message from ImgBB response if possible
-             return response.json().then(errData => {
-                 throw new Error(errData?.error?.message || `Upload failed: ${response.statusText}`);
-             }).catch(() => {
-                  throw new Error(`Upload failed: ${response.statusText}`);
-             });
-        }
-        return response.json();
-    })
-    .then(result => {
-        if (result.success && result.data && result.data.url) {
-            const imageUrl = result.data.url;
-            console.log("Image uploaded to ImgBB:", imageUrl);
-            return updateProfilePicUrlInFirebase(imageUrl); // Update Firebase
-        } else {
-            throw new Error(result.error?.message || 'ImgBB upload failed. Invalid response.');
-        }
-    })
-    .then(() => {
-        uploadStatusElement.textContent = 'Profile picture updated!';
-        setTimeout(() => { uploadStatusElement.textContent = ''; }, 3000);
-    })
-    .catch(error => {
-        console.error("Image upload error:", error);
-        uploadStatusElement.textContent = `Upload failed!`; // Keep message simpler for user
-         setTimeout(() => { uploadStatusElement.textContent = ''; }, 5000);
-    })
-    .finally(() => {
-        profileAvatarElement.style.opacity = '1'; // Restore opacity
-        profilePicInput.value = ''; // Reset file input
-    });
-}
-
-// Update profile picture URL in Firebase
-function updateProfilePicUrlInFirebase(imageUrl) {
-    if (!currentUserData || !currentUserData.id) {
-        console.error("Cannot update Firebase: No user data available.");
-        return Promise.reject(new Error("User data not found."));
-    }
-
-    const userRef = db.ref('users/' + currentUserData.id);
-    return userRef.update({ profilePic: imageUrl })
-        .then(() => {
-            console.log("Firebase profilePic updated successfully.");
-            currentUserData.profilePic = imageUrl; // Update local data
-            displayUserProfile(currentUserData); // Refresh profile display immediately
-        })
-        .catch(error => {
-            console.error("Firebase update failed:", error);
-            // Re-throw the error so the calling function knows it failed
-            throw new Error("Failed to save picture URL.");
-        });
-}
-
-
-// --- Login / Logout Functions ---
-function loginUser() {
-    const userIdInput = document.getElementById('loginUserId').value.trim();
-    const sharesInput = document.getElementById('loginShares').value.trim();
-    const errorMsg = document.getElementById('loginError');
-    const loginBtn = document.querySelector('.login-btn');
-    errorMsg.style.display = 'none';
-
-    if (!userIdInput || !sharesInput) { /* ... validation ... */ return; }
-    const sharesPassword = parseInt(sharesInput, 10);
-    if (isNaN(sharesPassword)) { /* ... validation ... */ return; }
-
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-
-    db.ref('users').once('value')
-        .then(snapshot => {
-            if (!snapshot.exists()) throw new Error("No user data found.");
-
-            allUsersData = [];
-            let loggedIn = false;
-            currentUserData = null;
-
-            snapshot.forEach(childSnapshot => {
-                const user = childSnapshot.val();
-                if (user && typeof user === 'object') {
-                    user.id = childSnapshot.key;
-                    user.shares = user.shares || 0;
-                    user.name = user.name || 'Anonymous';
-                    user.rmzID = user.rmzID || '';
-                    user.mobile = user.mobile || ''; // <<< यह फ़ील्ड महत्वपूर्ण है
-                    user.profilePic = user.profilePic || null;
-                    user.createdAt = user.createdAt || null;
-                    allUsersData.push(user);
-                    if (user.rmzID && user.rmzID.toLowerCase() === userIdInput.toLowerCase() && user.shares === sharesPassword) {
-                        currentUserData = user;
-                        loggedIn = true;
-                    }
+        document.addEventListener('DOMContentLoaded', () => {
+            const homepageRef = database.ref('ramazone/homepage');
+            
+            homepageRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    renderSlider(data.slider);
+                    renderImageMarquee(data.imageMarquee);
+                    renderSearch(data.search);
+                    renderSpecialCategories(data.specialCategories);
+                    renderNormalCategories(data.normalCategories);
+                    renderFestiveCollection(data.festiveCollection);
+                    renderDynamicSection('#dynamic-section-1', data.dynamicSection1);
+                    renderInfoMarquee(data.infoMarquee);
+                    renderSponsor(data.sponsor);
+                    renderDynamicSection('#dynamic-section-2', data.dynamicSection2);
+                    renderFlipCard(data.flipCard);
+                    renderAdvantages(data.advantages);
+                    renderFooter(data.footer);
+                } else {
+                    console.log("No data found in Firebase. Please set up data in 'ramazone/homepage'.");
                 }
             });
-
-            if (loggedIn && currentUserData) {
-                console.log("Login successful for:", currentUserData.rmzID);
-                loginScreen.style.display = 'none';
-                dashboardScreen.style.display = 'block';
-                profileMenu.classList.remove('open');
-                clearLoadingStates();
-                loadDashboardData(currentUserData, allUsersData);
-                startAdSlider();
-                setupProfilePicUploadListener();
-                // <<< लॉगिन के बाद नोटिफिकेशन लिस्नर शुरू करें >>>
-                setupNotificationListener();
-            } else {
-                throw new Error("Invalid User ID or Shares Count.");
-            }
-        })
-        .catch(error => {
-             console.error("Login error:", error);
-             errorMsg.textContent = error.message;
-             errorMsg.style.display = 'block';
-             currentUserData = null;
-             allUsersData = [];
-        })
-        .finally(() => {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Login';
+            setupModalListeners();
         });
-}
 
-function logoutUser() {
-    console.log("User logged out");
-    // <<< नोटिफिकेशन लिस्नर बंद करें >>>
-    if (notificationListenerRef) {
-        notificationListenerRef.off('value'); // 'value' लिस्नर बंद करें
-        notificationListenerRef = null;
-        console.log("Notification value listener detached on logout.");
-    }
-    // <<< टाइमस्टैम्प और डॉट रीसेट करें >>>
-    lastSeenNotificationTimestamp = null;
-    currentNotificationTimestamp = null;
-    if (notificationDot) {
-        notificationDot.style.display = 'none';
-    }
+        // --- RENDER FUNCTIONS ---
+        
+        function renderSlider(sliderData) {
+            const slider = document.getElementById('main-slider');
+            const dotsContainer = document.getElementById('slider-dots-container');
+            if (!slider || !sliderData) {
+                if(slider) slider.innerHTML = '<div class="p-4 text-center">No slides available.</div>';
+                return;
+            };
+            slider.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            
+            sliderData.forEach((slide, index) => {
+                const slideLink = document.createElement('a');
+                slideLink.href = slide.linkUrl || '#';
+                slideLink.target = '_blank';
+                const img = document.createElement('img');
+                img.src = slide.imageUrl;
+                img.alt = `Slide ${index + 1}`;
+                slideLink.appendChild(img);
+                slider.appendChild(slideLink);
 
-    currentUserData = null;
-    allUsersData = [];
-    dashboardScreen.style.display = 'none';
-    loginScreen.style.display = 'flex';
-    profileMenu.classList.remove('open');
-    stopAdSlider();
-    clearDashboardData();
-    closeFullPictureModal();
-}
-
-// --- Dashboard Data Loading and Display Functions ---
-function loadDashboardData(loggedInUser, allUsers) {
-    console.log("Loading dashboard data...");
-    if (!loggedInUser) {
-        console.error("loadDashboardData failed: No logged-in user data provided.");
-        // Maybe redirect to login or show an error
-        // logoutUser(); // Force logout if data is missing
-        return;
-    }
-     if (!allUsers || allUsers.length === 0) {
-         console.warn("loadDashboardData: No 'allUsers' data provided or empty.");
-         // Continue loading profile, but other sections might be empty
-     }
-
-    // Clear loading placeholders first
-    clearLoadingStates();
-
-    // Display data specific to the logged-in user
-    displayUserProfile(loggedInUser);
-    displayReturnPercentageCards(loggedInUser.shares);
-
-    // Display data based on all users
-    displayTopInvestors(allUsers);
-    updateSharesChart(allUsers);
-    updateSharesSummary(allUsers);
-}
-
-// Clear visual elements on the dashboard
-function clearDashboardData() {
-    // Clear profile
-    document.querySelector('#userProfile .profile-name').textContent = '';
-    document.querySelector('#userProfile .profile-id').textContent = '';
-    document.querySelector('#userProfile .profile-mobile').textContent = '';
-    document.getElementById('userShares').textContent = '';
-    document.getElementById('userInvestment').textContent = '';
-    document.getElementById('memberSince').textContent = '';
-    profileAvatarElement.innerHTML = ''; // Clear avatar content
-    profileAvatarElement.style.backgroundColor = 'var(--light-gray)'; // Reset background
-
-    // Clear top investors list
-    document.getElementById('topInvestors').innerHTML = '';
-
-    // Clear return cards
-    document.getElementById('returnPercentageCards').innerHTML = '';
-
-    // Clear chart
-    if (sharesChart) {
-        sharesChart.destroy();
-        sharesChart = null;
-    }
-    try {
-        const ctx = document.getElementById('sharesChart').getContext('2d');
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    } catch (e) { console.error("Error clearing chart canvas:", e); }
-
-
-    // Clear summary values and progress bars
-    document.querySelector('#soldSharesCard .value').textContent = '0';
-    document.querySelector('#availableSharesCard .value').textContent = '0';
-    document.getElementById('totalInvestors').textContent = '0';
-    try {
-        document.querySelector('#soldProgress .progress-bar').style.width = '0%';
-        document.querySelector('#availableProgress .progress-bar').style.width = '0%';
-    } catch (e) { console.error("Error clearing progress bars:", e); }
-
-
-    // Optional: Add loading classes back (might cause flashing)
-    // addLoadingClasses();
-}
-
-// Remove loading classes and placeholders
-function clearLoadingStates() {
-    document.querySelectorAll('.loading').forEach(el => {
-        el.classList.remove('loading');
-        // Clean up inline styles used for placeholders if any
-        el.style.backgroundColor = '';
-        el.style.color = '';
-    });
-     // Also clear specific text placeholders that might remain
-    const placeholders = [
-        '#userProfile .profile-name', '#userProfile .profile-id', '#userProfile .profile-mobile',
-        '#userShares', '#userInvestment', '#memberSince',
-        '#soldSharesCard .value', '#availableSharesCard .value', '#totalInvestors'
-    ];
-    placeholders.forEach(selector => {
-        const el = document.querySelector(selector);
-        if (el && (el.textContent === 'Loading...' || el.textContent === '...')) {
-            el.textContent = ''; // Clear the placeholder text
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                dot.onclick = () => goToSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+            
+            initializeSlider(sliderData.length);
         }
-    });
-      // Ensure avatar placeholder is cleared if needed
-     if (profileAvatarElement.innerHTML.includes('Loading...')) {
-          profileAvatarElement.innerHTML = '';
-     }
-      // Clear investor list placeholders if they have specific text
-      document.querySelectorAll('.investor-name').forEach(el => {
-          if (el.textContent === 'Loading...') el.textContent = '';
-      });
-       document.querySelectorAll('.investor-shares').forEach(el => {
-          if (el.textContent.includes('Loading...')) {
-               // More complex clearing might be needed depending on structure
-               el.innerHTML = '<i class="fas fa-coins"></i> 0 Shares (<span class="investor-amount">₹0</span>)'; // Reset to default empty state
-          }
-      });
 
-}
-// Optional helper function to add loading classes back if needed during logout/reload
-// function addLoadingClasses() {
-//     document.querySelectorAll('.profile-card > div, .stat-value, .investor-card, .summary-card .value').forEach(el => {
-//         el.classList.add('loading');
-//     });
-// }
+        function renderImageMarquee(marqueeData) {
+            const container = document.getElementById('image-marquee-container');
+            if (!container || !marqueeData || marqueeData.length === 0) {
+                if(container) container.innerHTML = '<div class="p-2 text-center">No brands available.</div>';
+                return;
+            };
+            // Duplicate content for smooth infinite loop
+            const allItems = [...marqueeData, ...marqueeData];
+            const content = document.createElement('div');
+            content.className = 'marquee-content';
+            allItems.forEach(item => {
+                content.innerHTML += `
+                    <a href="${item.linkUrl || '#'}" target="_blank">
+                        <img src="${item.imageUrl}" alt="Brand Logo">
+                    </a>
+                `;
+            });
+            container.innerHTML = '';
+            container.appendChild(content);
+        }
 
+        function renderSearch(searchData) {
+            if (!searchData) return;
+            const searchLink = document.getElementById('search-link');
+            searchLink.href = searchData.redirectUrl || '#';
 
-// Display year-wise return percentage cards
-function displayReturnPercentageCards(userShares = 0) {
-    const container = document.getElementById('returnPercentageCards');
-    container.innerHTML = ''; // Clear previous cards
-    const sharePrice = 100; // Assuming price per share
+            const categories = searchData.scrollingTexts || [];
+            if (categories.length > 0) {
+                let categoryIndex = 0;
+                const categoryTextEl = document.getElementById("categoryText");
+                
+                if (window.categoryInterval) clearInterval(window.categoryInterval);
 
-    const returns = [
-        { years: 1, percentage: 12 }, { years: 2, percentage: 20 },
-        { years: 3, percentage: 50 }, { years: 4, percentage: 75 },
-        { years: 5, percentage: 110 }
-    ];
+                window.categoryInterval = setInterval(() => {
+                    categoryTextEl.innerText = categories[categoryIndex];
+                    categoryIndex = (categoryIndex + 1) % categories.length;
+                }, 2000);
+            }
+        }
+        
+        function renderSpecialCategories(categories) {
+            const wrapper = document.getElementById('special-category-wrapper');
+            if (!wrapper || !categories) {
+                wrapper.innerHTML = '<div class="p-4 text-center">No categories available.</div>';
+                return;
+            };
+            wrapper.innerHTML = '';
+            categories.forEach(cat => {
+                wrapper.innerHTML += `
+                    <div class="special-category-item">
+                        <a href="${cat.linkUrl || '#'}" target="_blank">
+                            <div class="special-category-image-wrapper">
+                                <img src="${cat.imageUrl}" alt="${cat.name}">
+                            </div>
+                            <p>${cat.name}</p>
+                        </a>
+                    </div>
+                `;
+            });
+        }
 
-    const investmentAmount = userShares * sharePrice;
+        function renderNormalCategories(categories) {
+            const wrapper = document.getElementById('normal-category-wrapper');
+            if (!wrapper || !categories) {
+                 wrapper.innerHTML = '<div class="p-4 text-center">No categories available.</div>';
+                return;
+            };
+            wrapper.innerHTML = '';
+            categories.forEach(cat => {
+                wrapper.innerHTML += `
+                    <div class="category-item">
+                        <a href="${cat.linkUrl || '#'}">
+                            <img src="${cat.imageUrl}" alt="${cat.name}" class="category-image">
+                            <p>${cat.name}</p>
+                        </a>
+                    </div>
+                `;
+            });
+        }
 
-    returns.forEach(ret => {
-        const card = document.createElement('div');
-        card.className = 'return-card';
-        card.classList.add(`year-${ret.years}`);
+        function renderFestiveCollection(collectionData) {
+            if (!collectionData) return;
+            document.getElementById('festive-headline').innerText = collectionData.title || 'Special Offers';
+            const slider = document.getElementById('festive-product-slider');
+            const container = document.getElementById('festive-collection-container');
+            container.style.backgroundImage = `url('${collectionData.backgroundImageUrl}')`;
 
-        const returnAmount = (investmentAmount * ret.percentage) / 100;
-        const totalAmount = investmentAmount + returnAmount;
+            const products = collectionData.products || [];
+            if (products.length === 0) {
+                slider.innerHTML = '<div class="p-4 text-center">No products available.</div>';
+                return;
+            }
 
-        card.innerHTML = `
-            <h3>${ret.years} Year${ret.years > 1 ? 's' : ''}</h3>
-            <div class="percentage">${ret.percentage}%</div>
-            <div class="amount" title="Based on current ${userShares} shares (₹${investmentAmount.toFixed(0)})">≈ ₹${totalAmount.toFixed(2)}</div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-// Display top 3 investors
-function displayTopInvestors(allUsers) {
-    const container = document.getElementById('topInvestors');
-    container.innerHTML = ''; // Clear previous content
-
-     // Ensure allUsers is an array
-     if (!Array.isArray(allUsers)) {
-         console.error("displayTopInvestors: Invalid data received.");
-         container.innerHTML = '<p>Error loading investor data.</p>';
-         return;
-     }
-
-    // Create a copy, filter out users without shares, sort by shares (desc), take top 3
-    const topInvestors = [...allUsers]
-        .filter(user => user && (user.shares || 0) > 0) // Filter valid users with shares
-        .sort((a, b) => (b.shares || 0) - (a.shares || 0))
-        .slice(0, 3);
-
-    if (topInvestors.length === 0) {
-        // Handle cases where there are users but none have shares, or no users at all
-         if (allUsers.length > 0) {
-             container.innerHTML = '<p>No investors with shares yet.</p>';
-         } else {
-              container.innerHTML = '<p>No investor data available.</p>';
-         }
-        return;
-    }
-
-    topInvestors.forEach((investor, index) => {
-        const investorCard = document.createElement('div');
-        investorCard.className = 'investor-card'; // Base class handles background via :nth-child
-
-        const avatarContent = investor.profilePic ?
-            `<img src="${investor.profilePic}" alt="${investor.name}" onerror="this.parentElement.innerHTML='${investor.name ? investor.name.charAt(0).toUpperCase() : '?'}'">` :
-            (investor.name ? investor.name.charAt(0).toUpperCase() : '?');
-
-        const investmentValue = (investor.shares || 0) * 100; // Assuming price 100
-
-        investorCard.innerHTML = `
-            <div class="investor-avatar">
-              ${avatarContent}
-            </div>
-            <div class="investor-details">
-              <div class="investor-rank">#${index + 1}</div>
-              <div class="investor-name">${investor.name || 'Anonymous'}</div>
-              <div class="investor-shares">
-                <i class="fas fa-coins"></i>
-                ${investor.shares || 0} Shares
-                <span class="investor-amount">(₹${investmentValue})</span>
-              </div>
-            </div>
-        `;
-        container.appendChild(investorCard);
-    });
-}
-
-// Display user profile for the logged-in user
-function displayUserProfile(user) {
-    if (!user) return; // Safety check
-
-    // Clear loading states specifically for profile elements (redundant if clearLoadingStates works)
-    document.querySelectorAll('#userProfile .loading').forEach(el => el.classList.remove('loading'));
-
-    document.querySelector('#userProfile .profile-name').textContent = user.name || 'N/A';
-    document.querySelector('#userProfile .profile-id').textContent = `RMZID: ${user.rmzID || 'N/A'}`;
-    // Use 'mobile' field, provide 'N/A' if missing
-    document.querySelector('#userProfile .profile-mobile').textContent = user.mobile || 'N/A';
-
-    const userShares = user.shares || 0;
-    const userInvestment = userShares * 100; // Assuming price 100
-    document.getElementById('userShares').textContent = userShares;
-    document.getElementById('userInvestment').textContent = `₹${userInvestment}`;
-    document.getElementById('memberSince').textContent = formatDate(user.createdAt);
-
-    // Set profile avatar
-    profileAvatarElement.innerHTML = ''; // Clear previous content first
-    if (user.profilePic) {
-        const img = document.createElement('img');
-        img.src = user.profilePic;
-        img.alt = user.name || 'Profile';
-        // Handle image loading errors
-        img.onerror = () => {
-            console.warn(`Failed to load profile picture for ${user.name}: ${user.profilePic}`);
-            handleProfileImageError(profileAvatarElement, user.name);
-        };
-        profileAvatarElement.appendChild(img);
-        profileAvatarElement.style.backgroundColor = 'transparent'; // Remove fallback bg color
-    } else {
-        handleProfileImageError(profileAvatarElement, user.name); // Use fallback initial/color
-    }
-}
-
-// Fallback for profile image errors or missing images
-function handleProfileImageError(avatarElement, name) {
-    if (!avatarElement) return;
-    const initial = name ? name.charAt(0).toUpperCase() : '?';
-    avatarElement.innerHTML = initial; // Set the initial as text content
-    avatarElement.style.backgroundColor = getAvatarBackgroundColor(name); // Set fallback bg color
-    // Ensure text styles are applied for the initial
-    avatarElement.style.color = 'white';
-    avatarElement.style.display = 'flex';
-    avatarElement.style.alignItems = 'center';
-    avatarElement.style.justifyContent = 'center';
-    avatarElement.style.fontSize = '2.5rem';
-    avatarElement.style.fontWeight = 'bold';
-}
-
-// Update shares distribution chart
-function updateSharesChart(users) {
-    const chartElement = document.getElementById('sharesChart');
-     if (!chartElement) return; // Exit if canvas not found
-    const ctx = chartElement.getContext('2d');
-
-    // Destroy previous chart instance if it exists
-    if (sharesChart) {
-        sharesChart.destroy();
-        sharesChart = null;
-    }
-
-     // Ensure users is an array
-     if (!Array.isArray(users)) {
-         console.error("updateSharesChart: Invalid data received.");
-         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-         ctx.textAlign = 'center';
-         ctx.fillText('Error loading chart data.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-         return;
-     }
-
-
-    // Filter out users with 0 shares, sort, take top N
-    const usersWithShares = users.filter(user => user && (user.shares || 0) > 0);
-    usersWithShares.sort((a, b) => (b.shares || 0) - (a.shares || 0));
-
-    const topN = 9; // Show top N investors in the chart
-    const chartUsers = usersWithShares.slice(0, topN);
-
-    const labels = chartUsers.map(user => user.name || 'Anonymous');
-    const sharesData = chartUsers.map(user => user.shares || 0);
-    const investmentData = sharesData.map(shares => shares * 100); // Assuming price 100
-
-    // Check if there's any data to chart
-    if (chartUsers.length === 0) {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#6c757d'; // Use gray color for message
-        ctx.fillText('No share data to display.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-        return;
-    }
-
-    // Create the new chart
-    try {
-        sharesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Shares Held',
-                        data: sharesData,
-                        backgroundColor: 'rgba(67, 97, 238, 0.7)',
-                        borderColor: 'rgba(67, 97, 238, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'yShares'
-                    },
-                    {
-                        label: 'Investment (₹)',
-                        data: investmentData,
-                        backgroundColor: 'rgba(76, 201, 240, 0.7)',
-                        borderColor: 'rgba(76, 201, 240, 1)',
-                        borderWidth: 2,
-                        type: 'line', // Overlay as a line chart
-                        yAxisID: 'yInvestment',
-                        tension: 0.1 // Slight curve
+            slider.innerHTML = '';
+            products.forEach(prod => {
+                // Main card container
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = (e) => {
+                    // Prevent link trigger if the image itself was clicked
+                    if (e.target.tagName !== 'IMG') {
+                        window.open(prod.linkUrl || '#', '_blank');
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        ticks: {
-                            autoSkip: false, // Prevent labels from being skipped
-                            maxRotation: 45, // Rotate labels if they overlap
-                            minRotation: 0
-                        }
-                    },
-                    yShares: { // Primary Y Axis (Shares)
-                        position: 'left',
-                        beginAtZero: true,
-                        title: { display: true, text: 'Number of Shares' }
-                    },
-                    yInvestment: { // Secondary Y Axis (Investment)
-                        position: 'right',
-                        beginAtZero: true,
-                        title: { display: true, text: 'Investment Amount (₹)' },
-                        // Prevent grid lines from secondary axis cluttering the chart
-                        grid: { drawOnChartArea: false }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        mode: 'index', // Show tooltips for all datasets at that index
-                        intersect: false, // Tooltip appears even when not directly hovering
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) label += ': ';
-                                if (context.dataset.yAxisID === 'yShares') {
-                                    label += context.formattedValue + ' shares';
-                                } else if (context.dataset.yAxisID === 'yInvestment') {
-                                    label += '₹' + context.formattedValue;
-                                }
-                                return label;
-                            }
-                        }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
+                };
+                
+                // Image container
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'product-image-container';
+                
+                const img = document.createElement('img');
+                img.src = prod.imageUrl;
+                img.alt = prod.name;
+                // Add click listener to image to open modal
+                img.onclick = () => openImageModal(prod.imageUrl);
+                
+                imageContainer.appendChild(img);
+                
+                // Details container
+                const details = document.createElement('div');
+                details.className = 'product-details';
+                details.innerHTML = `
+                    <p class="product-name">${prod.name}</p>
+                    <p class="product-offer">${prod.offer}</p>
+                `;
+                
+                card.appendChild(imageContainer);
+                card.appendChild(details);
+                slider.appendChild(card);
+            });
+        }
+        
+        function renderDynamicSection(selector, sectionData) {
+            const container = document.querySelector(selector);
+            if (!container || !sectionData) {
+                if(container) container.innerHTML = '<div class="p-4 text-center">Content not available.</div>';
+                return;
+            };
+            container.innerHTML = `
+                <h2 class="text-2xl md:text-3xl text-center mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 900; color: ${sectionData.titleColor || 'blue'}; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);">
+                    ${sectionData.title || ''}
+                </h2>
+                <a href="${sectionData.linkUrl || '#'}" target="_blank">
+                    <img src="${sectionData.imageUrl}" class="w-full h-auto object-cover mb-4 rounded-lg shadow-md">
+                </a>
+                <p class="text-gray-600 text-center">${sectionData.text || ''}</p>
+                <div class="text-center">
+                    <a href="${sectionData.linkUrl || '#'}" target="_blank">
+                        <button class="mt-4 text-blue-500 font-bold hover:underline transition duration-300">
+                            ${sectionData.buttonText || 'Discover'}
+                        </button>
+                    </a>
+                </div>
+            `;
+        }
+        
+        function renderInfoMarquee(marqueeText) {
+            const container = document.getElementById('info-marquee');
+            if (!container || !marqueeText) return;
+            container.innerHTML = `<p class="font-bold">${marqueeText}</p>`;
+        }
+        
+        function renderSponsor(sponsorData) {
+            const container = document.getElementById('sponsor-section-container');
+            if (!container || !sponsorData) {
+                container.innerHTML = '<div class="p-4 text-center">No sponsor available.</div>';
+                return;
+            };
+            container.innerHTML = `
+                <a href="${sponsorData.linkUrl || '#'}" target="_blank" class="sponsor-link">
+                    <div class="sponsor-content">
+                        <p class="sponsor-tag">Sponsored</p>
+                        <div class="sponsor-image-container">
+                            <img src="${sponsorData.imageUrl}" alt="Sponsored Image" class="sponsor-image">
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+        
+        function renderFlipCard(cardData) {
+            const container = document.getElementById('flip-card-container');
+            if (!container || !cardData) {
+                container.innerHTML = '<div class="p-4 text-center">Content not available.</div>';
+                return;
+            };
+            container.innerHTML = `
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <a href="${cardData.front.linkUrl || '#'}" target="_blank">
+                            <img src="${cardData.front.imageUrl}" alt="Front Image">
+                        </a>
+                    </div>
+                    <div class="flip-card-back">
+                        <a href="${cardData.back.linkUrl || '#'}" target="_blank">
+                            <img src="${cardData.back.imageUrl}" alt="Back Image">
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAdvantages(advantagesData) {
+            const grid = document.getElementById('advantages-grid');
+            if (!grid || !advantagesData) {
+                grid.innerHTML = '<div class="p-4 text-center col-span-2">No advantages listed.</div>';
+                return;
+            };
+            grid.innerHTML = '';
+            advantagesData.forEach((adv, index) => {
+                grid.innerHTML += `
+                    <div class="animate-${index % 2 === 0 ? 'left' : 'right'}">
+                        <img src="${adv.imageUrl}" class="w-full h-40 object-cover rounded-lg shadow-md">
+                        <p class="font-bold text-center mt-3 text-gray-700">${adv.title}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderFooter(footerData) {
+            if (!footerData) return;
+            document.getElementById('footer-shop-link').href = footerData.shopLink || '#';
+            document.getElementById('footer-play-link').href = footerData.playLink || '#';
+            document.getElementById('footer-profile-link').href = footerData.profileLink || '#';
+            
+            const socialContainer = document.getElementById('social-links-container');
+            socialContainer.innerHTML = '';
+            if (footerData.followLinks) {
+                const links = footerData.followLinks;
+                if (links.youtube) socialContainer.innerHTML += `<a href="${links.youtube}" target="_blank" class="bg-red-500 text-white p-3 rounded-full shadow-lg hover:bg-red-600 transition duration-300 flex items-center justify-center"><img src="https://cdn-icons-png.flaticon.com/128/3670/3670147.png" class="w-6 h-6" alt="YouTube"></a>`;
+                if (links.facebook) socialContainer.innerHTML += `<a href="${links.facebook}" target="_blank" class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center"><img src="https://www.svgrepo.com/show/303114/facebook-3-logo.svg" class="w-6 h-6" alt="Facebook"></a>`;
+                if (links.instagram) socialContainer.innerHTML += `<a href="${links.instagram}" target="_blank" class="bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:opacity-90 transition duration-300 flex items-center justify-center"><img src="https://cdn-icons-png.flaticon.com/128/2111/2111463.png" class="w-6 h-6" alt="Instagram"></a>`;
+                if (links.whatsapp) socialContainer.innerHTML += `<a href="${links.whatsapp}" target="_blank" class="bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition duration-300 flex items-center justify-center"><img src="https://cdn-icons-png.flaticon.com/128/3991/3991765.png" class="w-6 h-6" alt="WhatsApp"></a>`;
+            }
+        }
+        
+        // --- UI FUNCTIONALITY ---
+
+        // Slider Functionality
+        let currentSlide = 0;
+        let totalSlides = 0;
+        let sliderInterval;
+
+        function initializeSlider(count) {
+            totalSlides = count;
+            if (sliderInterval) clearInterval(sliderInterval);
+            if (totalSlides > 0) {
+                currentSlide = 0;
+                updateSlider();
+                sliderInterval = setInterval(nextSlide, 3500);
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        function updateSlider() {
+            const slider = document.querySelector('.slider');
+            const dots = document.querySelectorAll('.slider-dots .dot');
+            if (slider && dots.length > 0) {
+                slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+        }
+        
+        // Social Media Toggle
+        function toggleSocialMedia(event) {
+            event.preventDefault();
+            document.querySelector('.social-media-links').classList.toggle('active');
+        }
+
+        // Home Button
+        document.getElementById("homeButton").addEventListener("click", (event) => {
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Image Modal Functionality
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+
+        function openImageModal(src) {
+            if (modal && modalImg) {
+                modalImg.src = src;
+                modal.style.display = "flex";
+            }
+        }
+        
+        function setupModalListeners() {
+            const span = document.getElementsByClassName("close-modal")[0];
+            span.onclick = function() { 
+                modal.style.display = "none";
+            }
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
                 }
             }
-        });
-    } catch (e) {
-        console.error("Error creating chart:", e);
-         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-         ctx.textAlign = 'center';
-         ctx.fillText('Could not display chart.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    }
-}
-
-// Update shares summary section
-function updateSharesSummary(users) {
-    const totalSharesLimit = 1000; // Total available shares limit
-    let soldShares = 0;
-
-     // Ensure users is an array
-     if (!Array.isArray(users)) {
-         console.error("updateSharesSummary: Invalid data received.");
-         // Set defaults or show error state
-         document.querySelector('#soldSharesCard .value').textContent = 'Err';
-         document.querySelector('#availableSharesCard .value').textContent = 'Err';
-         document.getElementById('totalInvestors').textContent = 'Err';
-         return;
-     }
-
-
-    users.forEach(user => {
-        // Ensure user object is valid before accessing shares
-        if (user && typeof user === 'object') {
-             soldShares += user.shares || 0;
         }
-    });
-
-    // Ensure sold shares don't exceed total shares (data sanity check)
-    soldShares = Math.min(soldShares, totalSharesLimit);
-
-    const availableShares = totalSharesLimit - soldShares;
-    const soldPercentage = totalSharesLimit > 0 ? (soldShares / totalSharesLimit) * 100 : 0;
-    const availablePercentage = 100 - soldPercentage;
-
-    // Update text values
-    document.querySelector('#soldSharesCard .value').textContent = soldShares;
-    document.querySelector('#availableSharesCard .value').textContent = availableShares;
-    document.getElementById('totalInvestors').textContent = users.length; // Count all users passed
-
-    // Update progress bars smoothly
-    try {
-        const soldProgressBar = document.querySelector('#soldProgress .progress-bar');
-        const availableProgressBar = document.querySelector('#availableProgress .progress-bar');
-        if(soldProgressBar) soldProgressBar.style.width = `${soldPercentage}%`;
-        if(availableProgressBar) availableProgressBar.style.width = `${availablePercentage}%`;
-    } catch (e) {
-         console.error("Error updating progress bars:", e);
-    }
-}
-
-// --- Initial State ---
-loginScreen.style.display = 'flex';
-dashboardScreen.style.display = 'none';
-console.log("App initialized. Waiting for login.");
-</script>
-
+    </script>
 </body>
 </html>
+
