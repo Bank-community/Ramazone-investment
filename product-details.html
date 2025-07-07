@@ -79,7 +79,8 @@
                     </div>
                     <div class="mt-auto pt-6">
                         <a id="whatsapp-order-link" href="#" target="_blank" class="whatsapp-btn w-full flex items-center justify-center text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg">
-                            <img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" class="w-7 h-7 mr-3" alt="WhatsApp">
+                            <!-- UPDATED: New WhatsApp Icon -->
+                            <img src="https://www.svgrepo.com/show/452133/whatsapp.svg" class="w-7 h-7 mr-3" alt="WhatsApp">
                             Order on WhatsApp
                         </a>
                     </div>
@@ -272,8 +273,8 @@
         function setupShareButton(productData) {
             const shareButton = document.getElementById('share-button');
             
-            // Corrected format for WhatsApp bold text
-            const productName = `Product Name:- *${productData.name.toUpperCase()}*`;
+            // Corrected format for WhatsApp bold text (no spaces inside asterisks)
+            const productName = `Product Name:- *${productData.name.toUpperCase().trim()}*`;
             const productPrice = `Price:- *₹${productData.price || productData.offer}*`;
             const closingText = `✨ Discover more amazing deals at Ramazone! ✨`;
             const productLink = window.location.href;
