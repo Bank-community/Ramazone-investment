@@ -33,6 +33,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #000; /* Fallback background */
         }
         .video-player {
             position: absolute;
@@ -107,6 +108,7 @@
 
         // Function to extract YouTube Video ID from URL
         function getYouTubeID(url) {
+            if (!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
@@ -121,11 +123,19 @@
                 const productsRef = database.ref('ramazone/homepage/festiveCollection/products');
 
                 const [videoSnapshot, productsSnapshot] = await Promise.all([videoShoppeRef.get(), productsRef.get()]);
+                
+                // Clear the loader ONLY after getting data
+                loader.style.display = 'none';
+                videoContainer.innerHTML = ''; 
 
                 if (videoSnapshot.exists() && productsSnapshot.exists()) {
                     const videoPosts = videoSnapshot.val();
                     const products = productsSnapshot.val();
-                    videoContainer.innerHTML = ''; // Clear loader
+                    
+                    if (!videoPosts || videoPosts.length === 0) {
+                         videoContainer.innerHTML = '<div class="h-screen w-screen flex items-center justify-center text-white"><p>No videos found.</p></div>';
+                         return;
+                    }
 
                     videoPosts.forEach(post => {
                         const videoId = getYouTubeID(post.youtubeLink);
@@ -157,11 +167,12 @@
                         }
                     });
                 } else {
-                    loader.innerHTML = '<p class="text-lg font-semibold text-gray-400">No videos found.</p>';
+                    videoContainer.innerHTML = '<div class="h-screen w-screen flex items-center justify-center text-white"><p>No videos to show yet.</p></div>';
                 }
             } catch (error) {
                 console.error("Error loading data:", error);
-                loader.innerHTML = '<p class="text-lg font-semibold text-red-500">Could not load videos.</p>';
+                loader.style.display = 'none';
+                videoContainer.innerHTML = '<div class="h-screen w-screen flex items-center justify-center text-red-500"><p>Could not load videos.</p></div>';
             }
         });
     </script>
