@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Shoppe - Ramazone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --text-dark: #111827;
+            --bg-light: #f3f4f6;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent default body scroll */
+            background-color: #000;
+        }
+        .video-container {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+        .video-slide {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .overlay-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            z-index: 10;
+        }
+        .product-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .whatsapp-btn:hover {
+            background-color: #1DAA50;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="bg-black bg-opacity-50 text-white fixed top-0 left-0 w-full z-20">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="./index.html" class="text-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <h1 class="text-xl font-bold">Video Shoppe</h1>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <div id="video-container" class="video-container">
+        <!-- Videos will be loaded here by JS -->
+        <div id="loading-indicator" class="h-screen w-screen flex flex-col items-center justify-center text-white">
+            <p class="text-lg font-semibold">Loading Videos...</p>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAgzs3GqaafEHQSnEyZqrjQT0r_6jXMaGQ",
+            authDomain: "re-store-7f2b3.firebaseapp.com",
+            databaseURL: "https://re-store-7f2b3-default-rtdb.asia-southeast1.firebasedatabase.app",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const sellerPhoneNumber = '917903698180';
+
+        // Function to extract YouTube Video ID from URL
+        function getYouTubeID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const videoContainer = document.getElementById('video-container');
+            const loader = document.getElementById('loading-indicator');
+
+            try {
+                const videoShoppeRef = database.ref('ramazone/homepage/videoShoppe');
+                const productsRef = database.ref('ramazone/homepage/festiveCollection/products');
+
+                const [videoSnapshot, productsSnapshot] = await Promise.all([videoShoppeRef.get(), productsRef.get()]);
+
+                if (videoSnapshot.exists() && productsSnapshot.exists()) {
+                    const videoPosts = videoSnapshot.val();
+                    const products = productsSnapshot.val();
+                    videoContainer.innerHTML = ''; // Clear loader
+
+                    videoPosts.forEach(post => {
+                        const videoId = getYouTubeID(post.youtubeLink);
+                        const linkedProduct = products[post.linkedProductId];
+
+                        if (videoId && linkedProduct) {
+                            const slide = document.createElement('div');
+                            slide.className = 'video-slide';
+
+                            const productImageUrl = (linkedProduct.images && linkedProduct.images.length > 0) ? linkedProduct.images[0] : linkedProduct.imageUrl;
+                            const whatsappMessage = `🛍️ *Ramazone Store Order* 🛍️\n\nHello! I'm interested in this product seen in a video:\n\n*Product:* ${linkedProduct.name}\n*Price:* ₹${linkedProduct.price || linkedProduct.offer}\n*Product ID:* ${post.linkedProductId}\n\nPlease let me know if it's available.`;
+
+                            slide.innerHTML = `
+                                <iframe class="video-player" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&autohide=1&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                <div class="overlay-content">
+                                    <div class="product-card">
+                                        <img src="${productImageUrl}" class="w-16 h-16 rounded-lg object-cover">
+                                        <div class="flex-1">
+                                            <h3 class="font-bold text-lg">${linkedProduct.name}</h3>
+                                            <p class="text-md">₹${linkedProduct.price || linkedProduct.offer}</p>
+                                        </div>
+                                        <a href="https://wa.me/${sellerPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}" target="_blank" class="whatsapp-btn p-3 rounded-full shadow-lg">
+                                            <img src="https://www.svgrepo.com/show/452133/whatsapp.svg" class="w-6 h-6" alt="WhatsApp">
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                            videoContainer.appendChild(slide);
+                        }
+                    });
+                } else {
+                    loader.innerHTML = '<p class="text-lg font-semibold text-gray-400">No videos found.</p>';
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                loader.innerHTML = '<p class="text-lg font-semibold text-red-500">Could not load videos.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
+
