@@ -155,9 +155,9 @@
         });
 
         function loadProduct(data, id) {
-            // Update Meta Tags for Social Sharing
+            // Set Meta Tags for Social Sharing
             const firstImage = (data.images && data.images.length > 0) ? data.images[0] : data.imageUrl;
-            const plainDescription = data.description ? data.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : `Check out ${data.name} on Ramazone!`;
+            const plainDescription = `Check out this amazing product: ${data.name} on Ramazone!`;
 
             document.title = `${data.name || 'Product'} - Ramazone`;
             document.querySelector('meta[property="og:title"]').setAttribute('content', data.name || 'Product on Ramazone');
@@ -207,7 +207,7 @@
             const whatsappMessage = `🛍️ *Ramazone Store Order* 🛍️\n\nHello! I'm interested in this product:\n\n*Product:* ${data.name}\n*Price:* ₹${data.price || data.offer}\n*Product ID:* ${id}\n\nPlease let me know if it's available.`;
             document.getElementById('whatsapp-order-link').href = `https://wa.me/${sellerPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
             
-            setupShareButton(data.name, plainDescription);
+            setupShareButton(data);
         }
 
         function loadRelatedProducts(currentId) {
@@ -268,29 +268,26 @@
             modal.onclick = (e) => { if (e.target === modal) { modal.style.display = "none"; } }
         }
 
-        // UPDATED: Share Functionality with professional text format
-        function setupShareButton(productName, productDescription) {
+        // UPDATED: Share Functionality with new professional text format
+        function setupShareButton(productData) {
             const shareButton = document.getElementById('share-button');
             
-            // Professional share text format
-            const shareText = `*${productName.toUpperCase()}*\n\n${productDescription}\n\n✨ Discover more amazing deals at Ramazone! ✨\n${window.location.href}`;
+            // New Professional Share Text Format
+            const productName = `*Product Name:- ${productData.name.toUpperCase()}*`;
+            const productPrice = `*Price:-* ₹${productData.price || productData.offer}`;
+            const closingText = `✨ Discover more amazing deals at Ramazone! ✨`;
+            const productLink = window.location.href;
 
-            const shareData = {
-                title: `${productName} on Ramazone`,
-                text: shareText,
-                url: window.location.href // URL is now part of the text for better compatibility
-            };
+            const shareText = `${productName}\n${productPrice}\n\n${closingText}\n${productLink}`;
 
             shareButton.addEventListener('click', async () => {
                 if (navigator.share) {
                     try {
-                        // For some apps, sharing just text with the URL inside works best
                         await navigator.share({ text: shareText });
                     } catch (err) {
                         console.error('Share failed:', err.message);
                     }
                 } else {
-                    // Fallback for desktop: copy link to clipboard
                     try {
                         const textArea = document.createElement('textarea');
                         textArea.value = window.location.href;
