@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Default Meta Tags (will be updated by JS) -->
     <title>Product Details - Ramazone</title>
-    
-    <!-- Open Graph Meta Tags for Social Sharing -->
     <meta property="og:title" content="Ramazone">
     <meta property="og:type" content="product">
     <meta property="og:description" content="Discover amazing products on Ramazone!">
-    <meta property="og:image" content="https://i.ibb.co/My6h0gdd/20250706-230221.png"> <!-- Default logo -->
+    <meta property="og:image" content="https://i.ibb.co/My6h0gdd/20250706-230221.png">
     <meta property="og:url" content="">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,89 +21,19 @@
         .thumbnail { cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s; }
         .thumbnail.active { border-color: var(--primary-color); }
         
-        /* Full-screen Image Modal with Slider */
-        #image-modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.95); 
-            justify-content: center; 
-            align-items: center; 
-            flex-direction: column;
-        }
-        #image-modal img { 
-            max-width: 90%; 
-            max-height: 85%;
-            object-fit: contain;
-        }
-        #image-modal .close { 
-            position: absolute; 
-            top: 15px; 
-            right: 35px; 
-            color: #f1f1f1; 
-            font-size: 40px; 
-            font-weight: bold; 
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        #image-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; }
+        #image-modal img { max-width: 90%; max-height: 85%; object-fit: contain; }
+        #image-modal .close { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         #image-modal .close:hover { color: #bbb; }
-
-        /* Slider Controls */
-        .modal-nav {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            width: auto;
-            padding: 16px;
-            margin-top: -50px;
-            color: white;
-            font-weight: bold;
-            font-size: 30px;
-            transition: 0.6s ease;
-            border-radius: 0 3px 3px 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        .modal-nav { cursor: pointer; position: absolute; top: 50%; width: auto; padding: 16px; margin-top: -50px; color: white; font-weight: bold; font-size: 30px; transition: 0.6s ease; border-radius: 0 3px 3px 0; user-select: none; -webkit-user-select: none; }
         .modal-nav.prev { left: 0; border-radius: 3px 0 0 3px; }
         .modal-nav.next { right: 0; border-radius: 0 3px 3px 0; }
         .modal-nav:hover { background-color: rgba(0, 0, 0, 0.8); }
 
-        /* Share Button & Toast Notification */
-        #share-button {
-            background-color: #f3f4f6;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #share-button:hover {
-            background-color: #e5e7eb;
-        }
-        #toast-notification {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            z-index: 2000;
-            transition: bottom 0.5s ease-in-out;
-        }
-        #toast-notification.show {
-            bottom: 30px;
-        }
+        #share-button { background-color: #f3f4f6; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.3s; }
+        #share-button:hover { background-color: #e5e7eb; }
+        #toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #333; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 2000; transition: bottom 0.5s ease-in-out; }
+        #toast-notification.show { bottom: 30px; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -226,13 +155,11 @@
         });
 
         function loadProduct(data, id) {
-            // Set page title
-            document.title = `${data.name || 'Product'} - Ramazone`;
-            
-            // Set Meta Tags for Social Sharing
+            // Update Meta Tags for Social Sharing
             const firstImage = (data.images && data.images.length > 0) ? data.images[0] : data.imageUrl;
             const plainDescription = data.description ? data.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : `Check out ${data.name} on Ramazone!`;
 
+            document.title = `${data.name || 'Product'} - Ramazone`;
             document.querySelector('meta[property="og:title"]').setAttribute('content', data.name || 'Product on Ramazone');
             document.querySelector('meta[property="og:description"]').setAttribute('content', plainDescription);
             document.querySelector('meta[property="og:image"]').setAttribute('content', firstImage || 'https://i.ibb.co/My6h0gdd/20250706-230221.png');
@@ -277,10 +204,10 @@
                 gallery.appendChild(img);
             });
             
-            const message = `🛍️ *Ramazone Store Order* 🛍️\n\nHello! I'm interested in this product:\n\n*Product:* ${data.name}\n*Price:* ₹${data.price || data.offer}\n*Product ID:* ${id}\n\nPlease let me know if it's available.`;
-            document.getElementById('whatsapp-order-link').href = `https://wa.me/${sellerPhoneNumber}?text=${encodeURIComponent(message)}`;
+            const whatsappMessage = `🛍️ *Ramazone Store Order* 🛍️\n\nHello! I'm interested in this product:\n\n*Product:* ${data.name}\n*Price:* ₹${data.price || data.offer}\n*Product ID:* ${id}\n\nPlease let me know if it's available.`;
+            document.getElementById('whatsapp-order-link').href = `https://wa.me/${sellerPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
             
-            setupShareButton(data.name);
+            setupShareButton(data.name, plainDescription);
         }
 
         function loadRelatedProducts(currentId) {
@@ -341,22 +268,29 @@
             modal.onclick = (e) => { if (e.target === modal) { modal.style.display = "none"; } }
         }
 
-        function setupShareButton(productName) {
+        // UPDATED: Share Functionality with professional text format
+        function setupShareButton(productName, productDescription) {
             const shareButton = document.getElementById('share-button');
+            
+            // Professional share text format
+            const shareText = `*${productName.toUpperCase()}*\n\n${productDescription}\n\n✨ Discover more amazing deals at Ramazone! ✨\n${window.location.href}`;
+
             const shareData = {
                 title: `${productName} on Ramazone`,
-                text: `Check out this amazing product: ${productName}`,
-                url: window.location.href
+                text: shareText,
+                url: window.location.href // URL is now part of the text for better compatibility
             };
 
             shareButton.addEventListener('click', async () => {
                 if (navigator.share) {
                     try {
-                        await navigator.share(shareData);
+                        // For some apps, sharing just text with the URL inside works best
+                        await navigator.share({ text: shareText });
                     } catch (err) {
                         console.error('Share failed:', err.message);
                     }
                 } else {
+                    // Fallback for desktop: copy link to clipboard
                     try {
                         const textArea = document.createElement('textarea');
                         textArea.value = window.location.href;
