@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details - Ramazone</title>
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="Ramazone">
+    <meta property="og:type" content="product">
+    <meta property="og:description" content="Discover amazing products on Ramazone!">
+    <meta property="og:image" content="https://i.ibb.co/My6h0gdd/20250706-230221.png"> <!-- Default logo -->
+    <meta property="og:url" content="">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -128,7 +136,6 @@
                 <div class="flex flex-col">
                     <div class="flex justify-between items-start">
                         <h1 id="product-title" class="text-2xl md:text-4xl font-bold text-gray-900 leading-tight"></h1>
-                        <!-- UPDATED: Share Button Added -->
                         <button id="share-button" title="Share Product">
                             <img src="https://www.svgrepo.com/show/527876/share.svg" class="w-6 h-6" alt="Share Icon">
                         </button>
@@ -219,7 +226,19 @@
         });
 
         function loadProduct(data, id) {
+            // Set page title
             document.title = `${data.name || 'Product'} - Ramazone`;
+            
+            // Set Meta Tags for Social Sharing
+            const firstImage = (data.images && data.images.length > 0) ? data.images[0] : data.imageUrl;
+            const plainDescription = data.description ? data.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : `Check out ${data.name} on Ramazone!`;
+
+            document.querySelector('meta[property="og:title"]').setAttribute('content', data.name || 'Product on Ramazone');
+            document.querySelector('meta[property="og:description"]').setAttribute('content', plainDescription);
+            document.querySelector('meta[property="og:image"]').setAttribute('content', firstImage || 'https://i.ibb.co/My6h0gdd/20250706-230221.png');
+            document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+
+            // Load product content
             document.getElementById('product-title').textContent = data.name || 'Product Name';
             document.getElementById('product-price').textContent = data.price ? `₹${data.price}` : `₹${data.offer || 'N/A'}`;
 
@@ -261,7 +280,6 @@
             const message = `🛍️ *Ramazone Store Order* 🛍️\n\nHello! I'm interested in this product:\n\n*Product:* ${data.name}\n*Price:* ₹${data.price || data.offer}\n*Product ID:* ${id}\n\nPlease let me know if it's available.`;
             document.getElementById('whatsapp-order-link').href = `https://wa.me/${sellerPhoneNumber}?text=${encodeURIComponent(message)}`;
             
-            // UPDATED: Setup Share Button
             setupShareButton(data.name);
         }
 
@@ -323,7 +341,6 @@
             modal.onclick = (e) => { if (e.target === modal) { modal.style.display = "none"; } }
         }
 
-        // UPDATED: Share Functionality
         function setupShareButton(productName) {
             const shareButton = document.getElementById('share-button');
             const shareData = {
@@ -333,16 +350,13 @@
             };
 
             shareButton.addEventListener('click', async () => {
-                // Use Web Share API if available (on mobile)
                 if (navigator.share) {
                     try {
                         await navigator.share(shareData);
-                        console.log('Product shared successfully');
                     } catch (err) {
                         console.error('Share failed:', err.message);
                     }
                 } else {
-                    // Fallback for desktop: copy link to clipboard
                     try {
                         const textArea = document.createElement('textarea');
                         textArea.value = window.location.href;
@@ -351,7 +365,7 @@
                         textArea.select();
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
-                        showToast(); // Show "Link Copied!" notification
+                        showToast();
                     } catch (err) {
                         console.error('Fallback copy failed:', err);
                     }
@@ -364,8 +378,9 @@
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000); // Hide after 2 seconds
+            }, 2000);
         }
     </script>
 </body>
 </html>
+
