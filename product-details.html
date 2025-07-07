@@ -268,13 +268,13 @@
             modal.onclick = (e) => { if (e.target === modal) { modal.style.display = "none"; } }
         }
 
-        // UPDATED: Share Functionality with new professional text format
+        // UPDATED: Share Functionality with corrected bold formatting
         function setupShareButton(productData) {
             const shareButton = document.getElementById('share-button');
             
-            // New Professional Share Text Format
-            const productName = `*Product Name*:- *${productData.name.toUpperCase()}*`;
-            const productPrice = `*Price:-* ₹${productData.price || productData.offer}`;
+            // Corrected format for WhatsApp bold text
+            const productName = `Product Name:- *${productData.name.toUpperCase()}*`;
+            const productPrice = `Price:- *₹${productData.price || productData.offer}*`;
             const closingText = `✨ Discover more amazing deals at Ramazone! ✨`;
             const productLink = window.location.href;
 
