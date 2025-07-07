@@ -273,7 +273,7 @@
             const shareButton = document.getElementById('share-button');
             
             // New Professional Share Text Format
-            const productName = `*Product Name*:- $*{productData.name.toUpperCase()}*`;
+            const productName = `*Product Name*:- *${productData.name.toUpperCase()}*`;
             const productPrice = `*Price:-* ₹${productData.price || productData.offer}`;
             const closingText = `✨ Discover more amazing deals at Ramazone! ✨`;
             const productLink = window.location.href;
