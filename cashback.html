@@ -3,1182 +3,853 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ramazone Cashback</title>
+    <title>Loan Profit Analytics - Final Version</title>
+    
+    <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #121828;
-            --bg-light: #1B2133;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #a9b1c8;
-            --border-color-dark: #2c344a;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            --bg-light-theme: #f4f7f9;
-            --bg-light-theme-card: #ffffff;
-            --text-primary-light: #1c2028;
-            --text-secondary-light: #5a647e;
-            --border-color-light: #e8eef3;
-            
-            --brand-red: #e50914;
-            --brand-red-hover: #f40612;
-            --accent-blue: #3498db;
-            --accent-green: #2ecc71;
-            --accent-yellow: #f1c40f;
-            --whatsapp-green: #25D366;
-            --accent-purple: #9b59b6; 
-            --shiny-green: #2eff71;
-        }
-
-        /* --- Base Styles & Resets --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html {
-            height: 100%;
-        }
-
-        body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-primary-dark);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100%;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* --- Light Theme --- */
-        body[data-theme="light"] {
-            background-color: var(--bg-light-theme);
-            color: var(--text-primary-light);
-        }
-        body[data-theme="light"] .main-headline .part2 { color: var(--text-primary-light); }
-        body[data-theme="light"] .view, body[data-theme="light"] .action-card, body[data-theme="light"] .modal-content, body[data-theme="light"] .history-item {
-            background-color: var(--bg-light-theme-card);
-            border-color: var(--border-color-light);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        body[data-theme="light"] input {
-            background-color: var(--bg-light-theme);
-            border-color: var(--border-color-light);
-            color: var(--text-primary-light);
-        }
-        body[data-theme="light"] label, body[data-theme="light"] .form-link, body[data-theme="light"] .section-title, body[data-theme="light"] .modal-description, body[data-theme="light"] .history-info .date {
-            color: var(--text-secondary-light);
-        }
-        body[data-theme="light"] #logout-btn, body[data-theme="light"] .btn-secondary {
-            background-color: #e8eef3;
-            color: var(--text-primary-light);
-        }
-        body[data-theme="light"] .header-actions .header-icon:hover {
-            background-color: #e8eef3;
-        }
-
-        .container { width: 100%; max-width: 500px; padding: 0; }
-
-        /* --- Logo / Main Headline --- */
-        .main-headline { font-size: 32px; font-weight: 700; text-align: center; margin: 20px 0 40px 0; }
-        .main-headline .part1 { color: var(--brand-red); }
-        .main-headline .part2 { color: var(--text-primary-dark); }
-
-        /* --- View Transitions --- */
-        .view { display: none; padding: 20px; }
-        .view.active { display: block; animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Forms & Inputs --- */
-        h1 { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; position: relative; }
-        label { font-weight: 500; color: var(--text-secondary-dark); font-size: 14px; margin-bottom: 8px; display: block; }
-        input[type="text"], input[type="tel"], input[type="password"], input[type="number"] {
-            width: 100%; padding: 14px; background-color: var(--bg-light); border: 1px solid var(--border-color-dark);
-            border-radius: 8px; color: var(--text-primary-dark); font-size: 16px; transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input:focus { outline: none; border-color: var(--brand-red); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.25); }
-        button {
-            width: 100%; padding: 15px; background: linear-gradient(90deg, var(--brand-red), #f64d54); color: white;
-            border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(229, 9, 20, 0.2); }
-        button:disabled { background: #555; cursor: not-allowed; opacity: 0.7; box-shadow: none; transform: none; }
-        .form-link { text-align: center; margin-top: 25px; color: var(--text-secondary-dark); }
-        .form-link a { color: var(--brand-red); text-decoration: none; font-weight: 600; }
-        .error-message {
-            color: #ff6b6b; font-size: 14px; text-align: center; margin-top: 15px; display: none;
-            background-color: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 6px;
-        }
-
-        /* --- Dashboard --- */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .header h1 { text-align: left; margin: 0; font-size: 22px; }
-        .header-actions { display: flex; align-items: center; gap: 10px; }
-        
-        .header-actions .header-icon {
-            font-size: 22px; cursor: pointer; line-height: 1; padding: 8px;
-            border-radius: 50%; transition: background-color 0.2s, transform 0.2s; user-select: none;
-        }
-        .header-actions .header-icon:hover { background-color: var(--border-color-dark); transform: scale(1.1); }
-        .header-icon.refreshing { animation: spin 1s ease-in-out; pointer-events: none; }
-        @keyframes spin { from { transform: rotate(0deg) scale(1.1); } to { transform: rotate(360deg) scale(1.1); } }
-
-        #logout-btn {
-            width: auto; padding: 8px 15px; font-size: 14px; font-weight: 500; background: var(--bg-light);
-            text-transform: none; letter-spacing: 0; box-shadow: none;
-        }
-        #logout-btn:hover { background: var(--border-color-dark); transform: none; box-shadow: none; }
-
-        .wallet-card {
-            background: linear-gradient(135deg, #2980b9, #3498db); color: white; padding: 25px;
-            border-radius: 16px; margin-bottom: 30px; position: relative; overflow: hidden;
-        }
-        .wallet-card::before {
-            content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
-            background-color: rgba(255,255,255,0.1); border-radius: 50%;
-        }
-        .wallet-header { 
-            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;
-        }
-        .wallet-header p { font-size: 16px; opacity: 0.9; margin: 0 0 4px 0; }
-        #lifetime-earning { font-size: 13px; font-weight: 500; opacity: 0.8; display: block; }
-        .highlight-amount {
-            font-weight: 700;
-            color: var(--shiny-green); 
-        }
-        #profile-icon {
-            width: 50px; height: 50px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.9);
-            color: #2980b9; font-size: 24px; font-weight: 600; display: flex; align-items: center; justify-content: center;
-        }
-        #wallet-balance { font-size: 40px; font-weight: 700; margin-bottom: 5px; }
-        #user-mobile { opacity: 0.8; font-size: 14px; }
-        
-        @keyframes pulse-shake {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            5%, 15% { transform: scale(1.1) rotate(-5deg); }
-            10%, 20% { transform: scale(1.1) rotate(5deg); }
-            25% { transform: scale(1.1) rotate(0deg); }
-        }
-        .wallet-share {
-            position: absolute;
-            bottom: 20px;
-            right: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-            animation: pulse-shake 5s infinite ease-in-out; 
-        }
-        .wallet-share:hover {
-            opacity: 1;
-            transform: scale(1.1);
-            animation-play-state: paused; 
-        }
-        .wallet-share .share-icon {
-            font-size: 22px;
-        }
-        .wallet-share .share-text {
-            font-size: 12px;
-            font-weight: 500;
-            margin-top: 2px;
-        }
-
-        .dashboard-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .action-card {
-            background-color: var(--bg-light); padding: 20px; border-radius: 12px; text-align: center; cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color-dark); position: relative; z-index: 2; aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; color: inherit;
-        }
-        .action-card:hover { transform: translateY(-5px); background-color: var(--border-color-dark); }
-        .action-card .icon { font-size: 28px; margin-bottom: 10px; }
-        .action-card.claim .icon { color: var(--accent-green); }
-        .action-card.cashback .icon { color: var(--accent-blue); }
-        .action-card.coupons .icon { color: var(--brand-red); }
-        .action-card.pending .icon { color: var(--accent-yellow); }
-        .action-card.profile .icon { color: #8e44ad; }
-        .action-card.whatsapp .icon { color: var(--whatsapp-green); }
-        .action-card .card-text {
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        /* --- NEW: Gift Icon Animation --- */
-        @keyframes gift-pulse {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            5%, 15% { transform: scale(1.1) rotate(-3deg); }
-            10%, 20% { transform: scale(1.1) rotate(3deg); }
-            25% { transform: scale(1.1) rotate(0deg); }
-        }
-        .action-card.cashback .icon {
-            animation: gift-pulse 4s infinite ease-in-out;
-            animation-delay: 1s;
-        }
-
-        /* --- UPDATED: Animated Border with Conic Gradient --- */
-        @keyframes rotate { 100% { transform: rotate(1turn); } }
-        .action-card.animated-border {
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-            border: none;
-        }
-        .action-card.animated-border::before {
-            content: '';
-            position: absolute;
-            z-index: -2;
-            left: -50%;
-            top: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg,
-                transparent 0%, transparent 70%,
-                var(--accent-yellow),
-                white,
-                var(--accent-yellow),
-                transparent 100%
-            );
-            animation: rotate 4s linear infinite;
-        }
-        body[data-theme="light"] .action-card.animated-border::before {
-             background: conic-gradient(
-                from 0deg,
-                transparent 0%, transparent 70%,
-                var(--accent-yellow),
-                #555,
-                var(--accent-yellow),
-                transparent 100%
-            );
-        }
-         .action-card.animated-border::after {
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 2px;
-            top: 2px;
-            width: calc(100% - 4px);
-            height: calc(100% - 4px);
-            background: var(--bg-light);
-            border-radius: 10px;
-        }
-        body[data-theme="light"] .action-card.animated-border::after {
-            background: var(--bg-light-theme-card);
-        }
-
-        /* --- NEW: Card Click Animation --- */
-        .action-card.clicked-effect {
-            animation: click-border-pulse 0.5s ease-out;
-        }
-        @keyframes click-border-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-            50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3); }
-            100% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
-        }
-        body[data-theme="light"] .action-card.clicked-effect {
-            animation-name: click-border-pulse-light;
-        }
-        @keyframes click-border-pulse-light {
-             0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
-            50% { box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.15); }
-            100% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
-        }
-
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--text-secondary-dark); }
-        .history-list { display: flex; flex-direction: column; gap: 12px; }
-        .history-item {
-            display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-light);
-            padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent-blue);
-        }
-        .history-item.debit { border-left-color: var(--brand-red); }
-        .history-item.credit { border-left-color: var(--accent-green); }
-        .history-details { display: flex; align-items: center; gap: 15px; }
-        .history-icon {
-            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;
-        }
-        .history-icon.debit { background-color: rgba(229, 9, 20, 0.1); color: var(--brand-red); }
-        .history-icon.credit { background-color: rgba(46, 204, 113, 0.1); color: var(--accent-green); }
-        .history-info .title { font-weight: 600; font-size: 15px; }
-        .history-info .date { font-size: 13px; color: var(--text-secondary-dark); }
-        .history-amount { text-align: right; }
-        .history-amount .amount { font-weight: 600; font-size: 16px; }
-        .history-amount .amount.debit { color: #ff6b6b; }
-        .history-amount .amount.credit { color: #2ecc71; }
-        .history-amount .status {
-            font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 12px; text-transform: capitalize;
-        }
-        .status-pending { background-color: rgba(241, 196, 15, 0.2); color: var(--accent-yellow); }
-        .status-approved { background-color: rgba(46, 204, 113, 0.2); color: var(--accent-green); }
-        .status-rejected { background-color: rgba(229, 9, 20, 0.2); color: var(--brand-red); }
-        .coupon-code { font-family: 'Courier New', Courier, monospace; font-weight: bold; background-color: #333; padding: 2px 5px; border-radius: 4px; color: #eee; font-size: 12px; display: inline-block; margin-top: 4px; }
-        .copy-btn {
-            background: none; border: none; color: var(--text-secondary-dark); cursor: pointer;
-            font-size: 12px; padding: 2px 5px; margin-left: 5px;
-        }
-        .empty-history { text-align: center; padding: 40px 20px; background-color: var(--bg-light); border-radius: 12px; color: var(--text-secondary-dark); }
-        
-        /* --- Modal --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);
-            display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);
-        }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
-        .modal-content {
-            background-color: var(--bg-light); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid var(--border-color-dark);
-            animation: slideIn 0.4s cubic-bezier(0.25, 1, 0.5, 1); max-height: 80vh; display: flex; flex-direction: column;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .modal-body { overflow-y: auto; margin-top: 15px; }
-        .modal-content h3 { margin-top: 0; text-align: center; font-size: 20px; margin-bottom: 10px; }
-        .modal-content .modal-description { text-align: center; color: var(--text-secondary-dark); margin-bottom: 25px; font-size: 14px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-secondary { background: var(--border-color-dark); }
-        .btn-secondary:hover { background: #414b69; transform: none; box-shadow: none; }
-        
-        /* Profile Modal Specifics */
-        .profile-info { text-align: center; margin-bottom: 25px; }
-        .profile-info #profile-modal-icon {
-            width: 80px; height: 80px; border-radius: 50%; background-color: var(--brand-red); color: white;
-            font-size: 40px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;
-        }
-        .profile-info #profile-modal-name { font-size: 22px; font-weight: 600; }
-        .profile-info #profile-modal-mobile { font-size: 16px; color: var(--text-secondary-dark); }
-        #password-change-form { border-top: 1px solid var(--border-color-dark); padding-top: 20px; margin-top: 20px; }
-        
-        /* Toast Notification Style */
-        .toast-notification {
-            position: fixed;
-            bottom: -100px; /* Initially hidden */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--accent-green);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 15px;
-            font-weight: 500;
-            z-index: 2000;
-            transition: bottom 0.5s ease-in-out;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .toast-notification.show {
-            bottom: 30px; /* Slide in */
-        }
-
-        /* Mobile Full Screen Adjustments */
-        @media (max-width: 600px) {
-            body { padding: 0; }
-            .container { max-width: 100%; }
-            .view { border-radius: 0; min-height: 100vh; }
-            .main-headline { margin-top: 40px; }
-            .dashboard-actions { grid-template-columns: 1fr 1fr; } 
-            .action-card p { font-size: 13px; }
-        }
-
-    </style>
 </head>
 <body>
+<style>
+/* --- ROOT VARIABLES & FONT IMPORT --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-    <div class="container">
-        
-        <!-- Login View -->
-        <div id="login-view" class="view active">
-            <h1 class="main-headline"><span class="part1">Ram</span><span class="part2">azone</span></h1>
-            <h1>Customer Login</h1>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-mobile">Mobile Number</label>
-                    <input type="tel" id="login-mobile" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="number" id="login-password" required placeholder="••••••••">
-                </div>
-                <button type="submit">Login</button>
-                <p id="login-error-msg" class="error-message"></p>
-            </form>
-            <p class="form-link">Naye user? <a href="#" id="show-register-link">Yahan register karein</a></p>
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e67e22;
+    --light-bg: #ecf0f1;
+    --text-dark: #2c3e50;
+    --text-light: #7f8c8d;
+    --positive-color: #27ae60;
+    --negative-color: #c0392b;
+    --warning-color: #f39c12;
+    --card-bg: #ffffff;
+    --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    --border-color: #dfe6e9;
+    --modal-bg: rgba(44, 62, 80, 0.7);
+    --gradient-header: linear-gradient(90deg, #2c3e50, #34495e);
+    --details-btn-bg: #27ae60;
+    --details-btn-text: #ffffff;
+}
+
+/* --- BASE & UTILITIES --- */
+body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--light-bg); color: var(--text-dark); line-height: 1.6; padding-top: 70px; }
+.container { max-width: 1300px; margin: 25px auto; padding: 0 20px; }
+.hidden { display: none !important; }
+.visually-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+.highlight { font-weight: 700; padding: 2px 6px; border-radius: 5px; }
+.highlight.high { background-color: rgba(39, 174, 96, 0.15); color: var(--positive-color); }
+.highlight.medium { background-color: rgba(52, 152, 219, 0.15); color: var(--secondary-color); }
+.highlight.low { background-color: rgba(243, 156, 18, 0.15); color: var(--warning-color); }
+.btn-details-small { background-color: var(--details-btn-bg); color: var(--details-btn-text); padding: 5px 10px; font-size: 0.8em; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; font-weight: 600; border: none; margin-left: 15px; }
+.btn-details-small:hover { opacity: 0.85; transform: scale(1.05); }
+
+/* --- LOADER & PASSWORD PROMPT --- */
+#loader, #passwordPromptContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.5s ease; flex-direction: column; }
+#loader { background-color: var(--light-bg); }
+#loader .spinner { width: 50px; height: 50px; border: 5px solid rgba(0,0,0,0.1); border-left-color: var(--secondary-color); border-radius: 50%; animation: spin 1.2s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#passwordPromptContainer { background-color: var(--modal-bg); backdrop-filter: blur(5px); }
+#passwordPromptContainer.visually-hidden { opacity: 0; }
+#passwordPromptMessage { padding: 30px 35px; background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow); text-align: center; max-width: 340px; width: 90%; }
+#passwordPromptMessage h3 { margin-top: 0; font-size: 1.3em; }
+#passwordInput { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 22px; text-align: center; letter-spacing: 10px; font-family: 'Poppins', sans-serif; }
+#passwordSubmit { width: 100%; padding: 12px 20px; font-size: 1em; font-weight: 600; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+#passwordSubmit:hover { background-color: var(--secondary-color); transform: translateY(-2px); }
+
+/* --- HEADER & FILTERS --- */
+.header { text-align: center; background: var(--gradient-header); color: white; padding: 15px 0; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+.header h1 { font-size: 1.4em; margin: 0; font-weight: 600; }
+.filters { margin-bottom: 30px; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: var(--card-shadow); }
+.filter-group { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+.filter-group label { font-weight: 500; }
+.filter-group select { padding: 10px 15px; font-size: 1em; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-family: 'Poppins', sans-serif; cursor: pointer; flex-grow: 1; }
+.rank-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+.rank-buttons button { flex-grow: 1; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+.rank-buttons button i { margin-right: 8px; }
+.btn-profit { background-color: var(--accent-color); color: white; }
+.btn-score { background-color: var(--secondary-color); color: white; }
+.btn-eligibility { background-color: #8e44ad; color: white; }
+.rank-buttons button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+/* --- MAIN CONTENT & SECTIONS --- */
+.main-content { display: grid; grid-template-columns: 1fr; gap: 30px; align-items: flex-start; }
+#dashboardContent { opacity: 0; transition: opacity 0.5s ease-in-out; }
+#dashboardContent.visible { opacity: 1; }
+.content-section { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow); padding: 25px; margin-bottom: 30px;}
+.content-section h2 { margin-top: 0; text-align: center; color: var(--primary-color); }
+#growthChartContainer { position: relative; height: 350px; }
+
+/* --- PROFILE CARD --- */
+.profile-card { border-top: 4px solid var(--secondary-color); }
+.profile-image-container { width: 130px; height: 130px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; border: 5px solid var(--light-bg); box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+.profile-image-container img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.2s ease; }
+.profile-image-container img:hover { transform: scale(1.05); }
+.profile-card h2 { margin: 10px 0 20px 0; font-size: 1.8em; color: var(--primary-color); word-break: break-word; }
+.profile-stats { margin-top: 20px; text-align: left; }
+.stat-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid var(--border-color); font-size: 1em; }
+.stat-item:last-child { border-bottom: none; }
+.stat-item .label { font-weight: 500; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
+.stat-item .label i { width: 20px; text-align: center; }
+.stat-item .value { font-weight: 700; font-size: 1.1em; }
+.value.positive { color: var(--positive-color); }
+.value.negative { color: var(--negative-color); }
+.icon-loan { color: var(--negative-color); }
+.icon-capital { color: var(--primary-color); }
+.icon-profit { color: var(--accent-color); }
+.icon-score { color: var(--secondary-color); }
+.icon-limit { color: #8e44ad; }
+
+/* --- TABLES (PROFIT, HISTORY, RANKING) --- */
+.table-container { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: center; vertical-align: middle; }
+th { background-color: var(--primary-color); color: white; font-size: 0.9em; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
+td { font-size: 0.95em; }
+.profit-value { font-weight: bold; color: var(--positive-color); }
+.details-btn { padding: 8px 14px; font-size: 0.85em; background-color: var(--secondary-color); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
+.details-btn:hover { background-color: #2980b9; transform: scale(1.05); }
+.no-data-row td { text-align: center; padding: 50px; color: var(--text-light); font-size: 1.1em; }
+.transaction-type { font-weight: bold; }
+.transaction-type.sip { color: var(--positive-color); }
+.transaction-type.loan { color: var(--negative-color); }
+.transaction-type.payment { color: var(--secondary-color); }
+
+/* --- MODALS --- */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 2500; padding: 15px; box-sizing: border-box; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: var(--card-shadow); max-width: 700px; width: 95%; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
+.modal.visually-hidden { opacity: 0; visibility: hidden; }
+.modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 30px; color: #bdc3c7; cursor: pointer; transition: color 0.2s; z-index: 2510;}
+.modal-close:hover { color: var(--text-dark); }
+.modal h2 { margin-top: 0; text-align: center; color: var(--primary-color); font-weight: 600; }
+.modal .list-container { overflow-y: auto; flex-grow: 1; }
+.modal ul, .modal ol { list-style: none; padding: 0; margin-top: 15px; }
+.modal li { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; background-color: var(--light-bg); transition: background-color 0.2s; }
+.modal li:hover { background-color: #dfe6e9; }
+.modal .rank { font-weight: bold; color: var(--secondary-color); min-width: 35px; font-size: 1.1em; }
+.modal .name { font-weight: 600; flex-grow: 1; }
+.modal .share { font-weight: bold; color: var(--positive-color); white-space: nowrap; }
+.chart-container { margin-bottom: 20px; }
+.list-header { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); font-size: 1.1em; color: var(--text-light); }
+#imageModal .modal-content { background: transparent; padding: 0; box-shadow: none; max-width: 90vw; }
+#imageModal img { max-height: 85vh; width: auto; object-fit: contain; border-radius: 12px; }
+#imageModal .modal-close { color: white; background-color: rgba(0,0,0,0.4); border-radius: 50%; width: 35px; height: 35px; line-height: 35px; font-size: 22px; text-align: center; top: 20px; right: 20px; }
+#calculationDetailsContent { font-size: 0.95em; line-height: 1.8; }
+#calculationDetailsContent .calc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
+#calculationDetailsContent .calc-row:last-child { border-bottom: none; }
+#calculationDetailsContent .calc-label { color: var(--text-light); }
+#calculationDetailsContent .calc-value { font-weight: 600; }
+#calculationDetailsContent .calc-formula { font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: -5px; }
+#calculationDetailsContent .calc-final { font-size: 1.2em; font-weight: 700; color: var(--positive-color); text-align: center; margin-top: 15px; padding: 10px; background-color: var(--light-bg); border-radius: 8px; }
+.improvement-tips { margin-top: 20px; padding: 15px; background-color: rgba(39, 174, 96, 0.05); border: 1px solid rgba(39, 174, 96, 0.2); border-radius: 8px; color: #218c52; }
+.improvement-tips h4 { margin-top: 0; }
+.improvement-tips ul { padding-left: 20px; margin-bottom: 0; }
+
+/* --- RESPONSIVE DESIGN --- */
+@media (min-width: 992px) { .main-content { grid-template-columns: 380px 1fr; } .profile-card { position: sticky; top: 100px; } }
+@media (max-width: 991px) { .profile-card { margin-bottom: 30px; } }
+@media (max-width: 600px) { body { padding-top: 60px; } .container { padding: 0 15px; } .header h1 { font-size: 1.2em; } .filter-group { flex-direction: column; align-items: stretch; } .rank-buttons { flex-direction: column; } .profile-card h2 { font-size: 1.5em; } th, td { padding: 12px 8px; } .modal-content { padding: 20px; } #growthChartContainer { height: 300px; } }
+</style>
+    <div id="loader">
+        <div class="spinner"></div>
+        <span>Loading Final Analytics...</span>
+    </div>
+
+    <div id="passwordPromptContainer">
+        <div id="passwordPromptMessage">
+            <h3><i class="fas fa-lock"></i> Enter Access PIN</h3>
+            <input type="password" id="passwordInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••">
+            <button id="passwordSubmit">Enter</button>
         </div>
+    </div>
 
-        <!-- Registration View -->
-        <div id="registration-view" class="view">
-             <h1 class="main-headline"><span class="part1">Ram</span><span class="part2">azone</span></h1>
-             <h1>Register New Account</h1>
-            <form id="register-form">
-                <div class="form-group"><label for="reg-name">Poora Naam (Full Name)</label><input type="text" id="reg-name" required></div>
-                <div class="form-group"><label for="reg-mobile">Mobile Number (10 अंक)</label><input type="tel" id="reg-mobile" pattern="[0-9]{10}" required></div>
-                <div class="form-group"><label for="reg-password">Password Banayein</label><input type="password" id="reg-password" required placeholder="Kam se kam 6 akshar"></div>
-                <button type="submit">Register Karein</button>
-                <p id="register-error-msg" class="error-message"></p>
-            </form>
-            <p class="form-link">Pehle se account hai? <a href="#" id="show-login-link">Yahan login karein</a></p>
-        </div>
+    <div id="dashboardContent" class="visually-hidden">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Bank Loan Profit</h1>
+        </header>
 
-        <!-- Dashboard View -->
-        <div id="dashboard-view" class="view">
-            <div class="header">
-                <h1 id="user-name">Welcome!</h1>
-                <div class="header-actions">
-                    <div id="refresh-btn" class="header-icon" title="Refresh Data">🔄</div>
-                    <div id="theme-switcher" class="header-icon" title="Toggle Theme">☀️</div>
-                    <button id="logout-btn">Logout</button>
+        <div class="container">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="memberFilter"><i class="fas fa-user-friends"></i> Select View:</label>
+                    <select id="memberFilter">
+                        <option value="all">Community Overview</option>
+                    </select>
+                </div>
+                <div class="rank-buttons">
+                    <button id="showReturnRankBtn" class="btn-profit"><i class="fas fa-trophy"></i> Profit Ranking</button>
+                    <button id="showScoreRankBtn" class="btn-score"><i class="fas fa-star"></i> Score Ranking</button>
+                    <button id="showEligibilityRankBtn" class="btn-eligibility"><i class="fas fa-gavel"></i> Eligibility Ranking</button>
                 </div>
             </div>
-            
-            <div class="wallet-card">
-                <div class="wallet-header">
-                    <div>
-                        <p>Wallet Balance</p>
-                        <small id="lifetime-earning">Lifetime Earning: <span class="highlight-amount">₹0.00</span></small>
+
+            <main class="main-content">
+                <aside class="profile-card content-section" id="profileSection">
+                    <div class="profile-image-container">
+                        <img id="profileImage" src="https://i.postimg.cc/XNpR3cN1/20241030-065157.png" alt="Profile Picture">
                     </div>
-                    <div id="profile-icon"></div>
-                </div>
-                <p id="wallet-balance">₹ 0.00</p>
-                <small id="user-mobile"></small>
-                <div id="wallet-share-btn" class="wallet-share" title="Share App">
-                    <span class="share-icon">🔗</span>
-                    <span class="share-text">Share</span>
-                </div>
-            </div>
-
-            <div class="dashboard-actions">
-                <div id="open-cashback-modal" class="action-card cashback animated-border">
-                    <div class="icon">🎁</div>
-                    <div class="card-text">
-                        <strong>Cashback</strong>
-                        <strong>Request</strong>
-                    </div>
-                </div>
-                <div id="open-claim-modal" class="action-card claim">
-                     <div class="icon">💸</div>
-                    <p>Claim From Wallet</p>
-                </div>
-                <div id="open-coupons-modal" class="action-card coupons">
-                     <div class="icon">🎟️</div>
-                    <p>My Coupons</p>
-                </div>
-                <div id="open-pending-modal" class="action-card pending">
-                     <div class="icon">⏳</div>
-                    <p>Pending Requests</p>
-                </div>
-                 <div id="open-profile-modal" class="action-card profile">
-                     <div class="icon">👤</div>
-                    <p>My Profile</p>
-                </div>
-                 <a href="https://wa.me/917903698180?text=Ramazone%20cashback%0A%0AHelp%20me!" target="_blank" class="action-card whatsapp">
-                    <div class="icon">💬</div>
-                    <p>WhatsApp Support</p>
-                </a>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">Haal Hi Ke Transactions</h2>
-                <div id="unified-history-list" class="history-list">
-                    <!-- History items will be injected here by JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="password-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Confirm Your Request</h3>
-            <p class="modal-description">Kripya aage badhne ke liye apna password daalein.</p>
-            <div class="form-group">
-                <label for="modal-password">Password</label>
-                <input type="password" id="modal-password" required>
-            </div>
-            <p id="modal-error-msg" class="error-message"></p>
-            <div class="modal-actions">
-                <button id="modal-cancel-btn" class="btn-secondary">Cancel</button>
-                <button id="modal-confirm-btn">Confirm</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="claim-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Wallet Se Claim Karein</h3>
-            <p class="modal-description">Aapke wallet se amount redeem kiya jayega.</p>
-            <form id="claim-request-form">
-                <div class="form-group">
-                    <label for="claim-amount">Kitna Amount Claim Karna Hai? (kam se kam ₹10)</label>
-                    <input type="number" id="claim-amount" step="0.01" min="10" required>
-                </div>
-                <p id="claim-error-msg" class="error-message"></p>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" data-close-modal>Cancel</button>
-                    <button type="submit" id="claim-submit-btn" disabled>Request Bhejein</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="cashback-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Cashback Request</h3>
-             <p class="modal-description">Product details bharein. 2% cashback request kiya jayega.</p>
-            <form id="cashback-request-form">
-                <div class="form-group"><label for="product-name">Product ka Naam</label><input type="text" id="product-name" required></div>
-                <div class="form-group"><label for="product-price">Product ka Price (₹)</label><input type="number" id="product-price" min="10" required></div>
-                <p id="cashback-error-msg" class="error-message"></p>
-                 <div class="modal-actions">
-                    <button type="button" class="btn-secondary" data-close-modal>Cancel</button>
-                    <button type="submit" id="cashback-submit-btn" disabled>Request Submit Karein</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="coupons-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Aapke Coupons</h3>
-            <div class="modal-body" id="coupons-list">
-                <!-- Coupon items will be injected here -->
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" data-close-modal>Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="pending-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Pending Requests</h3>
-             <div class="modal-body" id="pending-list">
-                <!-- Pending items will be injected here -->
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" data-close-modal>Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay">
-        <div class="modal-content">
-             <div class="profile-info">
-                <div id="profile-modal-icon"></div>
-                <h3 id="profile-modal-name"></h3>
-                <p id="profile-modal-mobile"></p>
-            </div>
-            <form id="password-change-form">
-                <div class="form-group">
-                    <label for="current-password">Purana Password</label>
-                    <input type="password" id="current-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-password">Naya Password</label>
-                    <input type="password" id="new-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Naya Password Confirm Karein</label>
-                    <input type="password" id="confirm-password" required>
-                </div>
-                <p id="password-change-error-msg" class="error-message"></p>
-                <button type="submit" id="password-change-btn">Password Badlein</button>
-            </form>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" data-close-modal>Close</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast Notification Element -->
-    <div id="toast-notification" class="toast-notification"></div>
-
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getDatabase, ref, get, set, push, onValue, runTransaction, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCmgMr4cj7ec1B09eu3xpRhCwsVCeQR9v0",
-            authDomain: "tipsplit-e3wes.firebaseapp.com",
-            databaseURL: "https://tipsplit-e3wes-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "tipsplit-e3wes",
-            storageBucket: "tipsplit-e3wes.firebasestorage.app",
-            messagingSenderId: "984733883633",
-            appId: "1:984733883633:web:adc1e1d22b629a6b631d50"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-
-        // --- DOM Elements ---
-        const views = document.querySelectorAll('.view');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loginErrorMsg = document.getElementById('login-error-msg');
-        const registerErrorMsg = document.getElementById('register-error-msg');
-        const themeSwitcher = document.getElementById('theme-switcher');
-        const refreshBtn = document.getElementById('refresh-btn');
-        
-        // Modals & Forms
-        const passwordModal = document.getElementById('password-modal');
-        const claimModal = document.getElementById('claim-modal');
-        const cashbackModal = document.getElementById('cashback-modal');
-        const couponsModal = document.getElementById('coupons-modal');
-        const pendingModal = document.getElementById('pending-modal');
-        const profileModal = document.getElementById('profile-modal');
-
-        const claimRequestForm = document.getElementById('claim-request-form');
-        const cashbackRequestForm = document.getElementById('cashback-request-form');
-        const passwordChangeForm = document.getElementById('password-change-form');
-
-        const claimErrorMsg = document.getElementById('claim-error-msg');
-        const cashbackErrorMsg = document.getElementById('cashback-error-msg');
-        const modalErrorMsg = document.getElementById('modal-error-msg');
-        const passwordChangeErrorMsg = document.getElementById('password-change-error-msg');
-
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalPasswordInput = document.getElementById('modal-password');
-        const claimSubmitBtn = document.getElementById('claim-submit-btn');
-        const cashbackSubmitBtn = document.getElementById('cashback-submit-btn');
-
-        let currentUserData = null;
-        let activeListeners = [];
-        let tempClaimAmount = 0;
-        
-        let claimsDataSnapshot = null;
-        let cashbackDataSnapshot = null;
-
-        // --- Helper Functions ---
-        function showErrorMessage(element, message) {
-            element.textContent = message;
-            element.style.display = 'block';
-        }
-
-        function hideErrorMessage(element) {
-            element.textContent = '';
-            element.style.display = 'none';
-        }
-
-        function toggleView(viewId) {
-            views.forEach(view => view.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-        }
-
-        function openModal(modalElement) { modalElement.classList.add('active'); }
-        function closeModal(modalElement) { modalElement.classList.remove('active'); }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast-notification');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000); 
-        }
-
-        // --- Theme Management ---
-        function applyTheme(theme) {
-            document.body.dataset.theme = theme;
-            themeSwitcher.textContent = theme === 'light' ? '🌙' : '☀️';
-            localStorage.setItem('theme', theme);
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
-        }
-
-        themeSwitcher.addEventListener('click', () => {
-            const newTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
-        });
-
-        // --- Authentication Logic ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                toggleView('dashboard-view');
-                attachRealtimeListeners(user);
-            } else {
-                toggleView('login-view');
-                detachAllListeners();
-            }
-        });
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            hideErrorMessage(loginErrorMsg);
-            const mobile = document.getElementById('login-mobile').value;
-            const password = document.getElementById('login-password').value;
-            const email = `${mobile}@ramazone.com`;
-            signInWithEmailAndPassword(auth, email, password)
-                .catch(error => showErrorMessage(loginErrorMsg, "Galat mobile number ya password."));
-        });
-
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideErrorMessage(registerErrorMsg);
-            const name = document.getElementById('reg-name').value.trim();
-            const mobile = document.getElementById('reg-mobile').value.trim();
-            const password = document.getElementById('reg-password').value.trim();
-            const email = `${mobile}@ramazone.com`;
-
-            if (!name || !/^\d{10}$/.test(mobile) || password.length < 6) {
-                showErrorMessage(registerErrorMsg, "Kripya sabhi details sahi se bharein. Password kam se kam 6 akshar ka hona chahiye.");
-                return;
-            }
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await updateProfile(user, { displayName: name });
-                
-                const userRef = ref(database, 'users/' + user.uid);
-                const userData = { 
-                    name: name, 
-                    mobile: mobile, 
-                    wallet: 0,
-                    lifetimeEarning: 0 
-                };
-                await set(userRef, userData);
-
-                const mobileMapRef = ref(database, 'mobile_to_uid/' + mobile);
-                await set(mobileMapRef, user.uid);
-
-                alert("Registration safal hua! Ab aap login kar sakte hain.");
-                toggleView('login-view');
-                registerForm.reset();
-            } catch (error) {
-                console.error("Registration Error:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    showErrorMessage(registerErrorMsg, "Is mobile number se account pehle se hai.");
-                } else {
-                    showErrorMessage(registerErrorMsg, "Registration fail ho gaya. Kripya dobara try karein.");
-                }
-            }
-        });
-        
-        logoutBtn.addEventListener('click', () => signOut(auth));
-
-        // --- Real-time Data & Rendering ---
-
-        function renderAllViews() {
-            if (claimsDataSnapshot && cashbackDataSnapshot) {
-                renderUnifiedHistory(claimsDataSnapshot, cashbackDataSnapshot);
-                renderCouponsModal(claimsDataSnapshot);
-                renderPendingModal(claimsDataSnapshot, cashbackDataSnapshot);
-            }
-        }
-
-        function attachRealtimeListeners(user) {
-            detachAllListeners(); 
-
-            const userDbRef = ref(database, 'users/' + user.uid);
-            const userUnsubscribe = onValue(userDbRef, (snapshot) => {
-                if(snapshot.exists()){
-                    currentUserData = snapshot.val();
-                    updateDashboardUI(currentUserData, user);
-                }
-            });
-            activeListeners.push(userUnsubscribe);
-
-            const claimsQuery = query(ref(database, 'claim_requests'), orderByChild('userId'), equalTo(user.uid));
-            const claimsUnsubscribe = onValue(claimsQuery, (snapshot) => {
-                claimsDataSnapshot = snapshot;
-                renderAllViews();
-            });
-            activeListeners.push(claimsUnsubscribe);
-
-            const cashbackQuery = query(ref(database, 'cashback_requests'), orderByChild('userId'), equalTo(user.uid));
-            const cashbackUnsubscribe = onValue(cashbackQuery, (snapshot) => {
-                cashbackDataSnapshot = snapshot;
-                
-                const userLifetimeEarningRef = ref(database, `users/${user.uid}/lifetimeEarning`);
-                snapshot.forEach(child => {
-                    const req = child.val();
-                    const reqKey = child.key;
-
-                    if (req.status === 'approved' && !req.countedForLifetime) {
-                        const cashbackAmount = parseFloat(req.cashbackAmount || 0);
-
-                        if (cashbackAmount > 0) {
-                            runTransaction(userLifetimeEarningRef, (currentValue) => {
-                                return (currentValue || 0) + cashbackAmount;
-                            }).then(() => {
-                                const requestCountedRef = ref(database, `cashback_requests/${reqKey}/countedForLifetime`);
-                                set(requestCountedRef, true);
-                            }).catch((error) => {
-                                console.error("Could not update lifetime earning for transaction. Will retry on next data load.", error);
-                            });
-                        } else {
-                            const requestCountedRef = ref(database, `cashback_requests/${reqKey}/countedForLifetime`);
-                            set(requestCountedRef, true);
-                        }
-                    }
-                });
-
-                renderAllViews();
-            });
-            activeListeners.push(cashbackUnsubscribe);
-        }
-
-        function detachAllListeners() {
-            activeListeners.forEach(unsubscribe => unsubscribe());
-            activeListeners = [];
-            currentUserData = null;
-            claimsDataSnapshot = null;
-            cashbackDataSnapshot = null;
-            claimSubmitBtn.disabled = true;
-            cashbackSubmitBtn.disabled = true;
-        }
-        
-        function refreshData() {
-            if (!auth.currentUser) return;
-            refreshBtn.classList.add('refreshing');
-            attachRealtimeListeners(auth.currentUser);
-            setTimeout(() => {
-                refreshBtn.classList.remove('refreshing');
-            }, 1000);
-        }
-
-        // --- UI Rendering ---
-        function updateDashboardUI(dbData, authUser) {
-            if (!dbData || !authUser) return;
-            const walletBalance = parseFloat(dbData.wallet || 0);
-            const lifetimeEarning = parseFloat(dbData.lifetimeEarning || 0);
-
-            document.getElementById('user-name').textContent = `Welcome, ${authUser.displayName}!`;
-            document.getElementById('user-mobile').textContent = `Mobile: ${dbData.mobile}`;
-            document.getElementById('wallet-balance').textContent = `₹ ${walletBalance.toFixed(2)}`;
-            document.getElementById('lifetime-earning').innerHTML = `Lifetime Earning: <span class="highlight-amount">₹${lifetimeEarning.toFixed(2)}</span>`;
-
-            const openClaimModalBtn = document.getElementById('open-claim-modal');
-            openClaimModalBtn.style.opacity = walletBalance >= 10 ? '1' : '0.5';
-            openClaimModalBtn.style.pointerEvents = walletBalance >= 10 ? 'auto' : 'none';
-            if (authUser.displayName) {
-                const initial = authUser.displayName.charAt(0).toUpperCase();
-                document.getElementById('profile-icon').textContent = initial;
-                document.getElementById('profile-modal-icon').textContent = initial;
-            }
-            document.getElementById('profile-modal-name').textContent = authUser.displayName;
-            document.getElementById('profile-modal-mobile').textContent = dbData.mobile;
-            claimSubmitBtn.disabled = false;
-            cashbackSubmitBtn.disabled = false;
-        }
-
-        function renderUnifiedHistory(claimSnapshot, cashbackSnapshot) {
-            const historyList = document.getElementById('unified-history-list');
-            historyList.innerHTML = '';
-            let combinedHistory = [];
-            claimSnapshot.forEach(child => {
-                const req = child.val();
-                combinedHistory.push({ type: 'debit', date: new Date(req.requestDate), title: 'Wallet Claim', amount: req.claimAmount, status: req.status, couponCode: req.couponCode });
-            });
-            cashbackSnapshot.forEach(child => {
-                const req = child.val();
-                combinedHistory.push({ type: req.status === 'approved' ? 'credit' : 'info', date: new Date(req.requestDate), title: `Cashback: ${req.productName}`, amount: req.cashbackAmount, status: req.status });
-            });
-            if (combinedHistory.length === 0) {
-                historyList.innerHTML = '<p class="empty-history">Aapke paas abhi koi transactions nahi hain.</p>';
-                return;
-            }
-            combinedHistory.sort((a, b) => b.date - a.date);
-            combinedHistory.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = `history-item ${item.type}`;
-                const iconClass = item.type === 'debit' ? 'debit' : 'credit';
-                const iconSymbol = item.type === 'debit' ? '↑' : '↓';
-                const amountClass = item.type === 'debit' ? 'debit' : 'credit';
-                const amountPrefix = item.type === 'debit' ? '-' : '+';
-                let couponHTML = '';
-                if (item.type === 'debit' && item.status === 'approved' && item.couponCode) {
-                    couponHTML = `<span class="coupon-code">${item.couponCode}</span>`;
-                } else if (item.type === 'debit' && item.status === 'rejected') {
-                    couponHTML = `<span class="coupon-code">Refunded</span>`;
-                }
-                itemDiv.innerHTML = `
-                    <div class="history-details">
-                        <div class="history-icon ${iconClass}">${iconSymbol}</div>
-                        <div class="history-info"><div class="title">${item.title}</div><div class="date">${item.date.toLocaleDateString()}</div></div>
-                    </div>
-                    <div class="history-amount">
-                        <div class="amount ${amountClass}">${amountPrefix} ₹${item.amount.toFixed(2)}</div>
-                        <span class="status status-${item.status}">${item.status}</span>
-                        ${couponHTML}
-                    </div>`;
-                historyList.appendChild(itemDiv);
-            });
-        }
-        
-        function renderCouponsModal(claimSnapshot) {
-            const list = document.getElementById('coupons-list');
-            list.innerHTML = '';
-            const approvedClaims = [];
-            claimSnapshot.forEach(child => {
-                const req = child.val();
-                if(req.status === 'approved' && req.couponCode) approvedClaims.push(req);
-            });
-            if (approvedClaims.length === 0) {
-                list.innerHTML = '<p class="empty-history">Aapke paas abhi koi coupons nahi hain.</p>';
-                return;
-            }
-            approvedClaims.sort((a,b) => new Date(b.requestDate) - new Date(a.requestDate));
-            approvedClaims.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'history-item debit';
-                const couponText = item.couponCode;
-                itemDiv.innerHTML = `
-                    <div class="history-details">
-                        <div class="history-icon debit">🎟️</div>
-                        <div class="history-info">
-                            <div class="title">₹${item.claimAmount.toFixed(2)} Coupon</div>
-                            <div class="date">${new Date(item.requestDate).toLocaleDateString()}</div>
+                    <h2 id="profileName">Community</h2>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="label"><i class="fas fa-coins icon-capital"></i> Total Capital</span>
+                            <span class="value" id="profileTotalCapital">₹0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label"><i class="fas fa-arrow-up-from-bracket icon-loan"></i> Total Loan Given</span>
+                            <span class="value negative" id="profileTotalLoan">₹0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="label"><i class="fas fa-sack-dollar icon-profit"></i> Profit Distributed</span>
+                            <span class="value positive" id="profileTotalProfit">₹0.00</span>
+                        </div>
+                        <div id="memberSpecificStats" class="hidden">
+                             <div class="stat-item">
+                                <span class="label"><i class="fas fa-star icon-score"></i> Performance Score</span>
+                                <span class="value" id="profilePerformanceScore">0</span>
+                            </div>
+                             <div class="stat-item">
+                                <span class="label"><i class="fas fa-gavel icon-limit"></i> Loan Eligibility</span>
+                                <span class="value" id="profileLoanLimit">1.00x</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="history-amount">
-                         <span class="coupon-code" style="font-size: 14px;">${couponText}</span>
-                         <button class="copy-btn" data-coupon="${couponText}">📋 Copy</button>
-                    </div>`;
-                list.appendChild(itemDiv);
-            });
+                </aside>
+
+                <div id="right-column">
+                    <section id="growthChartSection" class="content-section">
+                        <h2><i class="fas fa-chart-area"></i> Community Growth Over Time</h2>
+                        <div id="growthChartContainer">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </section>
+
+                    <section id="profitLogSection" class="content-section">
+                        <h2><i class="fas fa-exchange-alt"></i> Profit Distribution Events</h2>
+                        <div class="table-container">
+                            <table id="profitLogTable">
+                                <thead>
+                                    <tr><th>Date</th><th>Payer</th><th>Loan Amt</th><th>Profit</th><th>Details</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section id="memberHistorySection" class="content-section hidden">
+                        <h2><i class="fas fa-history"></i> Member Transaction History</h2>
+                         <div class="table-container">
+                            <table id="memberHistoryTable">
+                                <thead>
+                                    <tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="detailsModal" class="modal visually-hidden">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h2><i class="fas fa-chart-pie"></i> Profit Distribution</h2>
+            <div class="chart-container"><canvas id="distributionChart"></canvas></div>
+            <h3 class="list-header">Beneficiaries</h3>
+            <div class="list-container"><ul id="distributionDetails"></ul></div>
+        </div>
+    </div>
+
+    <div id="returnRankModal" class="modal visually-hidden">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h2><i class="fas fa-trophy"></i> Member Profit Ranking</h2>
+            <div class="list-container"><ol id="returnRankList"></ol></div>
+        </div>
+    </div>
+
+    <div id="scoreRankModal" class="modal visually-hidden">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h2><i class="fas fa-star"></i> Performance Score Ranking</h2>
+            <div class="table-container list-container">
+                <table id="scoreRankTable">
+                    <thead><tr><th>Rank</th><th>Name</th><th>Score</th><th>Details</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="improvement-tips">
+                <h4><i class="fas fa-lightbulb"></i> Score Kaise Badhaye?</h4>
+                <ul>
+                    <li>Har mahine 1 se 10 tarikh ke beech SIP jama karein.</li>
+                    <li>Liye gaye loan ko samay par (90 din ke andar) chukayein.</li>
+                    <li>System mein lambe samay tak apna capital banaye rakhein.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="eligibilityRankModal" class="modal visually-hidden">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h2><i class="fas fa-gavel"></i> Loan Eligibility Ranking</h2>
+            <div class="table-container list-container">
+                <table id="eligibilityRankTable">
+                    <thead><tr><th>Name</th><th>Capital</th><th>Eligibility</th><th>Max Loan Amt</th><th>Details</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="calculationDetailsModal" class="modal visually-hidden">
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <h2 id="calculationDetailsTitle">Calculation Details</h2>
+            <div id="calculationDetailsContent" class="list-container"></div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal visually-hidden">
+         <button class="modal-close">×</button>
+         <div class="modal-content"><img id="fullProfileImage" src="" alt="Full Profile Picture View"></div>
+    </div>
+
+<script>
+// --- CONFIGURATION & NIYAM ---
+const CONFIG = {
+    DATA_URL: 'https://script.google.com/macros/s/AKfycbwmzH2yCELpKKA_iuVdM59dDzN9w-E7q37IElk24RmjRjAahR2tS2LVJ6UibwH5Z8g4VQ/exec',
+    PASSWORD: "7536",
+    DEFAULT_PROFILE_PIC: 'https://i.postimg.cc/XNpR3cN1/20241030-065157.png',
+    
+    // Performance Score Weights
+    CAPITAL_WEIGHT: 0.40, CONSISTENCY_WEIGHT: 0.30, CREDIT_BEHAVIOR_WEIGHT: 0.30,
+    
+    // Loan Eligibility Tiers
+    LOAN_LIMIT_TIER1_SCORE: 50,
+    LOAN_LIMIT_TIER2_SCORE: 60,
+    LOAN_LIMIT_TIER3_SCORE: 80,
+    LOAN_LIMIT_TIER1_MAX: 1.0,
+    LOAN_LIMIT_TIER2_MAX: 1.5,
+    LOAN_LIMIT_TIER3_MAX: 1.8,
+    LOAN_LIMIT_TIER4_MAX: 2.0,
+
+    // Other Niyam
+    MINIMUM_MEMBERSHIP_DAYS: 60,
+    SIP_ON_TIME_LIMIT: 10,
+    LOAN_TERM_TIER3: 90, LOAN_TERM_LATE_FEE: 100,
+    INACTIVE_MEMBER_DAYS_LIMIT: 540, INACTIVE_MEMBER_PROFIT_MULTIPLIER: 0.75
+};
+
+// --- GLOBAL VARIABLES ---
+let allData = [], memberNames = [], distributionChartInstance = null, growthChartInstance = null; 
+
+// --- INITIALIZATION ---
+document.addEventListener("DOMContentLoaded", () => setupPasswordPrompt());
+
+function setupPasswordPrompt() {
+    const passwordContainer = document.getElementById('passwordPromptContainer');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordSubmit = document.getElementById('passwordSubmit');
+    passwordContainer.classList.remove('visually-hidden');
+    passwordInput.focus();
+    const checkPassword = () => {
+        if (passwordInput.value === CONFIG.PASSWORD) {
+            passwordContainer.classList.add('visually-hidden');
+            document.getElementById('loader').classList.remove('hidden');
+            fetchData();
+        } else {
+            alert("Incorrect PIN");
+            passwordInput.value = "";
+            passwordInput.focus();
         }
+    };
+    passwordSubmit.addEventListener('click', checkPassword);
+    passwordInput.addEventListener('keydown', (e) => e.key === 'Enter' && checkPassword());
+}
 
-        function renderPendingModal(claimSnapshot, cashbackSnapshot) {
-            const list = document.getElementById('pending-list');
-            list.innerHTML = '';
-            let pendingItems = [];
-            claimSnapshot.forEach(child => {
-                const req = child.val();
-                if(req.status === 'pending') pendingItems.push({type: 'Claim', date: new Date(req.requestDate), title: 'Wallet Claim', amount: req.claimAmount });
-            });
-            cashbackSnapshot.forEach(child => {
-                const req = child.val();
-                if(req.status === 'pending') pendingItems.push({type: 'Cashback', date: new Date(req.requestDate), title: `Cashback: ${req.productName}`, amount: req.cashbackAmount });
-            });
-            if (pendingItems.length === 0) {
-                list.innerHTML = '<p class="empty-history">Aapke paas abhi koi pending requests nahi hain.</p>';
-                return;
-            }
-            pendingItems.sort((a,b) => b.date - a.date);
-            pendingItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'history-item';
-                itemDiv.innerHTML = `
-                    <div class="history-details">
-                        <div class="history-icon"><span style="font-size: 20px;">⏳</span></div>
-                        <div class="history-info"><div class="title">${item.title}</div><div class="date">${item.date.toLocaleDateString()}</div></div>
-                    </div>
-                    <div class="history-amount"><div class="amount">₹${item.amount.toFixed(2)}</div></div>`;
-                list.appendChild(itemDiv);
-            });
-        }
+// --- DATA FETCHING AND PROCESSING ---
+async function fetchData() {
+    try {
+        const response = await fetch(CONFIG.DATA_URL);
+        const jsonResponse = await response.json();
+        if (jsonResponse.status !== 'success' || !Array.isArray(jsonResponse.data)) throw new Error("Invalid data format.");
+        allData = jsonResponse.data.map((row, index) => ({
+            id: index, date: new Date(row.Date), name: String(row.Name).trim(),
+            loan: parseFloat(row.Loan) || 0, payment: parseFloat(row["Loan Payment"]) || 0,
+            sipPayment: parseFloat(row["SIP Payment"]) || 0, returnAmount: parseFloat(row["Return amount "]) || 0,
+            imageUrl: row.imageUrl || null
+        })).filter(r => r.name && !isNaN(r.date.getTime()));
+        allData.sort((a, b) => a.date - b.date || a.id - b.id);
+        memberNames = [...new Set(allData.map(row => row.name))].sort();
+        initializeDashboard();
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        document.body.innerHTML = `<div style="text-align:center; padding:50px; color:red;">Failed to load data. Please refresh.</div>`;
+    } finally {
+        document.getElementById('loader').classList.add('hidden');
+    }
+}
 
-        // --- Action Handlers ---
-        async function handleClaimRequest(e) {
-            e.preventDefault();
-            hideErrorMessage(claimErrorMsg);
-            if(!auth.currentUser || !currentUserData){ showErrorMessage(claimErrorMsg,"Data load ho raha hai..."); return; }
-            const claimAmount=parseFloat(document.getElementById("claim-amount").value);
-            const currentWalletBalance=parseFloat(currentUserData.wallet||0);
-            if(isNaN(claimAmount)||claimAmount<10){showErrorMessage(claimErrorMsg,"Sahi amount daalein (kam se kam ₹10).");return}
-            if(claimAmount>currentWalletBalance){showErrorMessage(claimErrorMsg,"Aap wallet balance se zyada claim nahi kar sakte.");return}
-            tempClaimAmount = claimAmount;
-            closeModal(claimModal);
-            openModal(passwordModal);
-            modalPasswordInput.focus();
-        }
-        
-        async function processClaimConfirmation() {
-            hideErrorMessage(modalErrorMsg);
-            modalConfirmBtn.disabled = true;
-            modalConfirmBtn.textContent = "Verifying...";
-            if (!auth.currentUser || !currentUserData) {
-                showErrorMessage(modalErrorMsg, "Session expire. Dobara login karein.");
-                modalConfirmBtn.disabled = false; modalConfirmBtn.textContent = "Confirm"; return;
-            }
-            const password = modalPasswordInput.value;
-            if (!password) {
-                showErrorMessage(modalErrorMsg, "Kripya password daalein.");
-                modalConfirmBtn.disabled = false; modalConfirmBtn.textContent = "Confirm"; return;
-            }
-            const email = `${currentUserData.mobile}@ramazone.com`;
-            const credential = EmailAuthProvider.credential(email, password);
-            try {
-                await reauthenticateWithCredential(auth.currentUser, credential);
-            } catch (error) {
-                showErrorMessage(modalErrorMsg, "Galat password. Dobara try karein.");
-                modalConfirmBtn.disabled = false; modalConfirmBtn.textContent = "Confirm"; return;
-            }
-            modalConfirmBtn.textContent = "Processing...";
-            const userRef = ref(database, 'users/' + auth.currentUser.uid);
-            try {
-                const transactionResult = await runTransaction(userRef, data => {
-                    if (data && parseFloat(data.wallet || 0) >= tempClaimAmount) {
-                        data.wallet = parseFloat(data.wallet || 0) - tempClaimAmount;
-                        return data;
-                    }
-                    return; 
-                });
-                if (transactionResult.committed) {
-                    const newClaimRef = push(ref(database, "claim_requests"));
-                    await set(newClaimRef, { claimId: newClaimRef.key, userMobile: currentUserData.mobile, userName: auth.currentUser.displayName, claimAmount: tempClaimAmount, status: "pending", requestDate: (new Date).toISOString(), userId: auth.currentUser.uid });
-                    showToast("Request safaltapoorvak bhej diya gaya hai!");
-                    closeModal(passwordModal);
-                    claimRequestForm.reset();
-                } else {
-                    showErrorMessage(modalErrorMsg, "Transaction fail. Balance check karein.");
-                }
-            } catch (error) {
-                showErrorMessage(modalErrorMsg, "Ek error aayi: " + error.message);
-            } finally {
-                modalConfirmBtn.disabled = false; modalConfirmBtn.textContent = "Confirm"; modalPasswordInput.value = '';
-            }
-        }
-        
-        async function handleCashbackRequest(e) {
-            e.preventDefault();
-            hideErrorMessage(cashbackErrorMsg);
-            cashbackSubmitBtn.disabled = true;
-            if(!auth.currentUser || !currentUserData){ showErrorMessage(cashbackErrorMsg,"Data load ho raha hai..."); cashbackSubmitBtn.disabled = false; return; }
-            const productName=document.getElementById("product-name").value.trim();
-            const productPrice=parseFloat(document.getElementById("product-price").value);
-            if(!productName||isNaN(productPrice)||productPrice<10){ showErrorMessage(cashbackErrorMsg,"Sahi product naam aur kam se kam ₹10 ka price daalein."); cashbackSubmitBtn.disabled = false; return; }
-            const cashbackAmount=productPrice*.02;
-            const newRequestRef=push(ref(database,"cashback_requests"));
-            try{
-                await set(newRequestRef,{ requestId:newRequestRef.key, userMobile:currentUserData.mobile, userName:auth.currentUser.displayName, productName:productName, productPrice:productPrice, cashbackAmount:cashbackAmount, status:"pending", requestDate:(new Date).toISOString(), userId: auth.currentUser.uid });
-                showToast("Cashback request submit ho gaya!");
-                cashbackRequestForm.reset();
-                closeModal(cashbackModal);
-            } catch(err){
-                showErrorMessage(cashbackErrorMsg,"Request submit karne mein error aayi: "+err.message);
-            } finally {
-                 cashbackSubmitBtn.disabled = false;
-            }
-        }
+// --- DASHBOARD SETUP ---
+function initializeDashboard() {
+    document.getElementById('dashboardContent').classList.remove('visually-hidden');
+    document.getElementById('dashboardContent').classList.add('visible');
+    populateMemberFilter();
+    setupEventListeners();
+    updateDisplay();
+}
 
-        async function handlePasswordChange(e) {
-            e.preventDefault();
-            hideErrorMessage(passwordChangeErrorMsg);
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
+function setupEventListeners() {
+    document.getElementById('memberFilter').addEventListener('change', updateDisplay);
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.querySelector('.modal-close').addEventListener('click', () => modal.classList.add('visually-hidden'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('visually-hidden') });
+    });
+    document.getElementById('showReturnRankBtn').addEventListener('click', displayReturnRanking);
+    document.getElementById('showScoreRankBtn').addEventListener('click', displayScoreRanking);
+    document.getElementById('showEligibilityRankBtn').addEventListener('click', displayEligibilityRanking);
+    document.getElementById('profileImage').addEventListener('click', () => {
+        document.getElementById('fullProfileImage').src = document.getElementById('profileImage').src;
+        document.getElementById('imageModal').classList.remove('visually-hidden');
+    });
+}
 
-            if (newPassword !== confirmPassword) {
-                showErrorMessage(passwordChangeErrorMsg, "Naya password match nahi ho raha.");
-                return;
-            }
-            if (newPassword.length < 6) {
-                showErrorMessage(passwordChangeErrorMsg, "Naya password kam se kam 6 akshar ka hona chahiye.");
-                return;
-            }
+function populateMemberFilter() {
+    const nameFilter = document.getElementById("memberFilter");
+    memberNames.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        nameFilter.appendChild(option);
+    });
+}
 
-            const user = auth.currentUser;
-            const email = `${currentUserData.mobile}@ramazone.com`;
-            const credential = EmailAuthProvider.credential(email, currentPassword);
+// --- CORE DISPLAY LOGIC ---
+function updateDisplay() {
+    const selectedName = document.getElementById('memberFilter').value;
+    const isCommunityView = selectedName === 'all';
 
-            try {
-                await reauthenticateWithCredential(user, credential);
-                await updatePassword(user, newPassword);
-                showToast("Password safaltapoorvak badal gaya hai!");
-                passwordChangeForm.reset();
-                closeModal(profileModal);
-            } catch (error) {
-                console.error("Password Change Error:", error);
-                showErrorMessage(passwordChangeErrorMsg, "Purana password galat hai ya koi aur error aayi.");
-            }
-        }
+    document.getElementById('growthChartSection').classList.toggle('hidden', !isCommunityView);
+    document.getElementById('profitLogSection').classList.toggle('hidden', !isCommunityView);
+    document.getElementById('memberSpecificStats').classList.toggle('hidden', isCommunityView);
+    document.getElementById('memberHistorySection').classList.toggle('hidden', isCommunityView);
 
-        // --- Initial Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
+    if (isCommunityView) {
+        renderGrowthChart();
+        populateProfitLog();
+    } else {
+        populateMemberHistory(selectedName);
+    }
+    updateProfileCard(selectedName);
+}
 
-            // NEW: Add click animation listener to all action cards
-            document.querySelectorAll('.action-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // Prevent animation on the link card if you want instant navigation
-                    if (card.tagName.toLowerCase() === 'a') {
-                        return;
-                    }
-                    card.classList.add('clicked-effect');
-                    card.addEventListener('animationend', () => {
-                        card.classList.remove('clicked-effect');
-                    }, { once: true });
-                });
-            });
+function updateProfileCard(name) {
+    const profileImageEl = document.getElementById('profileImage');
+    const profileNameEl = document.getElementById('profileName');
+    let totalCapital = 0, totalLoan = 0, totalProfitEarned = 0;
+
+    if (name === 'all') {
+        allData.forEach(r => {
+            totalCapital += r.sipPayment + r.payment - r.loan;
+            totalLoan += r.loan;
         });
+        totalProfitEarned = allData.reduce((sum, r) => sum + r.returnAmount, 0);
+        profileNameEl.textContent = 'Community Overview';
+        profileImageEl.src = CONFIG.DEFAULT_PROFILE_PIC;
+    } else {
+        const dataToShow = allData.filter(r => r.name === name);
+        totalCapital = dataToShow.reduce((sum, r) => sum + r.sipPayment + r.payment - r.loan, 0);
+        totalLoan = dataToShow.reduce((sum, r) => sum + r.loan, 0);
+        totalProfitEarned = calculateTotalProfitForMember(name);
 
-        document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); toggleView('registration-view'); });
-        document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); toggleView('login-view'); });
-        
-        refreshBtn.addEventListener('click', refreshData);
+        const memberScores = calculatePerformanceScore(name, new Date());
+        const score = memberScores.totalScore;
+        const loanEligibility = getLoanEligibility(name, score);
 
-        // Modal Triggers
-        document.getElementById('open-claim-modal').addEventListener('click', () => openModal(claimModal));
-        document.getElementById('open-cashback-modal').addEventListener('click', () => openModal(cashbackModal));
-        document.getElementById('open-coupons-modal').addEventListener('click', () => openModal(couponsModal));
-        document.getElementById('open-pending-modal').addEventListener('click', () => openModal(pendingModal));
-        document.getElementById('open-profile-modal').addEventListener('click', () => openModal(profileModal));
+        document.getElementById('profilePerformanceScore').textContent = score.toFixed(2);
+        const limitEl = document.getElementById('profileLoanLimit');
+        if(loanEligibility.eligible) {
+            limitEl.textContent = `${loanEligibility.multiplier.toFixed(2)}x`;
+            limitEl.classList.remove('negative');
+        } else {
+            limitEl.textContent = loanEligibility.reason;
+            limitEl.classList.add('negative');
+        }
         
-        // Modal Close Triggers
-        document.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.addEventListener('click', () => closeModal(btn.closest('.modal-overlay')));
+        profileNameEl.textContent = name;
+        const lastUserEntryWithImage = [...dataToShow].reverse().find(r => r.imageUrl);
+        profileImageEl.src = lastUserEntryWithImage ? lastUserEntryWithImage.imageUrl : CONFIG.DEFAULT_PROFILE_PIC;
+    }
+    
+    document.getElementById('profileTotalCapital').textContent = `₹${totalCapital.toFixed(2)}`;
+    document.getElementById('profileTotalLoan').textContent = `₹${totalLoan.toFixed(2)}`;
+    document.getElementById('profileTotalProfit').textContent = `₹${totalProfitEarned.toFixed(2)}`;
+}
+
+// --- PERFORMANCE SCORE ENGINE ---
+function calculatePerformanceScore(memberName, untilDate) {
+    const data = allData.filter(r => r.date <= untilDate);
+    const memberData = data.filter(r => r.name === memberName);
+    if (memberData.length === 0) return { totalScore: 0, capitalScore: 0, consistencyScore: 0, creditScore: 0 };
+
+    const totalDays = 180;
+    const startDate = new Date(untilDate.getTime() - totalDays * 24 * 3600 * 1000);
+    let weightedCapitalSum = 0, currentBalance = 0;
+    const relevantTransactions = memberData.filter(r => r.date >= startDate);
+    if (relevantTransactions.length > 0) {
+        let lastDate = startDate;
+        relevantTransactions.forEach(t => {
+            const daysDifference = (t.date - lastDate) / (1000 * 3600 * 24);
+            weightedCapitalSum += currentBalance * daysDifference;
+            currentBalance += t.sipPayment + t.payment - t.loan;
+            lastDate = t.date;
         });
-        modalCancelBtn.addEventListener('click', () => closeModal(passwordModal));
-        
-        // Form Submissions
-        claimRequestForm.addEventListener('submit', handleClaimRequest);
-        cashbackRequestForm.addEventListener('submit', handleCashbackRequest);
-        passwordChangeForm.addEventListener('submit', handlePasswordChange);
-        modalConfirmBtn.addEventListener('click', processClaimConfirmation);
+        weightedCapitalSum += currentBalance * ((untilDate - lastDate) / (1000 * 3600 * 24));
+    }
+    const capitalScore = Math.max(0, weightedCapitalSum / totalDays);
+    const normalizedCapitalScore = Math.min(100, (capitalScore / 50000) * 100);
 
-        // Event delegation for copy buttons
-        document.getElementById('coupons-list').addEventListener('click', (e) => {
-            if (e.target && e.target.classList.contains('copy-btn')) {
-                const coupon = e.target.dataset.coupon;
-                const button = e.target;
-                navigator.clipboard.writeText(coupon).then(() => {
-                    button.textContent = '✅ Copied!';
-                    setTimeout(() => { button.textContent = '📋 Copy'; }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy: ', err);
-                    showToast('Coupon copy karne mein error aayi.');
-                });
+    const sipHistory = {};
+    memberData.filter(r => r.sipPayment > 0).forEach(r => {
+        const monthKey = `${r.date.getFullYear()}-${r.date.getMonth()}`;
+        if (!sipHistory[monthKey]) sipHistory[monthKey] = r.date.getDate() <= CONFIG.SIP_ON_TIME_LIMIT ? 10 : 5;
+    });
+    const consistencyPoints = Object.values(sipHistory).reduce((a, b) => a + b, 0);
+    const monthsConsidered = Math.max(1, Object.keys(sipHistory).length);
+    const consistencyScore = (consistencyPoints / (monthsConsidered * 10)) * 100;
+
+    let creditPoints = 0;
+    const memberLoans = memberData.filter(r => r.loan > 0);
+    memberLoans.forEach(loanRecord => {
+        const repayment = memberData.find(r => r.payment >= loanRecord.loan && r.date > loanRecord.date);
+        if (repayment) {
+            const daysToRepay = (repayment.date - loanRecord.date) / (1000 * 3600 * 24);
+            if (daysToRepay <= CONFIG.LOAN_TERM_TIER3) creditPoints += 20;
+            else if (daysToRepay <= CONFIG.LOAN_TERM_LATE_FEE) creditPoints -= 5;
+            else creditPoints -= 30;
+        } else { creditPoints -= 40; }
+    });
+    const creditScore = memberLoans.length > 0 ? Math.max(0, (creditPoints / (memberLoans.length * 20)) * 100) : 70;
+
+    const totalScore = (normalizedCapitalScore * CONFIG.CAPITAL_WEIGHT) + (consistencyScore * CONFIG.CONSISTENCY_WEIGHT) + (creditScore * CONFIG.CREDIT_BEHAVIOR_WEIGHT);
+    return { totalScore, capitalScore: normalizedCapitalScore, consistencyScore, creditScore };
+}
+
+function getLoanEligibility(memberName, score) {
+    // Check for outstanding loan
+    const memberData = allData.filter(r => r.name === memberName);
+    const totalLoan = memberData.reduce((sum, r) => sum + r.loan, 0);
+    const totalPayment = memberData.reduce((sum, r) => sum + r.payment + r.sipPayment, 0); // Assuming SIP also counts towards capital
+    if (totalLoan > totalPayment) {
+        return { eligible: false, reason: 'Outstanding Loan' };
+    }
+
+    // Check for minimum membership duration
+    const firstSip = memberData.find(r => r.sipPayment > 0);
+    if (!firstSip) {
+        return { eligible: false, reason: 'No SIP yet' };
+    }
+    const daysSinceFirstSip = (new Date() - firstSip.date) / (1000 * 3600 * 24);
+    if (daysSinceFirstSip < CONFIG.MINIMUM_MEMBERSHIP_DAYS) {
+        const daysLeft = Math.ceil(CONFIG.MINIMUM_MEMBERSHIP_DAYS - daysSinceFirstSip);
+        return { eligible: false, reason: `${daysLeft} days left` };
+    }
+
+    // Calculate multiplier based on score tiers
+    const { LOAN_LIMIT_TIER1_SCORE, LOAN_LIMIT_TIER2_SCORE, LOAN_LIMIT_TIER3_SCORE, LOAN_LIMIT_TIER1_MAX, LOAN_LIMIT_TIER2_MAX, LOAN_LIMIT_TIER3_MAX, LOAN_LIMIT_TIER4_MAX } = CONFIG;
+    let multiplier = LOAN_LIMIT_TIER1_MAX;
+    if (score < LOAN_LIMIT_TIER1_SCORE) {
+        multiplier = LOAN_LIMIT_TIER1_MAX;
+    } else if (score < LOAN_LIMIT_TIER2_SCORE) {
+        multiplier = LOAN_LIMIT_TIER1_MAX + ((score - LOAN_LIMIT_TIER1_SCORE) / (LOAN_LIMIT_TIER2_SCORE - LOAN_LIMIT_TIER1_SCORE)) * (LOAN_LIMIT_TIER2_MAX - LOAN_LIMIT_TIER1_MAX);
+    } else if (score < LOAN_LIMIT_TIER3_SCORE) {
+        multiplier = LOAN_LIMIT_TIER2_MAX + ((score - LOAN_LIMIT_TIER2_SCORE) / (LOAN_LIMIT_TIER3_SCORE - LOAN_LIMIT_TIER2_SCORE)) * (LOAN_LIMIT_TIER3_MAX - LOAN_LIMIT_TIER2_MAX);
+    } else {
+        multiplier = LOAN_LIMIT_TIER3_MAX + ((score - LOAN_LIMIT_TIER3_SCORE) / (100 - LOAN_LIMIT_TIER3_SCORE)) * (LOAN_LIMIT_TIER4_MAX - LOAN_LIMIT_TIER3_MAX);
+    }
+    
+    return { eligible: true, multiplier: Math.max(LOAN_LIMIT_TIER1_MAX, multiplier) };
+}
+
+// --- PROFIT & HISTORY LOGIC ---
+function populateProfitLog() {
+    const tableBody = document.querySelector("#profitLogTable tbody");
+    tableBody.innerHTML = '';
+    const profitEvents = allData.filter(r => r.returnAmount > 0);
+    if (profitEvents.length === 0) {
+        tableBody.innerHTML = `<tr class="no-data-row"><td colspan="5">No profit events found.</td></tr>`;
+        return;
+    }
+    profitEvents.forEach(paymentRecord => {
+        const result = calculateProfitDistribution(paymentRecord);
+        if (result && result.profit > 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${formatDate(paymentRecord.date)}</td><td>${paymentRecord.name}</td><td>₹${result.relevantLoan.loan.toFixed(2)}</td><td class="profit-value">₹${result.profit.toFixed(2)}</td><td><button class="details-btn">View</button></td>`;
+            row.querySelector('.details-btn').addEventListener('click', () => showDistributionModal(result));
+            tableBody.appendChild(row);
+        }
+    });
+}
+
+function populateMemberHistory(memberName) {
+    const tableBody = document.querySelector("#memberHistoryTable tbody");
+    tableBody.innerHTML = '';
+    const memberData = allData.filter(r => r.name === memberName);
+    let balance = 0;
+    if (memberData.length === 0) {
+        tableBody.innerHTML = `<tr class="no-data-row"><td colspan="4">No transaction history found.</td></tr>`;
+        return;
+    }
+    memberData.forEach(r => {
+        let type = '', amount = 0, sign = '';
+        if (r.sipPayment > 0) { type = 'sip'; amount = r.sipPayment; balance += amount; sign = '+'; }
+        else if (r.loan > 0) { type = 'loan'; amount = r.loan; balance -= amount; sign = '-'; }
+        else if (r.payment > 0) { type = 'payment'; amount = r.payment; balance += amount; sign = '+'; }
+        else return;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${formatDate(r.date)}</td><td class="transaction-type ${type}">${type.toUpperCase()}</td><td>${sign} ₹${amount.toFixed(2)}</td><td>₹${balance.toFixed(2)}</td>`;
+        tableBody.appendChild(row);
+    });
+}
+
+function calculateTotalProfitForMember(memberName) {
+    return allData.reduce((totalProfit, transaction) => {
+        if (transaction.returnAmount > 0) {
+            const result = calculateProfitDistribution(transaction);
+            const memberShare = result?.distribution.find(d => d.name === memberName);
+            if (memberShare) totalProfit += memberShare.share;
+        }
+        return totalProfit;
+    }, 0);
+}
+
+function calculateProfitDistribution(paymentRecord) {
+    const profit = paymentRecord.returnAmount;
+    if (profit <= 0) return null;
+    const userLoansBeforePayment = allData.filter(r => r.name === paymentRecord.name && r.loan > 0 && r.date < paymentRecord.date);
+    if (userLoansBeforePayment.length === 0) return null; 
+    const relevantLoan = userLoansBeforePayment[userLoansBeforePayment.length - 1];
+    const loanDate = relevantLoan.date;
+
+    const snapshotScores = {};
+    let totalScoreInSnapshot = 0;
+    const membersInSystemAtLoanDate = [...new Set(allData.filter(r => r.date <= loanDate).map(r => r.name))];
+
+    membersInSystemAtLoanDate.forEach(name => {
+        const scoreObject = calculatePerformanceScore(name, loanDate);
+        if (scoreObject.totalScore > 0) {
+            snapshotScores[name] = scoreObject;
+            totalScoreInSnapshot += scoreObject.totalScore;
+        }
+    });
+    if (totalScoreInSnapshot <= 0) return null;
+
+    const distribution = [];
+    for (const memberName in snapshotScores) {
+        let memberShare = (snapshotScores[memberName].totalScore / totalScoreInSnapshot) * profit;
+        const lastLoanDate = allData.filter(r => r.name === memberName && r.loan > 0 && r.date <= loanDate).pop()?.date;
+        const daysSinceLastLoan = lastLoanDate ? (loanDate - lastLoanDate) / (1000 * 3600 * 24) : Infinity;
+        let appliedMultiplier = 1;
+        if (daysSinceLastLoan > CONFIG.INACTIVE_MEMBER_DAYS_LIMIT) {
+            memberShare *= CONFIG.INACTIVE_MEMBER_PROFIT_MULTIPLIER;
+            appliedMultiplier = CONFIG.INACTIVE_MEMBER_PROFIT_MULTIPLIER;
+        }
+        if (memberShare > 0) distribution.push({ 
+            name: memberName, share: memberShare,
+            snapshotScore: snapshotScores[memberName].totalScore,
+            totalSnapshotScore: totalScoreInSnapshot,
+            multiplier: appliedMultiplier
+        });
+    }
+    return { profit, relevantLoan, distribution: distribution.sort((a,b) => b.share - a.share) };
+}
+
+// --- RANKING MODALS ---
+function displayReturnRanking() {
+    const listEl = document.getElementById('returnRankList');
+    let memberProfits = memberNames.map(name => ({ name: name, totalProfit: calculateTotalProfitForMember(name) }))
+        .filter(member => member.totalProfit > 0).sort((a, b) => b.totalProfit - a.totalProfit);
+    listEl.innerHTML = '';
+    if (memberProfits.length === 0) listEl.innerHTML = '<li>No members have earned a return yet.</li>';
+    else memberProfits.forEach((member, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="rank">${index + 1}.</span><span class="name">${member.name}</span><span class="share">+ ₹${member.totalProfit.toFixed(2)}</span><button class="btn-details-small">Details</button>`;
+        li.querySelector('button').addEventListener('click', () => showCalculationDetails({type: 'total_profit', memberName: member.name}));
+        listEl.appendChild(li);
+    });
+    document.getElementById('returnRankModal').classList.remove('visually-hidden');
+}
+
+function displayScoreRanking() {
+    const tableBody = document.querySelector("#scoreRankTable tbody");
+    let memberScores = memberNames.map(name => ({ name, scores: calculatePerformanceScore(name, new Date()) }))
+        .sort((a, b) => b.scores.totalScore - a.scores.totalScore);
+    tableBody.innerHTML = '';
+    memberScores.forEach((member, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${index + 1}</td><td>${member.name}</td><td>${member.scores.totalScore.toFixed(2)}</td><td><button class="btn-details-small">Details</button></td>`;
+        row.querySelector('button').addEventListener('click', () => showCalculationDetails({type: 'score', member: member}));
+        tableBody.appendChild(row);
+    });
+    document.getElementById('scoreRankModal').classList.remove('visually-hidden');
+}
+
+function displayEligibilityRanking() {
+    const tableBody = document.querySelector("#eligibilityRankTable tbody");
+    let memberEligibility = memberNames.map(name => {
+        const capital = allData.filter(r => r.name === name).reduce((sum, r) => sum + r.sipPayment + r.payment - r.loan, 0);
+        const score = calculatePerformanceScore(name, new Date()).totalScore;
+        const eligibility = getLoanEligibility(name, score);
+        return { name, capital, score, eligibility, maxLoan: eligibility.eligible ? capital * eligibility.multiplier : 0 };
+    }).sort((a, b) => b.maxLoan - a.maxLoan);
+    tableBody.innerHTML = '';
+    memberEligibility.forEach(member => {
+        const row = document.createElement('tr');
+        let eligibilityText = '';
+        if (member.eligibility.eligible) {
+            eligibilityText = `${member.eligibility.multiplier.toFixed(2)}x`;
+        } else {
+            eligibilityText = `<span class="negative">${member.eligibility.reason}</span>`;
+        }
+        row.innerHTML = `<td>${member.name}</td><td>₹${member.capital.toFixed(2)}</td><td>${eligibilityText}</td><td>₹${member.maxLoan.toFixed(2)}</td><td><button class="btn-details-small">Details</button></td>`;
+        row.querySelector('button').addEventListener('click', () => showCalculationDetails({type: 'eligibility', member: member}));
+        tableBody.appendChild(row);
+    });
+    document.getElementById('eligibilityRankModal').classList.remove('visually-hidden');
+}
+
+// --- DETAILS & CHARTING FUNCTIONS ---
+function showCalculationDetails(details) {
+    const titleEl = document.getElementById('calculationDetailsTitle');
+    const contentEl = document.getElementById('calculationDetailsContent');
+    let html = '';
+
+    if (details.type === 'score') {
+        const { name, scores } = details.member;
+        titleEl.textContent = `Score Calculation for ${name}`;
+        html = `
+            <div class="calc-row"><span class="calc-label">Capital Score</span> <span class="calc-value">${scores.capitalScore.toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Consistency Score</span> <span class="calc-value">${scores.consistencyScore.toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Credit Behavior Score</span> <span class="calc-value">${scores.creditScore.toFixed(2)}</span></div>
+            <hr>
+            <div class="calc-row"><span class="calc-label">Weighted Capital (40%)</span> <span class="calc-value">${(scores.capitalScore * CONFIG.CAPITAL_WEIGHT).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Weighted Consistency (30%)</span> <span class="calc-value">${(scores.consistencyScore * CONFIG.CONSISTENCY_WEIGHT).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Weighted Credit (30%)</span> <span class="calc-value">${(scores.creditScore * CONFIG.CREDIT_BEHAVIOR_WEIGHT).toFixed(2)}</span></div>
+            <div class="calc-final">Total Score: ${scores.totalScore.toFixed(2)}</div>
+        `;
+    } else if (details.type === 'profit_event') {
+        const { member, profitEvent } = details;
+        titleEl.textContent = `Profit Share for ${member.name}`;
+        const sharePercentage = (member.snapshotScore / member.totalSnapshotScore) * 100;
+        const initialShare = (sharePercentage / 100) * profitEvent.profit;
+        html = `
+            <div class="calc-row"><span class="calc-label">Loan From</span> <span class="calc-value">${profitEvent.relevantLoan.name}</span></div>
+            <div class="calc-row"><span class="calc-label">Total Profit from Loan</span> <span class="calc-value">₹${profitEvent.profit.toFixed(2)}</span></div>
+            <hr>
+            <div class="calc-row"><span class="calc-label">Your Score (at loan time)</span> <span class="calc-value">${member.snapshotScore.toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Total Community Score</span> <span class="calc-value">${member.totalSnapshotScore.toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">Your Share (%)</span> <span class="calc-value">${sharePercentage.toFixed(2)}%</span></div>
+            <div class="calc-formula">(Your Score / Total Score) * 100</div>
+            <hr>
+            <div class="calc-row"><span class="calc-label">Initial Share</span> <span class="calc-value">₹${initialShare.toFixed(2)}</span></div>
+            ${member.multiplier !== 1 ? `<div class="calc-row"><span class="calc-label">Inactive Policy (x${member.multiplier})</span> <span class="calc-value">- ₹${(initialShare - member.share).toFixed(2)}</span></div>` : ''}
+            <div class="calc-final">Final Profit: ₹${member.share.toFixed(2)}</div>
+        `;
+    } else if (details.type === 'total_profit') {
+        titleEl.textContent = `Total Profit for ${details.memberName}`;
+        let profitBreakdownHtml = '';
+        let totalProfit = 0;
+        allData.filter(r => r.returnAmount > 0).forEach(event => {
+            const result = calculateProfitDistribution(event);
+            const share = result?.distribution.find(d => d.name === details.memberName);
+            if (share) {
+                totalProfit += share.share;
+                profitBreakdownHtml += `<div class="calc-row"><span class="calc-label">From ${event.name}'s loan (${formatDate(event.date)})</span> <span class="calc-value">+ ₹${share.share.toFixed(2)}</span></div>`;
             }
         });
-        
-        document.getElementById('wallet-share-btn').addEventListener('click', async () => {
-            const userName = auth.currentUser?.displayName || 'Ek Dost';
-            const lifetimeEarningEl = document.querySelector('#lifetime-earning .highlight-amount');
-            const lifetimeEarningText = lifetimeEarningEl ? lifetimeEarningEl.textContent : '₹0.00';
-            const appLink = window.location.href;
+        if (!profitBreakdownHtml) profitBreakdownHtml = '<div class="calc-row"><span class="calc-label">No profit earned yet.</span></div>';
+        html = `${profitBreakdownHtml}<div class="calc-final">Total Profit: ₹${totalProfit.toFixed(2)}</div>`;
+    } else if (details.type === 'eligibility') {
+        const { name, score, eligibility } = details.member;
+        titleEl.textContent = `Eligibility for ${name}`;
+        if(eligibility.eligible) {
+            html = `
+                <div class="calc-row"><span class="calc-label">Your Performance Score</span> <span class="calc-value">${score.toFixed(2)}</span></div>
+                <hr>
+                <p style="font-size:0.9em; text-align:center; color: var(--text-light);">Aapka multiplier aapke score ke aadhar par scale hota hai.</p>
+                <div class="calc-final">Your Multiplier: ${eligibility.multiplier.toFixed(2)}x</div>
+            `;
+        } else {
+             html = `<div class="calc-final" style="color:var(--negative-color);">${eligibility.reason}</div>`;
+        }
+    }
 
-            const shareMessage = `🎉 *Wow! Ek Zabardast Offer!* 🎉\n\nMaine, *${userName}* ne, Ramazone Cashback app se ab tak *${lifetimeEarningText}* ki bachat ki hai! 🤑\n\nAap bhi is app ko use karein aur har khareed par dher saare paise bachayein. Miss mat karna! 👇\n\n${appLink}\n\n✨ *Happy Shopping & Happy Saving!* ✨`;
+    contentEl.innerHTML = html;
+    document.getElementById('calculationDetailsModal').classList.remove('visually-hidden');
+}
 
-            const shareData = {
-                title: 'Ramazone Cashback Offer!',
-                text: shareMessage,
-                url: appLink
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    navigator.clipboard.writeText(shareMessage).then(() => {
-                        showToast('Share message copied to clipboard!');
-                    }).catch(err => {
-                        console.error('Fallback copy failed: ', err);
-                        showToast('Message copy nahi ho saka.');
-                    });
-                }
-            } catch (err) {
-                console.error('Share failed:', err);
-            }
+function renderGrowthChart() {
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    const growthData = calculateGrowthData();
+    if (growthChartInstance) growthChartInstance.destroy();
+    growthChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: growthData.labels,
+            datasets: [
+                { label: 'Total Capital', data: growthData.capital, borderColor: 'rgba(52, 152, 219, 1)', backgroundColor: 'rgba(52, 152, 219, 0.1)', fill: true, tension: 0.1 },
+                { label: 'Total Loans', data: growthData.loans, borderColor: 'rgba(231, 76, 60, 1)', backgroundColor: 'rgba(231, 76, 60, 0.1)', fill: true, tension: 0.1 },
+                { label: 'Total Profit', data: growthData.profits, borderColor: 'rgba(39, 174, 96, 1)', backgroundColor: 'rgba(39, 174, 96, 0.1)', fill: true, tension: 0.1 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => `₹${value}` } } }, plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ₹${context.parsed.y.toFixed(2)}` } } } }
+    });
+}
+function calculateGrowthData() {
+    const snapshots = {}; let cumulativeCapital = 0, cumulativeLoan = 0, cumulativeProfit = 0;
+    allData.forEach(r => {
+        cumulativeCapital += r.sipPayment + r.payment - r.loan; cumulativeLoan += r.loan; cumulativeProfit += r.returnAmount;
+        const monthKey = r.date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+        snapshots[monthKey] = { capital: cumulativeCapital, loans: cumulativeLoan, profits: cumulativeProfit, date: new Date(r.date.getFullYear(), r.date.getMonth(), 1) };
+    });
+    const sortedKeys = Object.keys(snapshots).sort((a,b) => snapshots[a].date - snapshots[b].date);
+    return { labels: sortedKeys, capital: sortedKeys.map(key => snapshots[key].capital), loans: sortedKeys.map(key => snapshots[key].loans), profits: sortedKeys.map(key => snapshots[key].profits) };
+}
+function showDistributionModal(profitEvent) {
+    const modal = document.getElementById('detailsModal'); const listEl = document.getElementById('distributionDetails'); listEl.innerHTML = '';
+    const ctx = document.getElementById('distributionChart').getContext('2d');
+    if (distributionChartInstance) distributionChartInstance.destroy();
+    
+    const distributionData = profitEvent.distribution;
+    if (!distributionData || distributionData.length === 0) { listEl.innerHTML = '<li>No beneficiaries found for this event.</li>'; } 
+    else {
+        const labels = distributionData.map(d => d.name); const data = distributionData.map(d => d.share.toFixed(2));
+        distributionData.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="name">${item.name}</span><span class="share">+ ₹${item.share.toFixed(2)}</span><button class="btn-details-small">Details</button>`;
+            li.querySelector('button').addEventListener('click', () => showCalculationDetails({type: 'profit_event', member: item, profitEvent: profitEvent}));
+            listEl.appendChild(li);
         });
-        
-    </script>
+        distributionChartInstance = new Chart(ctx, {
+            type: 'bar', data: { labels, datasets: [{ label: 'Profit Share (₹)', data, backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 1 }] },
+            options: { responsive: true, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } } }, plugins: { legend: { display: false } } }
+        });
+    }
+    modal.classList.remove('visually-hidden');
+}
+function formatDate(date) { if (!(date instanceof Date) || isNaN(date)) return "N/A"; return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } 
+</script>
 </body>
 </html>
 
