@@ -31,6 +31,14 @@
         --success-color: #28a745;
         --info-color: #17a2b8; /* Info color for new cards */
         --animation-duration: 0.6s;
+        
+        /* --- NEW: Premium Colors --- */
+        --gold-color: #ffd700;
+        --gold-gradient: linear-gradient(145deg, #ffde59, #ffc107);
+        --silver-color: #c0c0c0;
+        --silver-gradient: linear-gradient(145deg, #e0e0e0, #b0b0b0);
+        --bronze-color: #cd7f32;
+        --bronze-gradient: linear-gradient(145deg, #d4a373, #a0522d);
     }
 
     /* Smooth scrolling */
@@ -578,7 +586,7 @@
         text-align: center;
         padding: 12px;
         box-shadow: 0 5px 10px var(--shadow-color);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         cursor: pointer;
         border: 1px solid var(--border-color);
         box-sizing: border-box;
@@ -639,6 +647,65 @@
         line-height: 1;
         z-index: 2;
     }
+    
+    /* --- NEW: Premium Member Card Styles --- */
+    .rank-icon {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 32px;
+        height: 32px;
+        z-index: 3;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+    }
+    
+    .member-card.gold, .member-card.silver, .member-card.bronze {
+        border-width: 2px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    
+    .member-card.gold {
+        border-color: var(--gold-color);
+        background: #fffbeb;
+    }
+    .member-card.gold .member-name {
+        color: #8c5a00;
+        font-weight: 700;
+    }
+    .member-card.gold .member-balance {
+        background: var(--gold-gradient);
+        color: #4d3200;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .member-card.silver {
+        border-color: var(--silver-color);
+        background: #f8f9fa;
+    }
+    .member-card.silver .member-name {
+        color: #495057;
+        font-weight: 700;
+    }
+    .member-card.silver .member-balance {
+        background: var(--silver-gradient);
+        color: #343a40;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .member-card.bronze {
+        border-color: var(--bronze-color);
+        background: #fff8f0;
+    }
+    .member-card.bronze .member-name {
+        color: #854d0e;
+        font-weight: 700;
+    }
+    .member-card.bronze .member-balance {
+        background: var(--bronze-gradient);
+        color: #fff;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
 
     .loading-text, .error-text {
         color: var(--light-text);
@@ -802,6 +869,14 @@
     .profile-stats-list .stat-label {
         font-weight: 500;
         color: var(--light-text);
+        display: flex; /* NEW */
+        align-items: center; /* NEW */
+        gap: 10px; /* NEW */
+    }
+    .profile-stats-list .stat-label i { /* NEW */
+        width: 18px;
+        height: 18px;
+        stroke-width: 2;
     }
     .profile-stats-list .stat-value {
         font-weight: 700;
@@ -1076,23 +1151,23 @@
         <h2 id="profileModalName">Member Name</h2>
         <ul class="profile-stats-list">
             <li>
-                <span class="stat-label">Joining Date</span>
+                <span class="stat-label"><i data-feather="calendar"></i> Joining Date</span>
                 <span id="profileModalJoiningDate" class="stat-value">--</span>
             </li>
             <li>
-                <span class="stat-label">Current Balance</span>
+                <span class="stat-label"><i data-feather="dollar-sign"></i> Current Balance</span>
                 <span id="profileModalBalance" class="stat-value positive">₹0</span>
             </li>
             <li>
-                <span class="stat-label">Return Earned</span>
+                <span class="stat-label"><i data-feather="trending-up"></i> Return Earned</span>
                 <span id="profileModalReturn" class="stat-value info">₹0</span>
             </li>
              <li>
-                <span class="stat-label">This Month SIP</span>
+                <span class="stat-label"><i data-feather="check-circle"></i> This Month SIP</span>
                 <span id="profileModalSipStatus" class="stat-value">--</span>
             </li>
             <li>
-                <span class="stat-label">Loan Count</span>
+                <span class="stat-label"><i data-feather="hash"></i> Loan Count</span>
                 <span id="profileModalLoanCount" class="stat-value">0</span>
             </li>
         </ul>
@@ -1390,7 +1465,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         for (const transactionId in memberTransactions) {
                             const transactionData = memberTransactions[transactionId];
                             
-                            // Robustly get the return amount by checking for the key with and without a space
                             const returnFromTx = transactionData["Return amount"] || transactionData["Return amount "];
 
                             const formattedTransaction = {
@@ -1400,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 Loan: parseFloat(transactionData.Loan) || 0,
                                 Payment: parseFloat(transactionData["Loan Payment"]) || 0,
                                 SipPayment: parseFloat(transactionData["SIP Payment"]) || 0,
-                                ReturnAmount: parseFloat(returnFromTx) || 0, // Parse the robustly found value
+                                ReturnAmount: parseFloat(returnFromTx) || 0,
                                 ImageUrl: transactionData.imageUrl || null
                             };
                             
@@ -1415,7 +1489,6 @@ document.addEventListener('DOMContentLoaded', () => {
             allTransactions = transactions;
             allTransactions.sort((a, b) => a.Date - b.Date || a.id - b.id);
             
-            // Pass the clean, flat array to the processing function
             processAndDisplayData(allTransactions);
 
         }, (error) => {
@@ -1426,22 +1499,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // This function now handles all calculations based on the clean data array
     function processAndDisplayData(data) {
         const members = {};
         let totalLoanDisbursed = 0;
-        let totalReturnAmount = 0; // Initialize total return here
+        let totalReturnAmount = 0;
 
-        // **FIX:** First, calculate the grand total return and loan amounts from all transactions
         data.forEach(entry => {
             totalLoanDisbursed += entry.Loan;
-            totalReturnAmount += entry.ReturnAmount; // Sum up all return amounts
+            totalReturnAmount += entry.ReturnAmount;
         });
 
-        // **FIX:** Set the global variable for the modal correctly
         netReturnAmount = totalReturnAmount;
 
-        // Now, process individual member stats
         const memberNames = [...new Set(data.map(r => r.Name))];
         const now = new Date();
         const currentMonth = now.getMonth();
@@ -1496,11 +1565,28 @@ document.addEventListener('DOMContentLoaded', () => {
              return;
         }
 
-        members.forEach(member => {
+        const goldSVG = `<svg viewBox="0 0 38 38" class="rank-icon" xmlns="http://www.w3.org/2000/svg"><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831s7.549 16.831 16.831 16.831 16.831-7.549 16.831-16.831S28.282 2.169 19 2.169zm0 31.662c-8.186 0-14.831-6.645-14.831-14.831S10.814 4.169 19 4.169s14.831 6.645 14.831 14.831-6.645 14.831-14.831 14.831z" fill="#c9a400"/><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831S9.718 35.831 19 35.831V2.169z" fill="#ffce00"/><path d="M19.998 12.336l1.854 5.709h6.002l-4.854 3.529 1.854 5.709-4.854-3.529-4.854 3.529 1.854-5.709-4.854-3.529h6.002z" fill="#fff"/></svg>`;
+        const silverSVG = `<svg viewBox="0 0 38 38" class="rank-icon" xmlns="http://www.w3.org/2000/svg"><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831s7.549 16.831 16.831 16.831 16.831-7.549 16.831-16.831S28.282 2.169 19 2.169zm0 31.662c-8.186 0-14.831-6.645-14.831-14.831S10.814 4.169 19 4.169s14.831 6.645 14.831 14.831-6.645 14.831-14.831 14.831z" fill="#aeb4b7"/><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831S9.718 35.831 19 35.831V2.169z" fill="#d0d5d8"/><path d="M19.998 12.336l1.854 5.709h6.002l-4.854 3.529 1.854 5.709-4.854-3.529-4.854 3.529 1.854-5.709-4.854-3.529h6.002z" fill="#fff"/></svg>`;
+        const bronzeSVG = `<svg viewBox="0 0 38 38" class="rank-icon" xmlns="http://www.w3.org/2000/svg"><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831s7.549 16.831 16.831 16.831 16.831-7.549 16.831-16.831S28.282 2.169 19 2.169zm0 31.662c-8.186 0-14.831-6.645-14.831-14.831S10.814 4.169 19 4.169s14.831 6.645 14.831 14.831-6.645 14.831-14.831 14.831z" fill="#a97142"/><path d="M19 2.169c-9.282 0-16.831 7.549-16.831 16.831S9.718 35.831 19 35.831V2.169z" fill="#d4a373"/><path d="M19.998 12.336l1.854 5.709h6.002l-4.854 3.529 1.854 5.709-4.854-3.529-4.854 3.529 1.854-5.709-4.854-3.529h6.002z" fill="#fff"/></svg>`;
+
+        members.forEach((member, index) => {
             const card = document.createElement('div');
             card.className = 'member-card animate-on-scroll';
             
+            let rankHTML = '';
+            if (index === 0) {
+                card.classList.add('gold');
+                rankHTML = goldSVG;
+            } else if (index === 1) {
+                card.classList.add('silver');
+                rankHTML = silverSVG;
+            } else if (index === 2) {
+                card.classList.add('bronze');
+                rankHTML = bronzeSVG;
+            }
+
             card.innerHTML = `
+                ${rankHTML}
                 ${member.isPrime ? '<div class="prime-tag">Prime</div>' : ''}
                 <img src="${member.displayImageUrl}" alt="${member.name}" loading="lazy" onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">
                 <p class="member-name" title="${member.name}">${member.name}</p>
@@ -1572,7 +1658,6 @@ document.addEventListener('DOMContentLoaded', () => {
         animateValue(combinedBalanceElement, 0, combinedBalance, 1200);
     }
 
-    // NEW: Function to show SIP Status Modal
     function showSipStatusModal() {
         if (!sipStatusListContainer || allMembersData.length === 0) {
             alert('Sadasya data abhi load ho raha hai. Kripya pratiksha karein.');
@@ -1581,12 +1666,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sipStatusListContainer.innerHTML = ''; // Clear previous list
 
-        // Sort members: Not Paid first, then alphabetically
         const sortedMembers = [...allMembersData].sort((a, b) => {
             if (a.sipStatus.paid === b.sipStatus.paid) {
-                return a.name.localeCompare(b.name); // Alphabetical if statuses are the same
+                return a.name.localeCompare(b.name);
             }
-            return a.sipStatus.paid ? 1 : -1; // Not paid (false) comes first
+            return a.sipStatus.paid ? 1 : -1;
         });
 
         sortedMembers.forEach(member => {
