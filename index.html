@@ -1,1076 +1,741 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Profit Analytics - Final Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>बैंक चैटबॉट (Firebase)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- Base Styles --- */
+        :root {
+            --primary-color: #45a049;
+            --primary-darker: #3c8e40;
+            --secondary-color: #f4f6f8;
+            --user-message-bg: #e2ffc7;
+            --bot-message-bg: #ffffff;
+            --text-dark: #212529;
+            --text-light: #5a6a79;
+            --border-color: #e0e0e0;
+            --suggestion-bg: #e9f5e9;
+            --suggestion-hover-bg: #d8eed8;
+            --prime-member-bg: #ffc107;
+            --prime-member-text: #000000;
+            --loan-highlight-color: #dc3545;
+            --header-height: 60px;
+            --input-area-min-height: 60px;
+            --border-radius: 10px;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --message-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+            --pill-suggestion-bg: #f0f0f0;
+            --pill-suggestion-text: #333;
+            --pill-suggestion-hover-bg: #e0e0e0;
+            --suggestion-bubble-bg: var(--bot-message-bg);
+            --suggestion-bubble-border: var(--border-color);
+            --suggestion-bubble-padding: 12px 15px;
+            --suggestion-bubble-radius: 18px;
+            --suggestion-bubble-max-width: 90%;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Segoe UI', 'Roboto', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--secondary-color); overflow: hidden; font-size: 16px; }
 
+        /* --- Layout Containers --- */
+        .chat-container { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 800px; margin: 0 auto; background: var(--bot-message-bg); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); border-radius: 0; }
+        @media (min-width: 801px) { .chat-container { height: 90vh; max-height: 750px; margin: 25px auto; border-radius: var(--border-radius); overflow: hidden; } }
 
+        .chat-header { height: var(--header-height); background: linear-gradient(135deg, var(--primary-color), var(--primary-darker)); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: 600; padding: 0 20px; flex-shrink: 0; border-top-left-radius: inherit; border-top-right-radius: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .chat-header .icon { margin-right: 12px; font-size: 1.6em; }
 
+        .chat-messages { flex-grow: 1; padding: 20px 15px; overflow-y: auto; background-color: var(--secondary-color); display: flex; flex-direction: column; gap: 5px; }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-    
-    <!-- Google Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Marked.js for rendering Markdown from Gemini -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        /* --- Message Bubbles --- */
+        .message { padding: 14px 20px; border-radius: 18px; line-height: 1.65; word-wrap: break-word; max-width: var(--suggestion-bubble-max-width); position: relative; box-shadow: var(--message-shadow); font-size: 0.98em; margin-bottom: 10px; }
+        .message a { color: #0066cc; text-decoration: underline; } .message a:hover { color: #004c99; }
+        .message p { margin-bottom: 10px; } .message p:last-child { margin-bottom: 0; }
+        .message ul, .message ol { margin-left: 20px; margin-bottom: 10px; padding-left: 15px; } .message ul li { margin-bottom: 6px; }
 
+        .user { align-self: flex-end; background-color: var(--user-message-bg); color: var(--text-dark); border-bottom-right-radius: 6px; }
+        .bot { align-self: flex-start; background-color: var(--bot-message-bg); color: var(--text-dark); border: 1px solid var(--border-color); border-bottom-left-radius: 6px; }
+        .bot.typing { color: var(--text-light); font-style: italic; background-color: transparent; border: none; box-shadow: none; padding-left: 0; margin-bottom: 10px; }
+
+        /* --- User Details Card --- */
+        .user-details-card { padding: 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background-color: #ffffff; margin-top: 8px; box-shadow: var(--card-shadow); box-sizing: border-box; }
+        .user-details-header { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .profile-pic-container { position: relative; flex-shrink: 0; width: 80px; height: 80px; }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; border-radius: 10%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); background-color: #eee; }
+        .prime-tag-on-photo { position: absolute; top: -6px; right: -6px; background-color: var(--prime-member-bg); color: var(--prime-member-text); font-size: 0.75em; font-weight: bold; padding: 4px 8px; border-radius: 6px; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 1; }
+        .user-info { flex-grow: 1; }
+        .user-info h3 { margin: 0; font-size: 1.3em; color: var(--text-dark); font-weight: 600; }
+        .user-info p { margin: 5px 0 0; font-size: 0.9em; color: var(--text-light); }
+        .user-info .label { font-weight: 500; }
+        .user-stats { padding-top: 15px; }
+        .user-stats p { margin-bottom: 12px; font-size: 0.98em; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px 10px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
+        .user-stats p:last-child { border-bottom: none; margin-bottom: 0; }
+        .user-stats .label { color: var(--text-light); margin-right: 8px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .user-stats .value { font-weight: 600; text-align: right; flex-grow: 1; word-break: break-word; }
+        .user-stats .label .icon { font-size: 1.1em; opacity: 0.7; }
+        .loan-highlight { color: var(--loan-highlight-color); font-weight: 700; }
+        .sip-status { font-weight: bold; padding: 3px 8px; border-radius: 5px; font-size: 0.9em; display: inline-block; }
+        .sip-status.paid { color: #fff; background-color: #28a745; }
+        .sip-status.pending { color: #fff; background-color: var(--loan-highlight-color); }
+        .sip-status.due { color: #333; background-color: #ffc107; }
+
+        /* --- Clickable Member List --- */
+        .member-list-container { padding: 10px 0; max-height: 220px; overflow-y: auto; }
+        .clickable-member { display: block; padding: 10px 15px; margin-bottom: 5px; background-color: #f8f9fa; border-radius: 6px; cursor: pointer; color: var(--text-dark); text-decoration: none; transition: background-color 0.2s ease, color 0.2s ease; font-size: 0.98em; border: 1px solid var(--border-color); }
+        .clickable-member:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-darker); }
+
+        /* --- Suggestion Blocks --- */
+        .suggestion-group { background-color: var(--bot-message-bg); border: 1px solid var(--border-color); padding: 18px; margin-top: 0px; border-radius: 15px; align-self: flex-start; max-width: 90%; box-shadow: var(--message-shadow); margin-bottom: 10px; }
+        .suggestion-group .group-title { font-weight: 600; margin-bottom: 14px; color: var(--text-light); font-size: 0.9em; }
+        .chat-suggestion { display: block; background-color: var(--suggestion-bg); color: var(--primary-color); padding: 11px 16px; border-radius: 8px; cursor: pointer; font-size: 0.92em; margin-bottom: 8px; border: 1px solid #d0e0d0; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; text-align: left; font-weight: 500; }
+        .chat-suggestion:hover { background-color: var(--suggestion-hover-bg); border-color: #b0c0b0; transform: translateY(-1px); }
+        .chat-suggestion:last-child { margin-bottom: 0; }
+
+        .suggestion-bubble { background-color: var(--suggestion-bubble-bg); border: 1px solid var(--suggestion-bubble-border); border-radius: var(--suggestion-bubble-radius); padding: var(--suggestion-bubble-padding); display: flex; flex-wrap: wrap; gap: 8px; width: fit-content; max-width: var(--suggestion-bubble-max-width); align-self: flex-start; box-shadow: var(--message-shadow); margin-top: -5px; margin-bottom: 10px; position: relative; align-items: center; }
+        .inline-suggestion-pill { background-color: var(--pill-suggestion-bg); color: var(--pill-suggestion-text); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.88em; border: 1px solid #dcdcdc; transition: background-color 0.2s ease, border-color 0.2s ease; line-height: 1.4; white-space: nowrap; text-align: center; }
+        .inline-suggestion-pill:hover { background-color: var(--pill-suggestion-hover-bg); border-color: #c0c0c0; }
+
+        /* --- Input Area --- */
+        .chat-input-area { min-height: var(--input-area-min-height); display: flex; align-items: flex-end; border-top: 1px solid var(--border-color); background-color: #ffffff; padding: 10px 12px; flex-shrink: 0; position: relative; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; gap: 10px; }
+        .chat-input-area textarea { flex-grow: 1; padding: 10px 18px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 1em; font-family: inherit; line-height: 1.4; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; resize: none; overflow-y: auto; min-height: calc(1em * 1.4 + 2 * 10px + 2px); max-height: calc(1em * 1.4 * 5 + 2 * 10px + 2px); }
+        .chat-input-area textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(69, 160, 73, 0.2); }
+        .chat-input-area button { height: calc(1em * 1.4 + 2 * 10px + 2px); padding: 0 22px; border: none; background: var(--primary-color); color: white; cursor: pointer; font-size: 1em; font-weight: 600; border-radius: 20px; transition: background-color 0.2s ease; flex-shrink: 0; align-self: flex-end; }
+        .chat-input-area button:hover { background: var(--primary-darker); }
+
+        /* --- Autocomplete Suggestions --- */
+        .suggestions { position: absolute; bottom: calc(var(--input-area-min-height) + 8px); left: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; padding: 12px; background: #ffffff; border: 1px solid var(--border-color); max-height: 220px; overflow-y: auto; z-index: 100; box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); border-radius: 8px; }
+        .suggestion { background: #f1f1f1; color: var(--text-dark); padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 0.9em; text-align: left; border: 1px solid transparent; transition: background-color 0.2s ease; }
+        .suggestion:hover { background: #e0e0e0; }
+
+        /* --- Image Modal --- */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.88); justify-content: center; align-items: center; }
+        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 90%; border-radius: 5px; }
+        .modal-close { position: absolute; top: 25px; right: 40px; color: #f1f1f1; font-size: 45px; font-weight: bold; transition: 0.3s; cursor: pointer; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .modal-close:hover, .modal-close:focus { color: #bbb; text-decoration: none; }
+    </style>
 </head>
 <body>
-<style>
-/* --- ROOT VARIABLES & FONT IMPORT --- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-:root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e67e22;
-    --light-bg: #ecf0f1;
-    --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
-    --positive-color: #27ae60;
-    --negative-color: #c0392b;
-    --warning-color: #f39c12;
-    --card-bg: #ffffff;
-    --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-    --border-color: #dfe6e9;
-    --modal-bg: rgba(44, 62, 80, 0.7);
-    --gradient-header: linear-gradient(90deg, #2c3e50, #34495e);
-    --details-btn-bg: #27ae60;
-    --details-btn-text: #ffffff;
-    --ai-btn-bg: #8e44ad;
-    --ai-btn-text: #ffffff;
-}
-
-/* --- BASE & UTILITIES --- */
-body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--light-bg); color: var(--text-dark); line-height: 1.6; padding-top: 70px; }
-.container { max-width: 1300px; margin: 25px auto; padding: 0 20px; }
-.hidden { display: none !important; }
-.visually-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
-.highlight { font-weight: 700; padding: 2px 6px; border-radius: 5px; }
-.highlight.high { background-color: rgba(39, 174, 96, 0.15); color: var(--positive-color); }
-.highlight.medium { background-color: rgba(52, 152, 219, 0.15); color: var(--secondary-color); }
-.highlight.low { background-color: rgba(243, 156, 18, 0.15); color: var(--warning-color); }
-.btn-details-small, .btn-ai-small { background-color: var(--details-btn-bg); color: var(--details-btn-text); padding: 5px 10px; font-size: 0.8em; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; font-weight: 600; border: none; margin-left: 8px; }
-.btn-ai-small { background-color: var(--ai-btn-bg); }
-.btn-details-small:hover, .btn-ai-small:hover { opacity: 0.85; transform: scale(1.05); }
-.button-group { display: flex; align-items: center; justify-content: center; }
-
-/* --- LOADER & PASSWORD PROMPT --- */
-#loader, #passwordPromptContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.5s ease; flex-direction: column; }
-#loader { background-color: var(--light-bg); }
-#loader .spinner, .ai-loader .spinner { width: 50px; height: 50px; border: 5px solid rgba(0,0,0,0.1); border-left-color: var(--secondary-color); border-radius: 50%; animation: spin 1.2s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-#passwordPromptContainer { background-color: var(--modal-bg); backdrop-filter: blur(5px); }
-#passwordPromptContainer.visually-hidden { opacity: 0; }
-#passwordPromptMessage { padding: 30px 35px; background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow); text-align: center; max-width: 340px; width: 90%; }
-#passwordPromptMessage h3 { margin-top: 0; font-size: 1.3em; }
-#passwordInput { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 22px; text-align: center; letter-spacing: 10px; font-family: 'Poppins', sans-serif; }
-#passwordSubmit { width: 100%; padding: 12px 20px; font-size: 1em; font-weight: 600; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
-#passwordSubmit:hover { background-color: var(--secondary-color); transform: translateY(-2px); }
-
-/* --- HEADER & FILTERS --- */
-.header { text-align: center; background: var(--gradient-header); color: white; padding: 15px 0; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-.header h1 { font-size: 1.4em; margin: 0; font-weight: 600; }
-.filters { margin-bottom: 30px; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: var(--card-shadow); }
-.filter-group { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-.filter-group label { font-weight: 500; }
-.filter-group select { padding: 10px 15px; font-size: 1em; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-family: 'Poppins', sans-serif; cursor: pointer; flex-grow: 1; }
-.rank-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; }
-.rank-buttons button { flex-grow: 1; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
-.rank-buttons button i { margin-right: 8px; }
-.btn-profit { background-color: var(--accent-color); color: white; }
-.btn-score { background-color: var(--secondary-color); color: white; }
-.btn-eligibility { background-color: #8e44ad; color: white; }
-.rank-buttons button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-/* --- MAIN CONTENT & SECTIONS --- */
-.main-content { display: grid; grid-template-columns: 1fr; gap: 30px; align-items: flex-start; }
-#dashboardContent { opacity: 0; transition: opacity 0.5s ease-in-out; }
-#dashboardContent.visible { opacity: 1; }
-.content-section { background-color: var(--card-bg); border-radius: 16px; box-shadow: var(--card-shadow); padding: 25px; margin-bottom: 30px;}
-.content-section h2 { margin-top: 0; text-align: center; color: var(--primary-color); }
-#growthChartContainer { position: relative; height: 350px; }
-
-/* --- PROFILE CARD --- */
-.profile-card { border-top: 4px solid var(--secondary-color); }
-.profile-image-container { width: 130px; height: 130px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; border: 5px solid var(--light-bg); box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-.profile-image-container img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.2s ease; }
-.profile-image-container img:hover { transform: scale(1.05); }
-.profile-card h2 { margin: 10px 0 20px 0; font-size: 1.8em; color: var(--primary-color); word-break: break-word; }
-.profile-stats { margin-top: 20px; text-align: left; }
-.stat-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid var(--border-color); font-size: 1em; }
-.stat-item:last-child { border-bottom: none; }
-.stat-item .label { font-weight: 500; color: var(--text-light); display: flex; align-items: center; gap: 10px; }
-.stat-item .label i { width: 20px; text-align: center; }
-.stat-item .value { font-weight: 700; font-size: 1.1em; }
-.value.positive { color: var(--positive-color); }
-.value.negative { color: var(--negative-color); }
-.icon-loan { color: var(--negative-color); }
-.icon-capital { color: var(--primary-color); }
-.icon-profit { color: var(--accent-color); }
-.icon-score { color: var(--secondary-color); }
-.icon-limit { color: #8e44ad; }
-
-/* --- TABLES (PROFIT, HISTORY, RANKING) --- */
-.table-container { width: 100%; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: center; vertical-align: middle; }
-th { background-color: var(--primary-color); color: white; font-size: 0.9em; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
-td { font-size: 0.95em; }
-.profit-value { font-weight: bold; color: var(--positive-color); }
-.details-btn { padding: 8px 14px; font-size: 0.85em; background-color: var(--secondary-color); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
-.details-btn:hover { background-color: #2980b9; transform: scale(1.05); }
-.no-data-row td { text-align: center; padding: 50px; color: var(--text-light); font-size: 1.1em; }
-.transaction-type { font-weight: bold; }
-.transaction-type.sip { color: var(--positive-color); }
-.transaction-type.loan { color: var(--negative-color); }
-.transaction-type.payment { color: var(--secondary-color); }
-
-/* --- MODALS --- */
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-bg); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 2500; padding: 15px; box-sizing: border-box; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: var(--card-shadow); max-width: 700px; width: 95%; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
-.modal.visually-hidden { opacity: 0; visibility: hidden; }
-.modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 30px; color: #bdc3c7; cursor: pointer; transition: color 0.2s; z-index: 2510;}
-.modal-close:hover { color: var(--text-dark); }
-.modal h2 { margin-top: 0; text-align: center; color: var(--primary-color); font-weight: 600; }
-.modal .list-container { overflow-y: auto; flex-grow: 1; }
-.modal ul, .modal ol { list-style: none; padding: 0; margin-top: 15px; }
-.modal li { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; background-color: var(--light-bg); transition: background-color 0.2s; }
-.modal li:hover { background-color: #dfe6e9; }
-.modal .rank { font-weight: bold; color: var(--secondary-color); min-width: 35px; font-size: 1.1em; }
-.modal .name { font-weight: 600; flex-grow: 1; }
-.modal .share { font-weight: bold; color: var(--positive-color); white-space: nowrap; }
-.chart-container { margin-bottom: 20px; }
-.list-header { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); font-size: 1.1em; color: var(--text-light); }
-#imageModal .modal-content { background: transparent; padding: 0; box-shadow: none; max-width: 90vw; }
-#imageModal img { max-height: 85vh; width: auto; object-fit: contain; border-radius: 12px; }
-#imageModal .modal-close { color: white; background-color: rgba(0,0,0,0.4); border-radius: 50%; width: 35px; height: 35px; line-height: 35px; font-size: 22px; text-align: center; top: 20px; right: 20px; }
-#calculationDetailsContent { font-size: 0.95em; line-height: 1.8; }
-#calculationDetailsContent .calc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
-#calculationDetailsContent .calc-row:last-child { border-bottom: none; }
-#calculationDetailsContent .calc-label { color: var(--text-light); }
-#calculationDetailsContent .calc-value { font-weight: 600; }
-#calculationDetailsContent .calc-formula { font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: -5px; }
-#calculationDetailsContent .calc-final { font-size: 1.2em; font-weight: 700; color: var(--positive-color); text-align: center; margin-top: 15px; padding: 10px; background-color: var(--light-bg); border-radius: 8px; }
-.improvement-tips { margin-top: 20px; padding: 15px; background-color: rgba(39, 174, 96, 0.05); border: 1px solid rgba(39, 174, 96, 0.2); border-radius: 8px; color: #218c52; }
-.improvement-tips h4 { margin-top: 0; }
-.improvement-tips ul { padding-left: 20px; margin-bottom: 0; }
-
-/* --- AI MODAL STYLES --- */
-#aiExplainModal .modal-content { max-width: 800px; }
-#aiExplainModal h2 { display: flex; align-items: center; justify-content: center; gap: 10px; }
-#aiExplanationContainer { margin-top: 15px; display: flex; flex-direction: column; gap: 15px; }
-#aiExplanationResult { border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; min-height: 200px; max-height: 60vh; overflow-y: auto; line-height: 1.7; color: var(--text-dark); }
-#aiExplanationResult h3 { margin-top: 0; }
-#aiExplanationResult ul { padding-left: 20px; }
-#aiExplanationResult strong { color: var(--primary-color); }
-.ai-loader { text-align: center; padding: 40px 0; }
-.ai-loader .spinner { margin: 0 auto 15px auto; }
-.ai-loader span { font-size: 1.1em; color: var(--text-light); }
-#languageToggleContainer { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 10px; }
-.lang-btn { background: none; border: 1px solid var(--border-color); padding: 4px 8px; font-size: 0.8em; border-radius: 5px; cursor: pointer; transition: all 0.2s ease; }
-.lang-btn:hover { background-color: var(--border-color); }
-
-/* --- RESPONSIVE DESIGN --- */
-@media (min-width: 992px) { .main-content { grid-template-columns: 380px 1fr; } .profile-card { position: sticky; top: 100px; } }
-@media (max-width: 991px) { .profile-card { margin-bottom: 30px; } }
-@media (max-width: 600px) { body { padding-top: 60px; } .container { padding: 0 15px; } .header h1 { font-size: 1.2em; } .filter-group { flex-direction: column; align-items: stretch; } .rank-buttons { flex-direction: column; } .profile-card h2 { font-size: 1.5em; } th, td { padding: 12px 8px; } .modal-content { padding: 20px; } #growthChartContainer { height: 300px; } }
-</style>
-    <div id="loader">
-        <div class="spinner"></div>
-        <span>Loading Final Analytics...</span>
+<div class="chat-container">
+    <div class="chat-header">
+        <span class="icon">🏦</span>बैंक कम्युनिटी चैटबॉट (Firebase) 💬
     </div>
-
-    <div id="passwordPromptContainer">
-        <div id="passwordPromptMessage">
-            <h3><i class="fas fa-lock"></i> Enter Access PIN</h3>
-            <input type="password" id="passwordInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••">
-            <button id="passwordSubmit">Enter</button>
+    <div class="chat-messages" id="chat">
+        <div class="message bot">
+            नमस्ते! मैं आपकी बैंक कम्युनिटी लोन योजना, सदस्य विवरण, पात्रता, नियमों और अन्य संबंधित प्रश्नों में सहायता कर सकता हूँ। आप किसी भी तरह से सवाल पूछें, मैं समझने और सही जानकारी देने की पूरी कोशिश करूँगा।
+        </div>
+        <div class="message bot suggestion-group initial-suggestions">
+             <div class="group-title">आप इस तरह पूछ सकते हैं:</div>
+             <div class="chat-suggestion" onclick="triggerSend('मेरा बैलेंस कितना है?')">मेरा बैलेंस कितना है?</div>
+             <div class="chat-suggestion" onclick="triggerSend('SIP भरने की आखिरी तारीख क्या है?')">SIP भरने की आखिरी तारीख क्या है?</div>
+             <div class="chat-suggestion" onclick="triggerSend('Raja Sahni का विवरण दिखाओ')">Raja Sahni का विवरण दिखाओ</div>
+             <div class="chat-suggestion" onclick="triggerSend('सभी सदस्यों की सूची दिखाओ')">सभी सदस्यों की सूची दिखाओ</div>
         </div>
     </div>
-
-    <div id="dashboardContent" class="visually-hidden">
-        <header class="header">
-            <h1><i class="fas fa-chart-line"></i> Bank Loan Profit</h1>
-        </header>
-
-        <div class="container">
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="memberFilter"><i class="fas fa-user-friends"></i> Select View:</label>
-                    <select id="memberFilter">
-                        <option value="all">Community Overview</option>
-                    </select>
-                </div>
-                <div class="rank-buttons">
-                    <button id="showReturnRankBtn" class="btn-profit"><i class="fas fa-trophy"></i> Profit Ranking</button>
-                    <button id="showScoreRankBtn" class="btn-score"><i class="fas fa-star"></i> Score Ranking</button>
-                    <button id="showEligibilityRankBtn" class="btn-eligibility"><i class="fas fa-gavel"></i> Eligibility Ranking</button>
-                </div>
-            </div>
-
-            <main class="main-content">
-                <aside class="profile-card content-section" id="profileSection">
-                    <div class="profile-image-container">
-                        <img id="profileImage" src="https://i.postimg.cc/XNpR3cN1/20241030-065157.png" alt="Profile Picture">
-                    </div>
-                    <h2 id="profileName">Community</h2>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="label"><i class="fas fa-coins icon-capital"></i> Total Capital</span>
-                            <span class="value" id="profileTotalCapital">₹0.00</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="label"><i class="fas fa-arrow-up-from-bracket icon-loan"></i> Total Loan Given</span>
-                            <span class="value negative" id="profileTotalLoan">₹0.00</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="label"><i class="fas fa-sack-dollar icon-profit"></i> Profit Distributed</span>
-                            <span class="value positive" id="profileTotalProfit">₹0.00</span>
-                        </div>
-                        <div id="memberSpecificStats" class="hidden">
-                             <div class="stat-item">
-                                <span class="label"><i class="fas fa-star icon-score"></i> Performance Score</span>
-                                <span class="value" id="profilePerformanceScore">0</span>
-                            </div>
-                             <div class="stat-item">
-                                <span class="label"><i class="fas fa-gavel icon-limit"></i> Loan Eligibility</span>
-                                <span class="value" id="profileLoanLimit">1.00x</span>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-
-                <div id="right-column">
-                    <section id="growthChartSection" class="content-section">
-                        <h2><i class="fas fa-chart-area"></i> Community Growth Over Time</h2>
-                        <div id="growthChartContainer">
-                            <canvas id="growthChart"></canvas>
-                        </div>
-                    </section>
-
-                    <section id="profitLogSection" class="content-section">
-                        <h2><i class="fas fa-exchange-alt"></i> Profit Distribution Events</h2>
-                        <div class="table-container">
-                            <table id="profitLogTable">
-                                <thead>
-                                    <tr><th>Date</th><th>Payer</th><th>Loan Amt</th><th>Profit</th><th>Details</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    <section id="memberHistorySection" class="content-section hidden">
-                        <h2><i class="fas fa-history"></i> Member Transaction History</h2>
-                         <div class="table-container">
-                            <table id="memberHistoryTable">
-                                <thead>
-                                    <tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
-            </main>
-        </div>
+    <div class="suggestions" id="suggestions" style="display:none;"></div>
+    <div class="chat-input-area">
+        <textarea id="input" placeholder="अपना सवाल यहाँ लिखें..." rows="1" oninput="autoGrow(this)" onkeydown="handleKey(event)" autocomplete="off"></textarea>
+        <button onclick="send()" aria-label="भेजें">भेजें</button>
     </div>
-    
-    <!-- Modals -->
-    <div id="detailsModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2><i class="fas fa-chart-pie"></i> Profit Distribution</h2>
-            <div class="chart-container"><canvas id="distributionChart"></canvas></div>
-            <h3 class="list-header">Beneficiaries</h3>
-            <div class="list-container"><ul id="distributionDetails"></ul></div>
-        </div>
-    </div>
+</div>
 
-    <div id="returnRankModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2><i class="fas fa-trophy"></i> Member Profit Ranking</h2>
-            <div class="list-container"><ol id="returnRankList"></ol></div>
-        </div>
-    </div>
+<div id="imageModal" class="modal-overlay">
+    <span class="modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="modal-content" id="modalImageContent">
+</div>
 
-    <div id="scoreRankModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2><i class="fas fa-star"></i> Performance Score Ranking</h2>
-            <div class="table-container list-container">
-                <table id="scoreRankTable">
-                    <thead><tr><th>Rank</th><th>Name</th><th>Score</th><th>Actions</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div class="improvement-tips">
-                <h4><i class="fas fa-lightbulb"></i> Score Kaise Badhaye?</h4>
-                <ul>
-                    <li>Har mahine 1 se 10 tarikh ke beech SIP jama karein.</li>
-                    <li>Liye gaye loan ko samay par (90 din ke andar) chukayein.</li>
-                    <li>System mein lambe samay tak apna capital banaye rakhein.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div id="eligibilityRankModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2><i class="fas fa-gavel"></i> Loan Eligibility Ranking</h2>
-            <div class="table-container list-container">
-                <table id="eligibilityRankTable">
-                    <thead><tr><th>Name</th><th>Capital</th><th>Eligibility</th><th>Max Loan Amt</th><th>Actions</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="calculationDetailsModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2 id="calculationDetailsTitle">Calculation Details</h2>
-            <div id="calculationDetailsContent" class="list-container"></div>
-        </div>
-    </div>
-
-    <div id="imageModal" class="modal visually-hidden">
-         <button class="modal-close">×</button>
-         <div class="modal-content"><img id="fullProfileImage" src="" alt="Full Profile Picture View"></div>
-    </div>
-
-    <!-- AI Explanation Modal -->
-    <div id="aiExplainModal" class="modal visually-hidden">
-        <div class="modal-content">
-            <button class="modal-close">×</button>
-            <h2><i class="fas fa-robot"></i> AI Assistant</h2>
-            <div id="aiExplanationContainer">
-                <div id="languageToggleContainer" class="hidden">
-                    <button class="lang-btn" data-lang="hi">हिंदी में</button>
-                    <button class="lang-btn" data-lang="en">In English</button>
-                </div>
-                <div id="aiExplanationResult">
-                    <!-- AI response will be appended here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// --- CONFIGURATION & NIYAM ---
+// --- 1. CONFIGURATION & GLOBAL STATE ---
 
-// ######################################################################
-// #   !! WARNING !! - FOR TESTING PURPOSES ONLY - !! WARNING !!        #
-// #   NEVER expose your API key in client-side code in a real app.     #
-// #   This key can be stolen. Use a secure backend or cloud function.  #
-// ######################################################################
-const GEMINI_API_KEY = "AIzaSyC-Mskcg8GLdfPvrvIzs7NfrIn3TxpOYAw"; // <-- अपनी API KEY यहाँ डालें
-
-const CONFIG = {
-    DATA_URL: 'https://script.google.com/macros/s/AKfycbwmzH2yCELpKKA_iuVdM59dDzN9w-E7q37IElk24RmjRjAahR2tS2LVJ6UibwH5Z8g4VQ/exec',
-    PASSWORD: "7536",
-    DEFAULT_PROFILE_PIC: 'https://i.postimg.cc/XNpR3cN1/20241030-065157.png',
-    
-    // Performance Score Weights
-    CAPITAL_WEIGHT: 0.40, CONSISTENCY_WEIGHT: 0.30, CREDIT_BEHAVIOR_WEIGHT: 0.30,
-    
-    // Loan Eligibility Tiers
-    LOAN_LIMIT_TIER1_SCORE: 50,
-    LOAN_LIMIT_TIER2_SCORE: 60,
-    LOAN_LIMIT_TIER3_SCORE: 80,
-    LOAN_LIMIT_TIER1_MAX: 1.0,
-    LOAN_LIMIT_TIER2_MAX: 1.5,
-    LOAN_LIMIT_TIER3_MAX: 1.8,
-    LOAN_LIMIT_TIER4_MAX: 2.0,
-
-    // Other Niyam
-    MINIMUM_MEMBERSHIP_DAYS: 60,
-    SIP_ON_TIME_LIMIT: 10,
-    LOAN_TERM_TIER3: 90, LOAN_TERM_LATE_FEE: 100,
-    // ***UPDATED***: Changed from 540 to 365 days (1 year)
-    INACTIVE_MEMBER_DAYS_LIMIT: 365, 
-    INACTIVE_MEMBER_PROFIT_MULTIPLIER: 0.75
+// !! जरूरी: अपनी Firebase और Gemini API Keys यहाँ डालें !!
+const firebaseConfig = {
+  apiKey: "AIzaSyBVCDW0Q8YaTPz_MO9FTve1FaPu42jtO2c", // आपकी Firebase API Key
+  authDomain: "bank-master-data.firebaseapp.com",
+  databaseURL: "https://bank-master-data-default-rtdb.asia-southeast1.firebasedatabase.app", // आपका Database URL
+  projectId: "bank-master-data",
+  storageBucket: "bank-master-data.appspot.com",
+  messagingSenderId: "778113641069",
+  appId: "1:778113641069:web:f2d584555dee89b8ca2d64"
 };
+const API_KEY = "AIzaSyC-Mskcg8GLdfPvrvIzs7NfrIn3TxpOYAw"; // आपकी Gemini API Key
 
-// --- GLOBAL VARIABLES ---
-let allData = [], memberNames = [], distributionChartInstance = null, growthChartInstance = null;
+// Firebase को प्रारंभ करें
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-// --- INITIALIZATION ---
-document.addEventListener("DOMContentLoaded", () => setupPasswordPrompt());
+const defaultProfilePic = 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=👤';
+const primeMembers = ["Amit Kumar", "Mithilesh Sahni", "Prince Rama"]; // इसे Firebase से भी लाया जा सकता है
+const MAX_TEXTAREA_LINES = 5;
 
-function setupPasswordPrompt() {
-    const passwordContainer = document.getElementById('passwordPromptContainer');
-    const passwordInput = document.getElementById('passwordInput');
-    const passwordSubmit = document.getElementById('passwordSubmit');
-    passwordContainer.classList.remove('visually-hidden');
-    passwordInput.focus();
-    const checkPassword = () => {
-        if (passwordInput.value === CONFIG.PASSWORD) {
-            passwordContainer.classList.add('visually-hidden');
-            document.getElementById('loader').classList.remove('hidden');
-            fetchData();
+// Global Cache - Firebase से डेटा यहाँ स्टोर होगा
+let cachedMembersData = null; // '/members' नोड का डेटा
+let cachedRulesData = null;   // '/admin/faqs' नोड का डेटा (यह एक अनुमानित नोड है)
+let isFetchingData = false;
+let lastBotMessageElement = null;
+
+// --- DOM Elements ---
+const chatBox = document.getElementById("chat");
+const inputBox = document.getElementById("input");
+const suggestionsBox = document.getElementById("suggestions");
+const imageModal = document.getElementById("imageModal");
+const modalImageContent = document.getElementById("modalImageContent");
+
+// --- 2. UTILITY & UI FUNCTIONS (Largely Unchanged) ---
+function formatDate(date, options = {}) {
+    if (!(date instanceof Date) || isNaN(date)) return "--";
+    const defaultOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', { ...defaultOptions, ...options });
+}
+
+function appendMessage(content, cls, isHtml = false) {
+    const d = document.createElement("div");
+    d.className = "message " + cls;
+    if (isHtml) {
+        d.innerHTML = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    } else {
+        d.textContent = content;
+    }
+    chatBox.appendChild(d);
+    if (cls.includes('bot') && !cls.includes('typing')) {
+        lastBotMessageElement = d;
+    }
+    setTimeout(() => scrollToBottom(), 50);
+    return d;
+}
+
+function appendInlineSuggestions(suggestions) {
+    if (!suggestions || !Array.isArray(suggestions) || suggestions.length === 0) return;
+    const oldBubbles = chatBox.querySelectorAll('.suggestion-bubble');
+    oldBubbles.forEach(el => el.remove());
+    
+    const bubbleContainer = document.createElement('div');
+    bubbleContainer.className = 'message bot suggestion-bubble';
+    suggestions.slice(0, 6).forEach(q_text => {
+        if (typeof q_text !== 'string' || !q_text) return;
+        const pill = document.createElement('div');
+        pill.className = 'inline-suggestion-pill';
+        pill.textContent = q_text;
+        pill.onclick = () => triggerSend(q_text);
+        bubbleContainer.appendChild(pill);
+    });
+    if (bubbleContainer.children.length > 0) {
+        chatBox.appendChild(bubbleContainer);
+        setTimeout(() => scrollToBottom(), 150);
+    }
+}
+
+function typeEffect(text, targetElement, callback = null) {
+    let i = 0;
+    targetElement.innerHTML = '&nbsp;';
+    const interval = setInterval(() => {
+        if (i < text.length) {
+            targetElement.textContent = text.substring(0, i + 1);
+            i++;
         } else {
-            alert("Incorrect PIN");
-            passwordInput.value = "";
-            passwordInput.focus();
+            clearInterval(interval);
+            if (typeof callback === 'function') setTimeout(callback, 150);
         }
-    };
-    passwordSubmit.addEventListener('click', checkPassword);
-    passwordInput.addEventListener('keydown', (e) => e.key === 'Enter' && checkPassword());
+    }, 25);
 }
 
-// --- DATA FETCHING AND PROCESSING ---
-async function fetchData() {
+function scrollToBottom() {
+    requestAnimationFrame(() => {
+        if (chatBox) chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+    });
+}
+
+function autoGrow(element) {
+  element.style.height = 'auto';
+  const computedStyle = window.getComputedStyle(element);
+  const lineHeight = parseFloat(computedStyle.lineHeight);
+  const maxHeight = (lineHeight * MAX_TEXTAREA_LINES) + (parseFloat(computedStyle.paddingTop) * 2);
+  element.style.height = `${Math.min(element.scrollHeight, maxHeight)}px`;
+}
+
+function openImageModal(imageUrl) {
+    if (imageUrl && !imageUrl.includes('via.placeholder.com')) {
+        modalImageContent.src = imageUrl;
+        imageModal.style.display = "flex";
+    }
+}
+
+function closeImageModal() {
+    imageModal.style.display = "none";
+    modalImageContent.src = "";
+}
+
+function triggerSend(text) {
+    inputBox.value = text;
+    send();
+    inputBox.style.height = 'auto';
+    autoGrow(inputBox);
+    suggestionsBox.style.display = 'none';
+    const inlineSuggestions = chatBox.querySelectorAll('.suggestion-bubble');
+    inlineSuggestions.forEach(el => el.remove());
+}
+
+// --- 3. FIREBASE DATA FETCHING & PROCESSING ---
+
+/**
+ * Firebase से सदस्य और नियम डेटा प्राप्त करता है और उसे कैश करता है।
+ * यह Google Sheets वाले फंक्शन को पूरी तरह से बदल देता है।
+ */
+async function fetchFirebaseData() {
+    if (isFetchingData) {
+        console.log("पहले से ही डेटा प्राप्त किया जा रहा है, प्रतीक्षा करें...");
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return cachedMembersData !== null;
+    }
+    if (cachedMembersData) return true; // डेटा पहले से ही कैश में है
+
+    isFetchingData = true;
+    console.log("Firebase डेटाबेस से डेटा प्राप्त किया जा रहा है...");
+    const loadingMsg = appendMessage("डेटाबेस से कनेक्ट हो रहा है...", "bot typing");
+
     try {
-        const response = await fetch(CONFIG.DATA_URL);
-        const jsonResponse = await response.json();
-        if (jsonResponse.status !== 'success' || !Array.isArray(jsonResponse.data)) throw new Error("Invalid data format.");
-        allData = jsonResponse.data.map((row, index) => ({
-            id: index, date: new Date(row.Date), name: String(row.Name).trim(),
-            loan: parseFloat(row.Loan) || 0, payment: parseFloat(row["Loan Payment"]) || 0,
-            sipPayment: parseFloat(row["SIP Payment"]) || 0, returnAmount: parseFloat(row["Return amount "]) || 0,
-            imageUrl: row.imageUrl || null
-        })).filter(r => r.name && !isNaN(r.date.getTime()));
-        allData.sort((a, b) => a.date - b.date || a.id - b.id);
-        memberNames = [...new Set(allData.map(row => row.name))].sort();
-        initializeDashboard();
+        // एक साथ members और admin/faqs नोड्स से डेटा प्राप्त करें
+        const membersRef = database.ref('members');
+        // नोट: हमने माना है कि नियम/FAQ 'admin/faqs' में स्टोर हैं।
+        // यदि यह कहीं और है, तो इस रेफरेंस को बदलें।
+        const rulesRef = database.ref('admin/faqs'); 
+
+        const [membersSnapshot, rulesSnapshot] = await Promise.all([
+            membersRef.once('value'),
+            rulesRef.once('value')
+        ]);
+
+        cachedMembersData = membersSnapshot.val() || {};
+        cachedRulesData = rulesSnapshot.val() || []; // मान लें कि यह एक ऐरे है
+
+        console.log(`Firebase डेटा प्राप्त हुआ। सदस्य: ${Object.keys(cachedMembersData).length}, नियम: ${cachedRulesData.length}`);
+        loadingMsg?.remove();
+        return true;
     } catch (error) {
-        console.error("Error fetching data:", error);
-        document.body.innerHTML = `<div style="text-align:center; padding:50px; color:red;">Failed to load data. Please refresh.</div>`;
+        console.error("Firebase से डेटा प्राप्त करने में त्रुटि:", error);
+        cachedMembersData = null;
+        cachedRulesData = [];
+        loadingMsg?.remove();
+        appendMessage(`त्रुटि: डेटाबेस से कनेक्ट करने में विफल रहा। (${error.message})`, "bot");
+        appendInlineSuggestions(["पुनः प्रयास करें", "सहायता"]);
+        return false;
     } finally {
-        document.getElementById('loader').classList.add('hidden');
+        isFetchingData = false;
     }
 }
 
-// --- DASHBOARD SETUP ---
-function initializeDashboard() {
-    document.getElementById('dashboardContent').classList.remove('visually-hidden');
-    document.getElementById('dashboardContent').classList.add('visible');
-    populateMemberFilter();
-    setupEventListeners();
-    updateDisplay();
+/**
+ * किसी सदस्य के सभी लेन-देन का विश्लेषण करके एकत्रित डेटा देता है।
+ * यह Firebase डेटा संरचना के लिए पूरी तरह से नया लिखा गया है।
+ */
+function getUserDataAggregated(name) {
+    if (!cachedMembersData) {
+        console.warn("सदस्य डेटा अभी तक लोड नहीं हुआ है।");
+        return null;
+    }
+
+    const lowerName = name.toLowerCase().trim();
+    let foundMember = null;
+    let memberId = null;
+
+    // सदस्य को उसके पूरे नाम से खोजें
+    for (const id in cachedMembersData) {
+        const member = cachedMembersData[id];
+        if (member.fullName && member.fullName.toLowerCase().trim() === lowerName) {
+            foundMember = member;
+            memberId = id;
+            break;
+        }
+    }
+
+    if (!foundMember) return null;
+
+    let totalSIP = 0, totalLoan = 0, totalPayment = 0;
+    let lastLoanDate = null, latestLoanAmount = 0;
+    
+    const transactions = foundMember.transactions ? Object.values(foundMember.transactions) : [];
+    transactions.sort((a, b) => new Date(a.Date) - new Date(b.Date)); // लेन-देन को तारीख के अनुसार क्रमबद्ध करें
+
+    transactions.forEach(tx => {
+        totalSIP += parseFloat(tx['SIP Payment']) || 0;
+        totalLoan += parseFloat(tx.Loan) || 0;
+        totalPayment += parseFloat(tx['Loan Payment']) || 0;
+
+        const txDate = new Date(tx.Date);
+        if ((parseFloat(tx.Loan) || 0) > 0) {
+            if (!lastLoanDate || txDate > lastLoanDate) {
+                lastLoanDate = txDate;
+                latestLoanAmount = parseFloat(tx.Loan);
+            }
+        }
+    });
+    
+    // हालिया बकाया लोन की जाँच करें
+    let hasUnclearedLoan = false;
+    if (lastLoanDate) {
+        const paymentExistsAfterLoan = transactions.some(tx => 
+            (parseFloat(tx['Loan Payment']) || 0) > 0 && new Date(tx.Date) > lastLoanDate
+        );
+        hasUnclearedLoan = !paymentExistsAfterLoan;
+    }
+    if (!hasUnclearedLoan) { latestLoanAmount = 0; }
+
+    const overallBalance = (totalSIP + totalPayment) - totalLoan;
+    const netLoanOutstanding = Math.max(0, totalLoan - totalPayment);
+    const sipStatusInfo = getSipStatus(transactions);
+    const isPrime = primeMembers.some(pm => pm.toLowerCase() === foundMember.fullName.toLowerCase());
+
+    return {
+        name: foundMember.fullName,
+        totalSIP,
+        totalLoan,
+        totalPayment,
+        overallBalance,
+        netLoanOutstanding,
+        imageUrl: foundMember.profilePicUrl || defaultProfilePic,
+        joinDate: formatDate(new Date(foundMember.joiningDate)),
+        sipStatusText: sipStatusInfo.statusText,
+        sipStatusClass: sipStatusInfo.statusClass,
+        hasUnclearedLoan,
+        latestUnclearedLoanAmount: hasUnclearedLoan ? latestLoanAmount : 0,
+        isPrimeMember: isPrime
+    };
 }
 
-function setupEventListeners() {
-    document.getElementById('memberFilter').addEventListener('change', updateDisplay);
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.querySelector('.modal-close').addEventListener('click', () => modal.classList.add('visually-hidden'));
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('visually-hidden') });
+function getSipStatus(transactions) {
+    if (!transactions || transactions.length === 0) return { statusText: "N/A", statusClass: "" };
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const paidThisMonth = transactions.some(tx => {
+        const txDate = new Date(tx.Date);
+        return (parseFloat(tx['SIP Payment']) || 0) > 0 &&
+               txDate.getMonth() === currentMonth &&
+               txDate.getFullYear() === currentYear;
     });
-    document.getElementById('showReturnRankBtn').addEventListener('click', displayReturnRanking);
-    document.getElementById('showScoreRankBtn').addEventListener('click', displayScoreRanking);
-    document.getElementById('showEligibilityRankBtn').addEventListener('click', displayEligibilityRanking);
-    document.getElementById('profileImage').addEventListener('click', () => {
-        document.getElementById('fullProfileImage').src = document.getElementById('profileImage').src;
-        document.getElementById('imageModal').classList.remove('visually-hidden');
-    });
-    // Language Toggle Listeners
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', handleLanguageToggle);
-    });
+
+    if (paidThisMonth) return { statusText: "Paid", statusClass: "paid" };
+    if (now.getDate() > 10) return { statusText: "Pending", statusClass: "pending" };
+    return { statusText: "Due", statusClass: "due" };
 }
 
-function populateMemberFilter() {
-    const nameFilter = document.getElementById("memberFilter");
-    memberNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        nameFilter.appendChild(option);
+function calculateEligibility(userName, userBalance) {
+    if (!cachedMembersData) return { isEligible: false, approvedAmount: 0, reason: "डेटा लोड नहीं हुआ" };
+
+    // समुदाय का कुल बैलेंस सभी सदस्यों के लेन-देन से गणना करें
+    let communityBalance = 0;
+    Object.values(cachedMembersData).forEach(member => {
+        if (member.transactions) {
+            Object.values(member.transactions).forEach(tx => {
+                communityBalance += (parseFloat(tx['SIP Payment']) || 0) + (parseFloat(tx['Loan Payment']) || 0) - (parseFloat(tx.Loan) || 0);
+            });
+        }
     });
-}
 
-// --- CORE DISPLAY LOGIC ---
-function updateDisplay() {
-    const selectedName = document.getElementById('memberFilter').value;
-    const isCommunityView = selectedName === 'all';
-
-    document.getElementById('growthChartSection').classList.toggle('hidden', !isCommunityView);
-    document.getElementById('profitLogSection').classList.toggle('hidden', !isCommunityView);
-    document.getElementById('memberSpecificStats').classList.toggle('hidden', isCommunityView);
-    document.getElementById('memberHistorySection').classList.toggle('hidden', isCommunityView);
-
-    if (isCommunityView) {
-        renderGrowthChart();
-        populateProfitLog();
+    const isEligible = userBalance > 0 && communityBalance > 0;
+    let approvedAmount = 0, reason = "";
+    if (isEligible) {
+        const potentialAmount = userBalance * 1.5;
+        approvedAmount = Math.floor(Math.min(potentialAmount, communityBalance));
+        reason = approvedAmount > 0 ? "" : "(समुदाय में पर्याप्त फंड नहीं है)";
     } else {
-        populateMemberHistory(selectedName);
+        if (userBalance <= 0) reason = `(आपका बैलेंस शून्य या ऋणात्मक है: ₹${userBalance.toFixed(0)})`;
+        else reason = "(समुदाय में फंड उपलब्ध नहीं है)";
     }
-    updateProfileCard(selectedName);
+    return { isEligible: isEligible && approvedAmount > 0, approvedAmount, reason };
 }
 
-function updateProfileCard(name) {
-    const profileImageEl = document.getElementById('profileImage');
-    const profileNameEl = document.getElementById('profileName');
-    let totalCapital = 0, totalLoan = 0, totalProfitEarned = 0;
 
-    if (name === 'all') {
-        allData.forEach(r => {
-            totalCapital += r.sipPayment + r.payment - r.loan;
-            totalLoan += r.loan;
+// --- 4. MAIN SEND FUNCTION (Adapted for Firebase) ---
+async function send() {
+    const query = inputBox.value.trim();
+    if (!query) return;
+
+    appendMessage(query, "user");
+    inputBox.value = '';
+    autoGrow(inputBox);
+    suggestionsBox.style.display = 'none';
+    chatBox.querySelectorAll('.suggestion-bubble').forEach(el => el.remove());
+
+    const typingIndicator = appendMessage("सोच रहा हूँ...", "bot typing");
+
+    // --- Step 1: Ensure Firebase data is loaded ---
+    const dataReady = await fetchFirebaseData();
+    if (!dataReady) {
+        typingIndicator?.remove();
+        // fetchFirebaseData function already shows an error message.
+        return;
+    }
+
+    // --- Step 2: Prepare context for Gemini ---
+    const memberNamesList = cachedMembersData ? Object.values(cachedMembersData).map(m => m.fullName).filter(Boolean) : [];
+    
+    // नोट: नियम अब cachedRulesData से आ रहे हैं, जो 'admin/faqs' से आता है।
+    // सुनिश्चित करें कि आपके Firebase में इस पथ पर डेटा है।
+    // डेटा का प्रारूप: [{ question: "...", answer: "..." }, ...]
+    let allRulesAndFaqsContext = "कोई नियम या FAQ उपलब्ध नहीं है।";
+    if (cachedRulesData && cachedRulesData.length > 0) {
+        allRulesAndFaqsContext = cachedRulesData.map((seg, index) => {
+            return `${index + 1}. प्रश्न: ${seg.question}\n   उत्तर: ${seg.answer}`;
+        }).join('\n\n');
+    }
+
+    const knownNamesString = memberNamesList.length > 0 ? memberNamesList.join(', ') : "कोई सदस्य लोड नहीं हुआ";
+    const possibleIntents = ["get_rule", "get_member_specific_data", "list_all_members", "get_member_count", "greet", "thank_you", "general_query"];
+    const possibleDetailTypes = ["full_details", "balance", "loan_eligibility", "sip_status", "outstanding_loan"];
+
+    const prompt = `
+आप 'बैंक कम्युनिटी चैटबॉट' हैं। आपका कार्य उपयोगकर्ता के हिंदी या अंग्रेजी प्रश्नों का विश्लेषण करना और सटीक, संक्षिप्त, और सहायक जानकारी प्रदान करना है।
+
+नियम/FAQ डेटा:
+--- RULES START ---
+${allRulesAndFaqsContext}
+--- RULES END ---
+
+ज्ञात सदस्य: ${knownNamesString}
+
+उपयोगकर्ता का प्रश्न: "${query}"
+
+विश्लेषण कार्य:
+1.  प्रश्न का मुख्य इरादा (intent) पहचानें। संभावित इरादे: ${possibleIntents.join(', ')}.
+2.  यदि प्रश्न किसी सदस्य से संबंधित है, तो सदस्य का नाम (member_name) निकालें। यदि उपयोगकर्ता स्वयं के बारे में पूछ रहा है (जैसे 'मेरा बैलेंस'), तो member_name को "self" सेट करें।
+3.  यदि इरादा 'get_member_specific_data' है, तो पहचानें कि उपयोगकर्ता सदस्य के बारे में कौन सी विशिष्ट जानकारी (detail_type) चाहता है। संभावित प्रकार: ${possibleDetailTypes.join(', ')}. यदि सामान्य है ('विवरण दिखाओ'), तो 'full_details' का प्रयोग करें।
+4.  JSON ऑब्जेक्ट लौटाएं:
+    {
+      "intent": "[intent]",
+      "member_name": "[name / 'self' / null]",
+      "detail_type": "[detail_type / 'full_details' / null]",
+      "answer": "[rule_answer_rephrased_by_you / general_answer_rephrased_by_you / null]",
+      "confidence": "[high/medium/low]"
+    }
+
+केवल JSON ऑब्जेक्ट प्रदान करें:
+`;
+
+    // --- Step 3: Call Gemini API ---
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    let analysisResult = null;
+
+    try {
+        console.log("Gemini को प्रश्न भेजा जा रहा है:", query);
+        const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.2, maxOutputTokens: 700, responseMimeType: "application/json" },
+                safetySettings: [ { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" } ]
+            }),
         });
-        totalProfitEarned = allData.reduce((sum, r) => sum + r.returnAmount, 0);
-        profileNameEl.textContent = 'Community Overview';
-        profileImageEl.src = CONFIG.DEFAULT_PROFILE_PIC;
-    } else {
-        const dataToShow = allData.filter(r => r.name === name);
-        totalCapital = dataToShow.reduce((sum, r) => sum + r.sipPayment + r.payment - r.loan, 0);
-        totalLoan = dataToShow.reduce((sum, r) => sum + r.loan, 0);
-        totalProfitEarned = calculateTotalProfitForMember(name);
+        typingIndicator?.remove();
 
-        const memberScores = calculatePerformanceScore(name, new Date());
-        const score = memberScores.totalScore;
-        const loanEligibility = getLoanEligibility(name, score);
-
-        document.getElementById('profilePerformanceScore').textContent = score.toFixed(2);
-        const limitEl = document.getElementById('profileLoanLimit');
-        if(loanEligibility.eligible) {
-            limitEl.textContent = `${loanEligibility.multiplier.toFixed(2)}x`;
-            limitEl.classList.remove('negative');
-        } else {
-            limitEl.textContent = loanEligibility.reason;
-            limitEl.classList.add('negative');
+        if (!response.ok) throw new Error(`API Error ${response.status}`);
+        const js = await response.json();
+        
+        if (!js.candidates?.[0]?.content?.parts?.[0]?.text) {
+            if (js.promptFeedback?.blockReason) throw new Error(`Content Blocked (${js.promptFeedback.blockReason})`);
+            throw new Error("API से कोई मान्य प्रतिक्रिया नहीं मिली।");
         }
         
-        profileNameEl.textContent = name;
-        const lastUserEntryWithImage = [...dataToShow].reverse().find(r => r.imageUrl);
-        profileImageEl.src = lastUserEntryWithImage ? lastUserEntryWithImage.imageUrl : CONFIG.DEFAULT_PROFILE_PIC;
-    }
-    
-    document.getElementById('profileTotalCapital').textContent = `₹${totalCapital.toFixed(2)}`;
-    document.getElementById('profileTotalLoan').textContent = `₹${totalLoan.toFixed(2)}`;
-    document.getElementById('profileTotalProfit').textContent = `₹${totalProfitEarned.toFixed(2)}`;
-}
+        const rawJsonText = js.candidates[0].content.parts[0].text;
+        console.log("Gemini से प्राप्त Raw JSON:", rawJsonText);
+        analysisResult = JSON.parse(rawJsonText.replace(/^```json\s*/, '').replace(/\s*```$/, ''));
+        console.log("Parsed Analysis Result:", analysisResult);
 
-// --- PERFORMANCE SCORE ENGINE ---
-function calculatePerformanceScore(memberName, untilDate) {
-    const data = allData.filter(r => r.date <= untilDate);
-    const memberData = data.filter(r => r.name === memberName);
-    if (memberData.length === 0) return { totalScore: 0, capitalScore: 0, consistencyScore: 0, creditScore: 0 };
-
-    const totalDays = 180;
-    const startDate = new Date(untilDate.getTime() - totalDays * 24 * 3600 * 1000);
-    let weightedCapitalSum = 0, currentBalance = 0;
-    const relevantTransactions = memberData.filter(r => r.date >= startDate);
-    if (relevantTransactions.length > 0) {
-        let lastDate = startDate;
-        relevantTransactions.forEach(t => {
-            const daysDifference = (t.date - lastDate) / (1000 * 3600 * 24);
-            weightedCapitalSum += currentBalance * daysDifference;
-            currentBalance += t.sipPayment + t.payment - t.loan;
-            lastDate = t.date;
-        });
-        weightedCapitalSum += currentBalance * ((untilDate - lastDate) / (1000 * 3600 * 24));
-    }
-    const capitalScore = Math.max(0, weightedCapitalSum / totalDays);
-    const normalizedCapitalScore = Math.min(100, (capitalScore / 50000) * 100);
-
-    const sipHistory = {};
-    memberData.filter(r => r.sipPayment > 0).forEach(r => {
-        const monthKey = `${r.date.getFullYear()}-${r.date.getMonth()}`;
-        if (!sipHistory[monthKey]) sipHistory[monthKey] = r.date.getDate() <= CONFIG.SIP_ON_TIME_LIMIT ? 10 : 5;
-    });
-    const consistencyPoints = Object.values(sipHistory).reduce((a, b) => a + b, 0);
-    const monthsConsidered = Math.max(1, Object.keys(sipHistory).length);
-    const consistencyScore = (consistencyPoints / (monthsConsidered * 10)) * 100;
-
-    let creditPoints = 0;
-    const memberLoans = memberData.filter(r => r.loan > 0);
-    memberLoans.forEach(loanRecord => {
-        const repayment = memberData.find(r => r.payment >= loanRecord.loan && r.date > loanRecord.date);
-        if (repayment) {
-            const daysToRepay = (repayment.date - loanRecord.date) / (1000 * 3600 * 24);
-            if (daysToRepay <= CONFIG.LOAN_TERM_TIER3) creditPoints += 20;
-            else if (daysToRepay <= CONFIG.LOAN_TERM_LATE_FEE) creditPoints -= 5;
-            else creditPoints -= 30;
-        } else { creditPoints -= 40; }
-    });
-    const creditScore = memberLoans.length > 0 ? Math.max(0, (creditPoints / (memberLoans.length * 20)) * 100) : 70;
-
-    const totalScore = (normalizedCapitalScore * CONFIG.CAPITAL_WEIGHT) + (consistencyScore * CONFIG.CONSISTENCY_WEIGHT) + (creditScore * CONFIG.CREDIT_BEHAVIOR_WEIGHT);
-    return { totalScore, capitalScore: normalizedCapitalScore, consistencyScore, creditScore };
-}
-
-function getLoanEligibility(memberName, score) {
-    const memberData = allData.filter(r => r.name === memberName);
-    const totalLoan = memberData.reduce((sum, r) => sum + r.loan, 0);
-    const totalPayment = memberData.reduce((sum, r) => sum + r.payment + r.sipPayment, 0); 
-    if (totalLoan > totalPayment) {
-        return { eligible: false, reason: 'Outstanding Loan' };
-    }
-
-    const firstSip = memberData.find(r => r.sipPayment > 0);
-    if (!firstSip) {
-        return { eligible: false, reason: 'No SIP yet' };
-    }
-    const daysSinceFirstSip = (new Date() - firstSip.date) / (1000 * 3600 * 24);
-    if (daysSinceFirstSip < CONFIG.MINIMUM_MEMBERSHIP_DAYS) {
-        const daysLeft = Math.ceil(CONFIG.MINIMUM_MEMBERSHIP_DAYS - daysSinceFirstSip);
-        return { eligible: false, reason: `${daysLeft} days left` };
-    }
-
-    const { LOAN_LIMIT_TIER1_SCORE, LOAN_LIMIT_TIER2_SCORE, LOAN_LIMIT_TIER3_SCORE, LOAN_LIMIT_TIER1_MAX, LOAN_LIMIT_TIER2_MAX, LOAN_LIMIT_TIER3_MAX, LOAN_LIMIT_TIER4_MAX } = CONFIG;
-    let multiplier = LOAN_LIMIT_TIER1_MAX;
-    if (score < LOAN_LIMIT_TIER1_SCORE) {
-        multiplier = LOAN_LIMIT_TIER1_MAX;
-    } else if (score < LOAN_LIMIT_TIER2_SCORE) {
-        multiplier = LOAN_LIMIT_TIER1_MAX + ((score - LOAN_LIMIT_TIER1_SCORE) / (LOAN_LIMIT_TIER2_SCORE - LOAN_LIMIT_TIER1_SCORE)) * (LOAN_LIMIT_TIER2_MAX - LOAN_LIMIT_TIER1_MAX);
-    } else if (score < LOAN_LIMIT_TIER3_SCORE) {
-        multiplier = LOAN_LIMIT_TIER2_MAX + ((score - LOAN_LIMIT_TIER2_SCORE) / (LOAN_LIMIT_TIER3_SCORE - LOAN_LIMIT_TIER2_SCORE)) * (LOAN_LIMIT_TIER3_MAX - LOAN_LIMIT_TIER2_MAX);
-    } else {
-        multiplier = LOAN_LIMIT_TIER3_MAX + ((score - LOAN_LIMIT_TIER3_SCORE) / (100 - LOAN_LIMIT_TIER3_SCORE)) * (LOAN_LIMIT_TIER4_MAX - LOAN_LIMIT_TIER3_MAX);
-    }
-    
-    return { eligible: true, multiplier: Math.max(LOAN_LIMIT_TIER1_MAX, multiplier) };
-}
-
-// --- PROFIT & HISTORY LOGIC ---
-function populateProfitLog() {
-    const tableBody = document.querySelector("#profitLogTable tbody");
-    tableBody.innerHTML = '';
-    const profitEvents = allData.filter(r => r.returnAmount > 0);
-    if (profitEvents.length === 0) {
-        tableBody.innerHTML = `<tr class="no-data-row"><td colspan="5">No profit events found.</td></tr>`;
+    } catch (error) {
+        typingIndicator?.remove();
+        console.error("Gemini प्रोसेसिंग में त्रुटि:", error);
+        appendMessage(`क्षमा करें, आपके प्रश्न का विश्लेषण करने में त्रुटि हुई। (${error.message})`, "bot");
+        appendInlineSuggestions(["कोई दूसरा सवाल पूछें", "नियम दिखाओ"]);
         return;
     }
-    profitEvents.forEach(paymentRecord => {
-        const result = calculateProfitDistribution(paymentRecord);
-        if (result && result.profit > 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${formatDate(paymentRecord.date)}</td><td>${paymentRecord.name}</td><td>₹${result.relevantLoan.loan.toFixed(2)}</td><td class="profit-value">₹${result.profit.toFixed(2)}</td><td><button class="details-btn">View</button></td>`;
-            row.querySelector('.details-btn').addEventListener('click', () => showDistributionModal(result));
-            tableBody.appendChild(row);
-        }
-    });
+
+    // --- Step 4: Handle Based on Intent ---
+    handleIntent(analysisResult, memberNamesList, allRulesAndFaqsContext);
 }
 
-function populateMemberHistory(memberName) {
-    const tableBody = document.querySelector("#memberHistoryTable tbody");
-    tableBody.innerHTML = '';
-    const memberData = allData.filter(r => r.name === memberName);
-    let balance = 0;
-    if (memberData.length === 0) {
-        tableBody.innerHTML = `<tr class="no-data-row"><td colspan="4">No transaction history found.</td></tr>`;
+/**
+ * Gemini से प्राप्त इरादे को संभालता है और उचित कार्रवाई करता है।
+ */
+function handleIntent(analysisResult, memberNamesList, rulesContext) {
+    if (!analysisResult || !analysisResult.intent) {
+        appendMessage("क्षमा करें, मैं आपके अनुरोध को समझ नहीं पाया।", "bot");
+        appendInlineSuggestions(["दोबारा पूछें", "सहायता"]);
         return;
     }
-    memberData.forEach(r => {
-        let type = '', amount = 0, sign = '';
-        if (r.sipPayment > 0) { type = 'sip'; amount = r.sipPayment; balance += amount; sign = '+'; }
-        else if (r.loan > 0) { type = 'loan'; amount = r.loan; balance -= amount; sign = '-'; }
-        else if (r.payment > 0) { type = 'payment'; amount = r.payment; balance += amount; sign = '+'; }
-        else return;
 
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${formatDate(r.date)}</td><td class="transaction-type ${type}">${type.toUpperCase()}</td><td>${sign} ₹${amount.toFixed(2)}</td><td>₹${balance.toFixed(2)}</td>`;
-        tableBody.appendChild(row);
-    });
-}
+    const { intent, member_name, detail_type, answer, confidence } = analysisResult;
+    let followupSuggestions = [];
 
-function calculateTotalProfitForMember(memberName) {
-    return allData.reduce((totalProfit, transaction) => {
-        if (transaction.returnAmount > 0) {
-            const result = calculateProfitDistribution(transaction);
-            const memberShare = result?.distribution.find(d => d.name === memberName);
-            if (memberShare) totalProfit += memberShare.share;
-        }
-        return totalProfit;
-    }, 0);
-}
-
-function calculateProfitDistribution(paymentRecord) {
-    const profit = paymentRecord.returnAmount;
-    if (profit <= 0) return null;
-    const userLoansBeforePayment = allData.filter(r => r.name === paymentRecord.name && r.loan > 0 && r.date < paymentRecord.date);
-    if (userLoansBeforePayment.length === 0) return null; 
-    const relevantLoan = userLoansBeforePayment[userLoansBeforePayment.length - 1];
-    const loanDate = relevantLoan.date;
-
-    const snapshotScores = {};
-    let totalScoreInSnapshot = 0;
-    const membersInSystemAtLoanDate = [...new Set(allData.filter(r => r.date <= loanDate).map(r => r.name))];
-
-    membersInSystemAtLoanDate.forEach(name => {
-        const scoreObject = calculatePerformanceScore(name, loanDate);
-        if (scoreObject.totalScore > 0) {
-            snapshotScores[name] = scoreObject;
-            totalScoreInSnapshot += scoreObject.totalScore;
-        }
-    });
-    if (totalScoreInSnapshot <= 0) return null;
-
-    const distribution = [];
-    for (const memberName in snapshotScores) {
-        let memberShare = (snapshotScores[memberName].totalScore / totalScoreInSnapshot) * profit;
-        const lastLoanDate = allData.filter(r => r.name === memberName && r.loan > 0 && r.date <= loanDate).pop()?.date;
-        const daysSinceLastLoan = lastLoanDate ? (loanDate - lastLoanDate) / (1000 * 3600 * 24) : Infinity;
-        let appliedMultiplier = 1;
-        if (daysSinceLastLoan > CONFIG.INACTIVE_MEMBER_DAYS_LIMIT) {
-            memberShare *= CONFIG.INACTIVE_MEMBER_PROFIT_MULTIPLIER;
-            appliedMultiplier = CONFIG.INACTIVE_MEMBER_PROFIT_MULTIPLIER;
-        }
-        if (memberShare > 0) distribution.push({ 
-            name: memberName, share: memberShare,
-            snapshotScore: snapshotScores[memberName].totalScore,
-            totalSnapshotScore: totalScoreInSnapshot,
-            multiplier: appliedMultiplier
-        });
+    if (confidence === 'low' && !['general_query', 'greet', 'thank_you'].includes(intent)) {
+        appendMessage("मैं पूरी तरह से निश्चित नहीं हूँ कि आप क्या पूछ रहे हैं। क्या आप कृपया अपना प्रश्न थोड़ा और स्पष्ट कर सकते हैं?", "bot");
+        appendInlineSuggestions(["हाँ", "नहीं", "मुख्य मेनू दिखाओ"]);
+        return;
     }
-    return { profit, relevantLoan, distribution: distribution.sort((a,b) => b.share - a.share) };
-}
 
-// --- RANKING MODALS ---
-function displayReturnRanking() {
-    const listEl = document.getElementById('returnRankList');
-    let memberProfits = memberNames.map(name => ({ name: name, totalProfit: calculateTotalProfitForMember(name) }))
-        .filter(member => member.totalProfit > 0).sort((a, b) => b.totalProfit - a.totalProfit);
-    listEl.innerHTML = '';
-    if (memberProfits.length === 0) listEl.innerHTML = '<li>No members have earned a return yet.</li>';
-    else memberProfits.forEach((member, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="rank">${index + 1}.</span><span class="name">${member.name}</span><span class="share">+ ₹${member.totalProfit.toFixed(2)}</span>
-                        <div class="button-group">
-                            <button class="btn-details-small">Details</button>
-                            <button class="btn-ai-small"><i class="fas fa-robot"></i> AI</button>
-                        </div>`;
-        li.querySelector('.btn-details-small').addEventListener('click', () => showCalculationDetails({type: 'total_profit', memberName: member.name}));
-        li.querySelector('.btn-ai-small').addEventListener('click', () => {
-             const promptGenerator = () => {
-                let profitBreakdown = '';
-                allData.filter(r => r.returnAmount > 0).forEach(event => {
-                    const result = calculateProfitDistribution(event);
-                    const share = result?.distribution.find(d => d.name === member.name);
-                    if (share) {
-                        profitBreakdown += `\n- ${event.name} ke loan (Date: ${formatDate(event.date)}) se mila profit: ₹${share.share.toFixed(2)}.`;
-                    }
-                });
-                return `Tum ek financial advisor ho. Member '${member.name}' ko mile total profit (₹${member.totalProfit.toFixed(2)}) ko aasan Hindi me samjhao. Unhe yeh profit kahan kahan se mila, iska breakdown do. Data:\n${profitBreakdown}`;
-            };
-            generateAndShowExplanation(promptGenerator);
-        });
-        listEl.appendChild(li);
-    });
-    document.getElementById('returnRankModal').classList.remove('visually-hidden');
-}
-
-function displayScoreRanking() {
-    const tableBody = document.querySelector("#scoreRankTable tbody");
-    let memberScores = memberNames.map(name => ({ name, scores: calculatePerformanceScore(name, new Date()) }))
-        .sort((a, b) => b.scores.totalScore - a.scores.totalScore);
-    tableBody.innerHTML = '';
-    memberScores.forEach((member, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${index + 1}</td>
-                         <td>${member.name}</td>
-                         <td>${member.scores.totalScore.toFixed(2)}</td>
-                         <td>
-                            <div class="button-group">
-                                <button class="btn-details-small">Details</button>
-                                <button class="btn-ai-small"><i class="fas fa-robot"></i> AI</button>
-                            </div>
-                         </td>`;
-        row.querySelector('.btn-details-small').addEventListener('click', () => showCalculationDetails({type: 'score', member: member}));
-        row.querySelector('.btn-ai-small').addEventListener('click', () => {
-            const promptGenerator = () => {
-                const { name, scores } = member;
-                return `Tum ek financial advisor ho. Member '${name}' ka performance score ${scores.totalScore.toFixed(2)} hai. Is score ko aasan Hindi me samjhao.
-                Batao ki yeh score in teen cheezon se milkar bana hai:
-                1.  Capital Score: ${scores.capitalScore.toFixed(2)} (Weight: 40%) - Yeh score batata hai ki member ne kitna paisa system me rakha hai.
-                2.  Consistency Score: ${scores.consistencyScore.toFixed(2)} (Weight: 30%) - Yeh score batata hai ki member har mahine samay par SIP jama karta hai ya nahi.
-                3.  Credit Score: ${scores.creditScore.toFixed(2)} (Weight: 30%) - Yeh score batata hai ki member liye gaye loan ko samay par chukata hai ya nahi.
-                Finally, yeh bhi batao ki woh apna score kaise sudhar sakte hain.`;
-            };
-            generateAndShowExplanation(promptGenerator);
-        });
-        tableBody.appendChild(row);
-    });
-    document.getElementById('scoreRankModal').classList.remove('visually-hidden');
-}
-
-function displayEligibilityRanking() {
-    const tableBody = document.querySelector("#eligibilityRankTable tbody");
-    let memberEligibility = memberNames.map(name => {
-        const capital = allData.filter(r => r.name === name).reduce((sum, r) => sum + r.sipPayment + r.payment - r.loan, 0);
-        const score = calculatePerformanceScore(name, new Date()).totalScore;
-        const eligibility = getLoanEligibility(name, score);
-        return { name, capital, score, eligibility, maxLoan: eligibility.eligible ? capital * eligibility.multiplier : 0 };
-    }).sort((a, b) => b.maxLoan - a.maxLoan);
-    tableBody.innerHTML = '';
-    memberEligibility.forEach(member => {
-        const row = document.createElement('tr');
-        let eligibilityText = '';
-        if (member.eligibility.eligible) {
-            eligibilityText = `${member.eligibility.multiplier.toFixed(2)}x`;
-        } else {
-            eligibilityText = `<span class="negative">${member.eligibility.reason}</span>`;
+    try {
+        if (member_name === "self" && intent === "get_member_specific_data") {
+            appendMessage("कृपया अपना नाम बताएं ताकि मैं आपकी जानकारी देख सकूं। (उदा: 'अमित कुमार का बैलेंस')", "bot");
+            followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी नियम दिखाओ"];
+            appendInlineSuggestions(followupSuggestions);
+            return;
         }
-        row.innerHTML = `<td>${member.name}</td>
-                         <td>₹${member.capital.toFixed(2)}</td>
-                         <td>${eligibilityText}</td>
-                         <td>₹${member.maxLoan.toFixed(2)}</td>
-                         <td>
-                            <div class="button-group">
-                                <button class="btn-details-small">Details</button>
-                                <button class="btn-ai-small"><i class="fas fa-robot"></i> AI</button>
-                            </div>
-                         </td>`;
-        row.querySelector('.btn-details-small').addEventListener('click', () => showCalculationDetails({type: 'eligibility', member: member}));
-        row.querySelector('.btn-ai-small').addEventListener('click', () => {
-            const promptGenerator = () => {
-                const { name, capital, score, eligibility, maxLoan } = member;
-                if (eligibility.eligible) {
-                    return `Tum ek financial advisor ho. Member '${name}' ki loan eligibility ko aasan Hindi me samjhao.
-                    Data:
-                    - Capital: ₹${capital.toFixed(2)}
-                    - Performance Score: ${score.toFixed(2)}
-                    - Eligibility Multiplier: ${eligibility.multiplier.toFixed(2)}x
-                    - Max Loan Amount: ₹${maxLoan.toFixed(2)}
-                    Samjhao ki unka multiplier unke score par depend karta hai, aur isliye woh apne capital ka ${eligibility.multiplier.toFixed(2)} guna tak loan le sakte hain.`;
+
+        switch (intent) {
+            case "greet":
+                appendMessage("नमस्ते! मैं आपकी कैसे मदद कर सकता हूँ?", "bot");
+                appendInlineSuggestions(["नियम क्या हैं?", "सदस्य सूची दिखाओ", "मेरा बैलेंस कितना है?"]);
+                break;
+
+            case "thank_you":
+                appendMessage("कोई बात नहीं! आपकी सहायता करके खुशी हुई!", "bot");
+                appendInlineSuggestions(["मुख्य मेनू", "सभी नियम", "सदस्य सूची"]);
+                break;
+
+            case "get_rule":
+                if (answer) {
+                    const msgEl = appendMessage("", "bot");
+                    typeEffect(answer, msgEl, () => appendInlineSuggestions(["कोई और नियम?", "लोन पात्रता?", "सभी सदस्य दिखाओ"]));
                 } else {
-                    return `Tum ek financial advisor ho. Member '${name}' abhi loan ke liye eligible kyun nahi hai, yeh aasan Hindi me samjhao.
-                    Karan: ${eligibility.reason}. Is karan ka matlab samjhao. Jaise, 'Outstanding Loan' ka matlab hai ki unka purana loan abhi baki hai.`;
+                    appendMessage("क्षमा करें, मुझे आपके प्रश्न से संबंधित कोई विशिष्ट नियम नहीं मिला।", "bot");
+                    appendInlineSuggestions(["सभी नियम दिखाओ", "लोन कैसे मिलता है?"]);
                 }
-            };
-            generateAndShowExplanation(promptGenerator);
-        });
-        tableBody.appendChild(row);
-    });
-    document.getElementById('eligibilityRankModal').classList.remove('visually-hidden');
-}
+                break;
 
-// --- DETAILS & CHARTING FUNCTIONS ---
-function showCalculationDetails(details) {
-    const titleEl = document.getElementById('calculationDetailsTitle');
-    const contentEl = document.getElementById('calculationDetailsContent');
-    let html = '';
+            case "get_member_specific_data":
+                if (!member_name) {
+                    appendMessage("कृपया सदस्य का नाम बताएं। (उदाहरण: 'अमित कुमार का विवरण')", "bot");
+                    followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी नियम दिखाओ"];
+                    appendInlineSuggestions(followupSuggestions);
+                } else {
+                    const userData = getUserDataAggregated(member_name);
+                    if (!userData) {
+                        appendMessage(`माफ़ कीजिए, "${member_name}" नाम का सदस्य रिकॉर्ड नहीं मिला।`, "bot");
+                        followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी सदस्य दिखाओ"];
+                        appendInlineSuggestions(followupSuggestions);
+                    } else {
+                        let responseText = "";
+                        let isHtml = false;
+                        switch (detail_type) {
+                            case "balance":
+                                responseText = `${userData.name} का वर्तमान बैलेंस ₹${userData.overallBalance.toLocaleString('en-IN')} है।`;
+                                followupSuggestions = [`${userData.name} का पूरा विवरण?`, `${userData.name} लोन ले सकता है?`];
+                                break;
+                            case "loan_eligibility":
+                                const eligibility = calculateEligibility(userData.name, userData.overallBalance);
+                                responseText = eligibility.isEligible
+                                    ? `✅ हाँ, ${userData.name} लोन के लिए पात्र हैं। वे अधिकतम ₹${eligibility.approvedAmount.toLocaleString('en-IN')} तक का लोन ले सकते हैं।`
+                                    : `❌ नहीं, ${userData.name} वर्तमान में लोन के लिए पात्र नहीं हैं। ${eligibility.reason || ''}`;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, "लोन नियम क्या हैं?"];
+                                break;
+                            case "sip_status":
+                                responseText = `${userData.name} की इस महीने की SIP स्थिति: <span class="sip-status ${userData.sipStatusClass}">${userData.sipStatusText}</span>`;
+                                isHtml = true;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, "SIP नियम क्या हैं?"];
+                                break;
+                            case "outstanding_loan":
+                                responseText = `${userData.name} की वर्तमान बकाया लोन राशि ₹${userData.netLoanOutstanding.toLocaleString('en-IN')} है।`;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, `${userData.name} का भुगतान?`];
+                                break;
+                            case "full_details":
+                            default:
+                                const primeTag = userData.isPrimeMember ? `<span class='prime-tag-on-photo'>⭐ Prime</span>` : '';
+                                const unclearedLoan = userData.hasUnclearedLoan ? `<p><span class="label"><i class="fas fa-exclamation-triangle icon"></i> हालिया बकाया लोन:</span> <span class='value loan-highlight'>₹${userData.latestUnclearedLoanAmount.toLocaleString('en-IN')}</span></p>` : '';
+                                responseText = `
+                                    <div class='user-details-card'>
+                                        <div class="user-details-header"> <div class="profile-pic-container"> <img src="${userData.imageUrl}" alt="${userData.name}" class="profile-pic" onclick="openImageModal('${userData.imageUrl}')"> ${primeTag} </div> <div class="user-info"> <h3>${userData.name}</h3> <p><span class="label"><i class="fas fa-calendar-alt icon"></i> ज्वाइन तिथि:</span> ${userData.joinDate}</p> </div> </div>
+                                        <div class="user-stats">
+                                            <p><span class="label"><i class="fas fa-piggy-bank icon"></i> कुल SIP जमा:</span> <span class="value">₹${userData.totalSIP.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-hand-holding-usd icon"></i> कुल लोन लिया:</span> <span class="value">₹${userData.totalLoan.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-receipt icon"></i> कुल नियमित भुगतान:</span> <span class="value">₹${userData.totalPayment.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-wallet icon"></i> वर्तमान बैलेंस:</span> <strong class="value">₹${userData.overallBalance.toLocaleString('en-IN')}</strong></p>
+                                            <p><span class="label"><i class="fas fa-chart-line icon"></i> बकाया लोन राशि:</span> <span class="value ${userData.netLoanOutstanding > 0 ? 'loan-highlight' : ''}">₹${userData.netLoanOutstanding.toLocaleString('en-IN')}</span></p>
+                                            ${unclearedLoan}
+                                            <p><span class="label"><i class="fas fa-bell icon"></i> मासिक SIP स्थिति:</span> <span class="value"><span class="sip-status ${userData.sipStatusClass}">${userData.sipStatusText}</span></span></p>
+                                        </div>
+                                    </div>`;
+                                isHtml = true;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, `${userData.name} लोन ले सकता है?`];
+                                break;
+                        }
+                        if (isHtml) {
+                            appendMessage(responseText, "bot", true);
+                            appendInlineSuggestions(followupSuggestions);
+                        } else {
+                            const msgEl = appendMessage("", "bot");
+                            typeEffect(responseText, msgEl, () => appendInlineSuggestions(followupSuggestions));
+                        }
+                    }
+                }
+                break;
+            
+            case "list_all_members":
+                const names = memberNamesList.sort((a, b) => a.localeCompare(b));
+                if (names.length > 0) {
+                    let html = `<p><strong>सभी सदस्य (${names.length}):</strong></p><div class='member-list-container'>`;
+                    names.forEach(name => {
+                        html += `<div class='clickable-member' onclick="triggerSend('${name.replace(/'/g, "\\'")}')">${name}</div>`;
+                    });
+                    html += "</div>";
+                    appendMessage(html, 'bot', true);
+                    followupSuggestions = names.slice(0, 2).map(n => `${n} का विवरण?`).concat(["कुल सदस्य कितने हैं?"]);
+                    appendInlineSuggestions(followupSuggestions);
+                } else {
+                    appendMessage("अभी कोई सदस्य डेटा उपलब्ध नहीं है।", "bot");
+                }
+                break;
 
-    if (details.type === 'score') {
-        const { name, scores } = details.member;
-        titleEl.textContent = `Score Calculation for ${name}`;
-        html = `
-            <div class="calc-row"><span class="calc-label">Capital Score</span> <span class="calc-value">${scores.capitalScore.toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Consistency Score</span> <span class="calc-value">${scores.consistencyScore.toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Credit Behavior Score</span> <span class="calc-value">${scores.creditScore.toFixed(2)}</span></div>
-            <hr>
-            <div class="calc-row"><span class="calc-label">Weighted Capital (40%)</span> <span class="calc-value">${(scores.capitalScore * CONFIG.CAPITAL_WEIGHT).toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Weighted Consistency (30%)</span> <span class="calc-value">${(scores.consistencyScore * CONFIG.CONSISTENCY_WEIGHT).toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Weighted Credit (30%)</span> <span class="calc-value">${(scores.creditScore * CONFIG.CREDIT_BEHAVIOR_WEIGHT).toFixed(2)}</span></div>
-            <div class="calc-final">Total Score: ${scores.totalScore.toFixed(2)}</div>
-        `;
-    } else if (details.type === 'profit_event') {
-        const { member, profitEvent } = details;
-        titleEl.textContent = `Profit Share for ${member.name}`;
-        const sharePercentage = (member.snapshotScore / member.totalSnapshotScore) * 100;
-        const initialShare = (sharePercentage / 100) * profitEvent.profit;
-        html = `
-            <div class="calc-row"><span class="calc-label">Loan From</span> <span class="calc-value">${profitEvent.relevantLoan.name}</span></div>
-            <div class="calc-row"><span class="calc-label">Total Profit from Loan</span> <span class="calc-value">₹${profitEvent.profit.toFixed(2)}</span></div>
-            <hr>
-            <div class="calc-row"><span class="calc-label">Your Score (at loan time)</span> <span class="calc-value">${member.snapshotScore.toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Total Community Score</span> <span class="calc-value">${member.totalSnapshotScore.toFixed(2)}</span></div>
-            <div class="calc-row"><span class="calc-label">Your Share (%)</span> <span class="calc-value">${sharePercentage.toFixed(2)}%</span></div>
-            <div class="calc-formula">(Your Score / Total Score) * 100</div>
-            <hr>
-            <div class="calc-row"><span class="calc-label">Initial Share</span> <span class="calc-value">₹${initialShare.toFixed(2)}</span></div>
-            ${member.multiplier !== 1 ? `<div class="calc-row"><span class="calc-label">Inactive Policy (x${member.multiplier})</span> <span class="calc-value">- ₹${(initialShare - member.share).toFixed(2)}</span></div>` : ''}
-            <div class="calc-final">Final Profit: ₹${member.share.toFixed(2)}</div>
-        `;
-    } else if (details.type === 'total_profit') {
-        titleEl.textContent = `Total Profit for ${details.memberName}`;
-        let profitBreakdownHtml = '';
-        let totalProfit = 0;
-        allData.filter(r => r.returnAmount > 0).forEach(event => {
-            const result = calculateProfitDistribution(event);
-            const share = result?.distribution.find(d => d.name === details.memberName);
-            if (share) {
-                totalProfit += share.share;
-                profitBreakdownHtml += `<div class="calc-row"><span class="calc-label">From ${event.name}'s loan (${formatDate(event.date)})</span> <span class="calc-value">+ ₹${share.share.toFixed(2)}</span></div>`;
-            }
-        });
-        if (!profitBreakdownHtml) profitBreakdownHtml = '<div class="calc-row"><span class="calc-label">No profit earned yet.</span></div>';
-        html = `${profitBreakdownHtml}<div class="calc-final">Total Profit: ₹${totalProfit.toFixed(2)}</div>`;
-    } else if (details.type === 'eligibility') {
-        const { name, score, eligibility } = details.member;
-        titleEl.textContent = `Eligibility for ${name}`;
-        if(eligibility.eligible) {
-            html = `
-                <div class="calc-row"><span class="calc-label">Your Performance Score</span> <span class="calc-value">${score.toFixed(2)}</span></div>
-                <hr>
-                <p style="font-size:0.9em; text-align:center; color: var(--text-light);">Aapka multiplier aapke score ke aadhar par scale hota hai.</p>
-                <div class="calc-final">Your Multiplier: ${eligibility.multiplier.toFixed(2)}x</div>
-            `;
-        } else {
-             html = `<div class="calc-final" style="color:var(--negative-color);">${eligibility.reason}</div>`;
+            case "get_member_count":
+                appendMessage(`वर्तमान में समुदाय में कुल ${memberNamesList.length} सदस्य हैं।`, "bot");
+                appendInlineSuggestions(["सदस्य सूची दिखाओ", "सभी नियम दिखाओ"]);
+                break;
+
+            case "general_query":
+            default:
+                if (answer) {
+                    const msgEl = appendMessage("", "bot");
+                    typeEffect(answer, msgEl, () => appendInlineSuggestions(["और सवाल पूछें?", "सभी नियम दिखाओ"]));
+                } else {
+                    appendMessage("मैं अभी भी सीख रहा हूँ। क्या आप अपना प्रश्न दूसरी तरह से पूछ सकते हैं?", "bot");
+                    appendInlineSuggestions(["सभी नियम दिखाओ", "सदस्य सूची दिखाओ"]);
+                }
+                break;
         }
-    }
-
-    contentEl.innerHTML = html;
-    document.getElementById('calculationDetailsModal').classList.remove('visually-hidden');
-}
-
-function renderGrowthChart() {
-    const ctx = document.getElementById('growthChart').getContext('2d');
-    const growthData = calculateGrowthData();
-    if (growthChartInstance) growthChartInstance.destroy();
-    growthChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: growthData.labels,
-            datasets: [
-                { label: 'Total Capital', data: growthData.capital, borderColor: 'rgba(52, 152, 219, 1)', backgroundColor: 'rgba(52, 152, 219, 0.1)', fill: true, tension: 0.1 },
-                { label: 'Total Loans', data: growthData.loans, borderColor: 'rgba(231, 76, 60, 1)', backgroundColor: 'rgba(231, 76, 60, 0.1)', fill: true, tension: 0.1 },
-                { label: 'Total Profit', data: growthData.profits, borderColor: 'rgba(39, 174, 96, 1)', backgroundColor: 'rgba(39, 174, 96, 0.1)', fill: true, tension: 0.1 }
-            ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => `₹${value}` } } }, plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ₹${context.parsed.y.toFixed(2)}` } } } }
-    });
-}
-function calculateGrowthData() {
-    const snapshots = {}; let cumulativeCapital = 0, cumulativeLoan = 0, cumulativeProfit = 0;
-    allData.forEach(r => {
-        cumulativeCapital += r.sipPayment + r.payment - r.loan; cumulativeLoan += r.loan; cumulativeProfit += r.returnAmount;
-        const monthKey = r.date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
-        snapshots[monthKey] = { capital: cumulativeCapital, loans: cumulativeLoan, profits: cumulativeProfit, date: new Date(r.date.getFullYear(), r.date.getMonth(), 1) };
-    });
-    const sortedKeys = Object.keys(snapshots).sort((a,b) => snapshots[a].date - snapshots[b].date);
-    return { labels: sortedKeys, capital: sortedKeys.map(key => snapshots[key].capital), loans: sortedKeys.map(key => snapshots[key].loans), profits: sortedKeys.map(key => snapshots[key].profits) };
-}
-function showDistributionModal(profitEvent) {
-    const modal = document.getElementById('detailsModal'); const listEl = document.getElementById('distributionDetails'); listEl.innerHTML = '';
-    const ctx = document.getElementById('distributionChart').getContext('2d');
-    if (distributionChartInstance) distributionChartInstance.destroy();
-    
-    const distributionData = profitEvent.distribution;
-    if (!distributionData || distributionData.length === 0) { listEl.innerHTML = '<li>No beneficiaries found for this event.</li>'; } 
-    else {
-        const labels = distributionData.map(d => d.name); const data = distributionData.map(d => d.share.toFixed(2));
-        distributionData.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span class="name">${item.name}</span><span class="share">+ ₹${item.share.toFixed(2)}</span>
-                            <div class="button-group">
-                                <button class="btn-details-small">Details</button>
-                                <button class="btn-ai-small"><i class="fas fa-robot"></i> AI</button>
-                            </div>`;
-            li.querySelector('.btn-details-small').addEventListener('click', () => showCalculationDetails({type: 'profit_event', member: item, profitEvent: profitEvent}));
-            li.querySelector('.btn-ai-small').addEventListener('click', () => {
-                const promptGenerator = () => {
-                     return `Tum ek financial advisor ho. Member '${item.name}' ko ${profitEvent.relevantLoan.name} ke loan se ₹${item.share.toFixed(2)} ka profit kyu mila? Aasan Hindi me samjhao.
-                    Data:
-                    - Loan lene wale ka naam: ${profitEvent.relevantLoan.name}
-                    - Total profit jo is loan se hua: ₹${profitEvent.profit.toFixed(2)}
-                    - Jab loan diya gaya tha, tab '${item.name}' ka score: ${item.snapshotScore.toFixed(2)}
-                    - Us samay sabhi members ka total score: ${item.totalSnapshotScore.toFixed(2)}
-                    Samjhao ki unka hissa unke score ke anupat me milta hai. Agar unka 'inactive policy multiplier' 1 se kam hai, to yeh bhi batao ki unka share kyu kata gaya. Multiplier: ${item.multiplier}`;
-                };
-                generateAndShowExplanation(promptGenerator);
-            });
-            listEl.appendChild(li);
-        });
-        distributionChartInstance = new Chart(ctx, {
-            type: 'bar', data: { labels, datasets: [{ label: 'Profit Share (₹)', data, backgroundColor: 'rgba(52, 152, 219, 0.7)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 1 }] },
-            options: { responsive: true, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } } }, plugins: { legend: { display: false } } }
-        });
-    }
-    modal.classList.remove('visually-hidden');
-}
-
-// --- AI EXPLANATION FUNCTIONS ---
-
-async function generateAndShowExplanation(promptGenerator) {
-    if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-        alert("Kripya JavaScript code me apni Gemini API Key daalein.");
-        return;
-    }
-    
-    const resultDiv = document.getElementById('aiExplanationResult');
-    const langToggleContainer = document.getElementById('languageToggleContainer');
-    
-    resultDiv.innerHTML = `<div class="ai-loader">
-                                <div class="spinner"></div>
-                                <span>AI aapke liye jankari taiyar kar raha hai...</span>
-                           </div>`;
-    langToggleContainer.classList.add('hidden');
-    document.getElementById('aiExplainModal').classList.remove('visually-hidden');
-
-    const initialPrompt = promptGenerator();
-
-    try {
-        const explanation = await getGeminiExplanation(initialPrompt);
-        resultDiv.innerHTML = marked.parse(explanation);
-        resultDiv.dataset.originalText = explanation; // Store original text for translation
-        langToggleContainer.classList.remove('hidden');
     } catch (error) {
-        console.error("Gemini API Error:", error);
-        resultDiv.innerHTML = `<p style="color: var(--negative-color);"><strong>Error:</strong> AI se jawab nahi mil saka. Kripya apni API key check karein ya baad me koshish karein.</p><p style="font-size:0.8em; color: var(--text-light);">${error.message}</p>`;
+        console.error("इरादे को संभालने में त्रुटि:", intent, error);
+        appendMessage("क्षमा करें, आपके अनुरोध को संसाधित करने में एक अप्रत्याशित त्रुटि हुई।", "bot");
+    } finally {
+        scrollToBottom();
     }
 }
 
-async function handleLanguageToggle(event) {
-    const targetLang = event.target.dataset.lang;
-    const resultDiv = document.getElementById('aiExplanationResult');
-    const textToTranslate = resultDiv.dataset.originalText;
-    
-    if (!textToTranslate) return;
-
-    const langFullName = targetLang === 'hi' ? 'Hindi' : 'English';
-    const translationPrompt = `Translate the following text into ${langFullName}. Provide only the translated text, without any additional formatting or introductory phrases:\n\n"${textToTranslate}"`;
-    
-    resultDiv.innerHTML = `<div class="ai-loader"><div class="spinner"></div></div>`;
-
-    try {
-        const translatedText = await getGeminiExplanation(translationPrompt);
-        resultDiv.innerHTML = marked.parse(translatedText);
-    } catch (error) {
-        console.error("Gemini API Error:", error);
-        resultDiv.innerHTML = `<p style="color: var(--negative-color);"><strong>Error:</strong> Translation fail ho gaya.</p>`;
+// --- 5. EVENT LISTENERS & INITIALIZATION ---
+function handleKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        send();
     }
 }
 
-async function getGeminiExplanation(promptText) {
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
-    
-    const payload = {
-        contents: [{
-            parts: [{
-                text: promptText
-            }]
-        }]
-    };
-
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM लोड हो गया। प्रारंभिक डेटा प्राप्त करना शुरू कर रहा है...");
+    fetchFirebaseData().then(() => {
+        console.log("प्रारंभिक डेटा प्राप्त करने का प्रयास पूरा हुआ।");
     });
+});
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`API request failed with status ${response.status}: ${errorData.error.message}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts.length > 0) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        return "AI se koi valid response nahi mila. Ho sakta hai prompt me koi samasya ho ya safety settings ke karan block ho gaya ho.";
-    }
-}
-
-
-function formatDate(date) { if (!(date instanceof Date) || isNaN(date)) return "N/A"; return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } 
+imageModal.addEventListener('click', (event) => {
+    if (event.target === imageModal) closeImageModal();
+});
 </script>
 </body>
 </html>
