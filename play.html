@@ -1,1 +1,742 @@
-good bye kunal 
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>बैंक चैटबॉट (Firebase)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- Base Styles --- */
+        :root {
+            --primary-color: #45a049;
+            --primary-darker: #3c8e40;
+            --secondary-color: #f4f6f8;
+            --user-message-bg: #e2ffc7;
+            --bot-message-bg: #ffffff;
+            --text-dark: #212529;
+            --text-light: #5a6a79;
+            --border-color: #e0e0e0;
+            --suggestion-bg: #e9f5e9;
+            --suggestion-hover-bg: #d8eed8;
+            --prime-member-bg: #ffc107;
+            --prime-member-text: #000000;
+            --loan-highlight-color: #dc3545;
+            --header-height: 60px;
+            --input-area-min-height: 60px;
+            --border-radius: 10px;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --message-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+            --pill-suggestion-bg: #f0f0f0;
+            --pill-suggestion-text: #333;
+            --pill-suggestion-hover-bg: #e0e0e0;
+            --suggestion-bubble-bg: var(--bot-message-bg);
+            --suggestion-bubble-border: var(--border-color);
+            --suggestion-bubble-padding: 12px 15px;
+            --suggestion-bubble-radius: 18px;
+            --suggestion-bubble-max-width: 90%;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Segoe UI', 'Roboto', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--secondary-color); overflow: hidden; font-size: 16px; }
+
+        /* --- Layout Containers --- */
+        .chat-container { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 800px; margin: 0 auto; background: var(--bot-message-bg); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); border-radius: 0; }
+        @media (min-width: 801px) { .chat-container { height: 90vh; max-height: 750px; margin: 25px auto; border-radius: var(--border-radius); overflow: hidden; } }
+
+        .chat-header { height: var(--header-height); background: linear-gradient(135deg, var(--primary-color), var(--primary-darker)); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3em; font-weight: 600; padding: 0 20px; flex-shrink: 0; border-top-left-radius: inherit; border-top-right-radius: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .chat-header .icon { margin-right: 12px; font-size: 1.6em; }
+
+        .chat-messages { flex-grow: 1; padding: 20px 15px; overflow-y: auto; background-color: var(--secondary-color); display: flex; flex-direction: column; gap: 5px; }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        /* --- Message Bubbles --- */
+        .message { padding: 14px 20px; border-radius: 18px; line-height: 1.65; word-wrap: break-word; max-width: var(--suggestion-bubble-max-width); position: relative; box-shadow: var(--message-shadow); font-size: 0.98em; margin-bottom: 10px; }
+        .message a { color: #0066cc; text-decoration: underline; } .message a:hover { color: #004c99; }
+        .message p { margin-bottom: 10px; } .message p:last-child { margin-bottom: 0; }
+        .message ul, .message ol { margin-left: 20px; margin-bottom: 10px; padding-left: 15px; } .message ul li { margin-bottom: 6px; }
+
+        .user { align-self: flex-end; background-color: var(--user-message-bg); color: var(--text-dark); border-bottom-right-radius: 6px; }
+        .bot { align-self: flex-start; background-color: var(--bot-message-bg); color: var(--text-dark); border: 1px solid var(--border-color); border-bottom-left-radius: 6px; }
+        .bot.typing { color: var(--text-light); font-style: italic; background-color: transparent; border: none; box-shadow: none; padding-left: 0; margin-bottom: 10px; }
+
+        /* --- User Details Card --- */
+        .user-details-card { padding: 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background-color: #ffffff; margin-top: 8px; box-shadow: var(--card-shadow); box-sizing: border-box; }
+        .user-details-header { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .profile-pic-container { position: relative; flex-shrink: 0; width: 80px; height: 80px; }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; border-radius: 10%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); background-color: #eee; }
+        .prime-tag-on-photo { position: absolute; top: -6px; right: -6px; background-color: var(--prime-member-bg); color: var(--prime-member-text); font-size: 0.75em; font-weight: bold; padding: 4px 8px; border-radius: 6px; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 1; }
+        .user-info { flex-grow: 1; }
+        .user-info h3 { margin: 0; font-size: 1.3em; color: var(--text-dark); font-weight: 600; }
+        .user-info p { margin: 5px 0 0; font-size: 0.9em; color: var(--text-light); }
+        .user-info .label { font-weight: 500; }
+        .user-stats { padding-top: 15px; }
+        .user-stats p { margin-bottom: 12px; font-size: 0.98em; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px 10px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
+        .user-stats p:last-child { border-bottom: none; margin-bottom: 0; }
+        .user-stats .label { color: var(--text-light); margin-right: 8px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .user-stats .value { font-weight: 600; text-align: right; flex-grow: 1; word-break: break-word; }
+        .user-stats .label .icon { font-size: 1.1em; opacity: 0.7; }
+        .loan-highlight { color: var(--loan-highlight-color); font-weight: 700; }
+        .sip-status { font-weight: bold; padding: 3px 8px; border-radius: 5px; font-size: 0.9em; display: inline-block; }
+        .sip-status.paid { color: #fff; background-color: #28a745; }
+        .sip-status.pending { color: #fff; background-color: var(--loan-highlight-color); }
+        .sip-status.due { color: #333; background-color: #ffc107; }
+
+        /* --- Clickable Member List --- */
+        .member-list-container { padding: 10px 0; max-height: 220px; overflow-y: auto; }
+        .clickable-member { display: block; padding: 10px 15px; margin-bottom: 5px; background-color: #f8f9fa; border-radius: 6px; cursor: pointer; color: var(--text-dark); text-decoration: none; transition: background-color 0.2s ease, color 0.2s ease; font-size: 0.98em; border: 1px solid var(--border-color); }
+        .clickable-member:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-darker); }
+
+        /* --- Suggestion Blocks --- */
+        .suggestion-group { background-color: var(--bot-message-bg); border: 1px solid var(--border-color); padding: 18px; margin-top: 0px; border-radius: 15px; align-self: flex-start; max-width: 90%; box-shadow: var(--message-shadow); margin-bottom: 10px; }
+        .suggestion-group .group-title { font-weight: 600; margin-bottom: 14px; color: var(--text-light); font-size: 0.9em; }
+        .chat-suggestion { display: block; background-color: var(--suggestion-bg); color: var(--primary-color); padding: 11px 16px; border-radius: 8px; cursor: pointer; font-size: 0.92em; margin-bottom: 8px; border: 1px solid #d0e0d0; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; text-align: left; font-weight: 500; }
+        .chat-suggestion:hover { background-color: var(--suggestion-hover-bg); border-color: #b0c0b0; transform: translateY(-1px); }
+        .chat-suggestion:last-child { margin-bottom: 0; }
+
+        .suggestion-bubble { background-color: var(--suggestion-bubble-bg); border: 1px solid var(--suggestion-bubble-border); border-radius: var(--suggestion-bubble-radius); padding: var(--suggestion-bubble-padding); display: flex; flex-wrap: wrap; gap: 8px; width: fit-content; max-width: var(--suggestion-bubble-max-width); align-self: flex-start; box-shadow: var(--message-shadow); margin-top: -5px; margin-bottom: 10px; position: relative; align-items: center; }
+        .inline-suggestion-pill { background-color: var(--pill-suggestion-bg); color: var(--pill-suggestion-text); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.88em; border: 1px solid #dcdcdc; transition: background-color 0.2s ease, border-color 0.2s ease; line-height: 1.4; white-space: nowrap; text-align: center; }
+        .inline-suggestion-pill:hover { background-color: var(--pill-suggestion-hover-bg); border-color: #c0c0c0; }
+
+        /* --- Input Area --- */
+        .chat-input-area { min-height: var(--input-area-min-height); display: flex; align-items: flex-end; border-top: 1px solid var(--border-color); background-color: #ffffff; padding: 10px 12px; flex-shrink: 0; position: relative; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; gap: 10px; }
+        .chat-input-area textarea { flex-grow: 1; padding: 10px 18px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 1em; font-family: inherit; line-height: 1.4; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; resize: none; overflow-y: auto; min-height: calc(1em * 1.4 + 2 * 10px + 2px); max-height: calc(1em * 1.4 * 5 + 2 * 10px + 2px); }
+        .chat-input-area textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(69, 160, 73, 0.2); }
+        .chat-input-area button { height: calc(1em * 1.4 + 2 * 10px + 2px); padding: 0 22px; border: none; background: var(--primary-color); color: white; cursor: pointer; font-size: 1em; font-weight: 600; border-radius: 20px; transition: background-color 0.2s ease; flex-shrink: 0; align-self: flex-end; }
+        .chat-input-area button:hover { background: var(--primary-darker); }
+
+        /* --- Autocomplete Suggestions --- */
+        .suggestions { position: absolute; bottom: calc(var(--input-area-min-height) + 8px); left: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; padding: 12px; background: #ffffff; border: 1px solid var(--border-color); max-height: 220px; overflow-y: auto; z-index: 100; box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); border-radius: 8px; }
+        .suggestion { background: #f1f1f1; color: var(--text-dark); padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 0.9em; text-align: left; border: 1px solid transparent; transition: background-color 0.2s ease; }
+        .suggestion:hover { background: #e0e0e0; }
+
+        /* --- Image Modal --- */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.88); justify-content: center; align-items: center; }
+        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 90%; border-radius: 5px; }
+        .modal-close { position: absolute; top: 25px; right: 40px; color: #f1f1f1; font-size: 45px; font-weight: bold; transition: 0.3s; cursor: pointer; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .modal-close:hover, .modal-close:focus { color: #bbb; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <span class="icon">🏦</span>बैंक कम्युनिटी चैटबॉट (Firebase) 💬
+    </div>
+    <div class="chat-messages" id="chat">
+        <div class="message bot">
+            नमस्ते! मैं आपकी बैंक कम्युनिटी लोन योजना, सदस्य विवरण, पात्रता, नियमों और अन्य संबंधित प्रश्नों में सहायता कर सकता हूँ। आप किसी भी तरह से सवाल पूछें, मैं समझने और सही जानकारी देने की पूरी कोशिश करूँगा।
+        </div>
+        <div class="message bot suggestion-group initial-suggestions">
+             <div class="group-title">आप इस तरह पूछ सकते हैं:</div>
+             <div class="chat-suggestion" onclick="triggerSend('मेरा बैलेंस कितना है?')">मेरा बैलेंस कितना है?</div>
+             <div class="chat-suggestion" onclick="triggerSend('SIP भरने की आखिरी तारीख क्या है?')">SIP भरने की आखिरी तारीख क्या है?</div>
+             <div class="chat-suggestion" onclick="triggerSend('Raja Sahni का विवरण दिखाओ')">Raja Sahni का विवरण दिखाओ</div>
+             <div class="chat-suggestion" onclick="triggerSend('सभी सदस्यों की सूची दिखाओ')">सभी सदस्यों की सूची दिखाओ</div>
+        </div>
+    </div>
+    <div class="suggestions" id="suggestions" style="display:none;"></div>
+    <div class="chat-input-area">
+        <textarea id="input" placeholder="अपना सवाल यहाँ लिखें..." rows="1" oninput="autoGrow(this)" onkeydown="handleKey(event)" autocomplete="off"></textarea>
+        <button onclick="send()" aria-label="भेजें">भेजें</button>
+    </div>
+</div>
+
+<div id="imageModal" class="modal-overlay">
+    <span class="modal-close" onclick="closeImageModal()">&times;</span>
+    <img class="modal-content" id="modalImageContent">
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+// --- 1. CONFIGURATION & GLOBAL STATE ---
+
+// !! जरूरी: अपनी Firebase और Gemini API Keys यहाँ डालें !!
+const firebaseConfig = {
+  apiKey: "AIzaSyBVCDW0Q8YaTPz_MO9FTve1FaPu42jtO2c", // आपकी Firebase API Key
+  authDomain: "bank-master-data.firebaseapp.com",
+  databaseURL: "https://bank-master-data-default-rtdb.asia-southeast1.firebasedatabase.app", // आपका Database URL
+  projectId: "bank-master-data",
+  storageBucket: "bank-master-data.appspot.com",
+  messagingSenderId: "778113641069",
+  appId: "1:778113641069:web:f2d584555dee89b8ca2d64"
+};
+const API_KEY = "AIzaSyC-Mskcg8GLdfPvrvIzs7NfrIn3TxpOYAw"; // आपकी Gemini API Key
+
+// Firebase को प्रारंभ करें
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+const defaultProfilePic = 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=👤';
+const primeMembers = ["Amit Kumar", "Mithilesh Sahni", "Prince Rama"]; // इसे Firebase से भी लाया जा सकता है
+const MAX_TEXTAREA_LINES = 5;
+
+// Global Cache - Firebase से डेटा यहाँ स्टोर होगा
+let cachedMembersData = null; // '/members' नोड का डेटा
+let cachedRulesData = null;   // '/admin/faqs' नोड का डेटा (यह एक अनुमानित नोड है)
+let isFetchingData = false;
+let lastBotMessageElement = null;
+
+// --- DOM Elements ---
+const chatBox = document.getElementById("chat");
+const inputBox = document.getElementById("input");
+const suggestionsBox = document.getElementById("suggestions");
+const imageModal = document.getElementById("imageModal");
+const modalImageContent = document.getElementById("modalImageContent");
+
+// --- 2. UTILITY & UI FUNCTIONS (Largely Unchanged) ---
+function formatDate(date, options = {}) {
+    if (!(date instanceof Date) || isNaN(date)) return "--";
+    const defaultOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', { ...defaultOptions, ...options });
+}
+
+function appendMessage(content, cls, isHtml = false) {
+    const d = document.createElement("div");
+    d.className = "message " + cls;
+    if (isHtml) {
+        d.innerHTML = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    } else {
+        d.textContent = content;
+    }
+    chatBox.appendChild(d);
+    if (cls.includes('bot') && !cls.includes('typing')) {
+        lastBotMessageElement = d;
+    }
+    setTimeout(() => scrollToBottom(), 50);
+    return d;
+}
+
+function appendInlineSuggestions(suggestions) {
+    if (!suggestions || !Array.isArray(suggestions) || suggestions.length === 0) return;
+    const oldBubbles = chatBox.querySelectorAll('.suggestion-bubble');
+    oldBubbles.forEach(el => el.remove());
+    
+    const bubbleContainer = document.createElement('div');
+    bubbleContainer.className = 'message bot suggestion-bubble';
+    suggestions.slice(0, 6).forEach(q_text => {
+        if (typeof q_text !== 'string' || !q_text) return;
+        const pill = document.createElement('div');
+        pill.className = 'inline-suggestion-pill';
+        pill.textContent = q_text;
+        pill.onclick = () => triggerSend(q_text);
+        bubbleContainer.appendChild(pill);
+    });
+    if (bubbleContainer.children.length > 0) {
+        chatBox.appendChild(bubbleContainer);
+        setTimeout(() => scrollToBottom(), 150);
+    }
+}
+
+function typeEffect(text, targetElement, callback = null) {
+    let i = 0;
+    targetElement.innerHTML = '&nbsp;';
+    const interval = setInterval(() => {
+        if (i < text.length) {
+            targetElement.textContent = text.substring(0, i + 1);
+            i++;
+        } else {
+            clearInterval(interval);
+            if (typeof callback === 'function') setTimeout(callback, 150);
+        }
+    }, 25);
+}
+
+function scrollToBottom() {
+    requestAnimationFrame(() => {
+        if (chatBox) chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+    });
+}
+
+function autoGrow(element) {
+  element.style.height = 'auto';
+  const computedStyle = window.getComputedStyle(element);
+  const lineHeight = parseFloat(computedStyle.lineHeight);
+  const maxHeight = (lineHeight * MAX_TEXTAREA_LINES) + (parseFloat(computedStyle.paddingTop) * 2);
+  element.style.height = `${Math.min(element.scrollHeight, maxHeight)}px`;
+}
+
+function openImageModal(imageUrl) {
+    if (imageUrl && !imageUrl.includes('via.placeholder.com')) {
+        modalImageContent.src = imageUrl;
+        imageModal.style.display = "flex";
+    }
+}
+
+function closeImageModal() {
+    imageModal.style.display = "none";
+    modalImageContent.src = "";
+}
+
+function triggerSend(text) {
+    inputBox.value = text;
+    send();
+    inputBox.style.height = 'auto';
+    autoGrow(inputBox);
+    suggestionsBox.style.display = 'none';
+    const inlineSuggestions = chatBox.querySelectorAll('.suggestion-bubble');
+    inlineSuggestions.forEach(el => el.remove());
+}
+
+// --- 3. FIREBASE DATA FETCHING & PROCESSING ---
+
+/**
+ * Firebase से सदस्य और नियम डेटा प्राप्त करता है और उसे कैश करता है।
+ * यह Google Sheets वाले फंक्शन को पूरी तरह से बदल देता है।
+ */
+async function fetchFirebaseData() {
+    if (isFetchingData) {
+        console.log("पहले से ही डेटा प्राप्त किया जा रहा है, प्रतीक्षा करें...");
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return cachedMembersData !== null;
+    }
+    if (cachedMembersData) return true; // डेटा पहले से ही कैश में है
+
+    isFetchingData = true;
+    console.log("Firebase डेटाबेस से डेटा प्राप्त किया जा रहा है...");
+    const loadingMsg = appendMessage("डेटाबेस से कनेक्ट हो रहा है...", "bot typing");
+
+    try {
+        // एक साथ members और admin/faqs नोड्स से डेटा प्राप्त करें
+        const membersRef = database.ref('members');
+        // नोट: हमने माना है कि नियम/FAQ 'admin/faqs' में स्टोर हैं।
+        // यदि यह कहीं और है, तो इस रेफरेंस को बदलें।
+        const rulesRef = database.ref('admin/faqs'); 
+
+        const [membersSnapshot, rulesSnapshot] = await Promise.all([
+            membersRef.once('value'),
+            rulesRef.once('value')
+        ]);
+
+        cachedMembersData = membersSnapshot.val() || {};
+        cachedRulesData = rulesSnapshot.val() || []; // मान लें कि यह एक ऐरे है
+
+        console.log(`Firebase डेटा प्राप्त हुआ। सदस्य: ${Object.keys(cachedMembersData).length}, नियम: ${cachedRulesData.length}`);
+        loadingMsg?.remove();
+        return true;
+    } catch (error) {
+        console.error("Firebase से डेटा प्राप्त करने में त्रुटि:", error);
+        cachedMembersData = null;
+        cachedRulesData = [];
+        loadingMsg?.remove();
+        appendMessage(`त्रुटि: डेटाबेस से कनेक्ट करने में विफल रहा। (${error.message})`, "bot");
+        appendInlineSuggestions(["पुनः प्रयास करें", "सहायता"]);
+        return false;
+    } finally {
+        isFetchingData = false;
+    }
+}
+
+/**
+ * किसी सदस्य के सभी लेन-देन का विश्लेषण करके एकत्रित डेटा देता है।
+ * यह Firebase डेटा संरचना के लिए पूरी तरह से नया लिखा गया है।
+ */
+function getUserDataAggregated(name) {
+    if (!cachedMembersData) {
+        console.warn("सदस्य डेटा अभी तक लोड नहीं हुआ है।");
+        return null;
+    }
+
+    const lowerName = name.toLowerCase().trim();
+    let foundMember = null;
+    let memberId = null;
+
+    // सदस्य को उसके पूरे नाम से खोजें
+    for (const id in cachedMembersData) {
+        const member = cachedMembersData[id];
+        if (member.fullName && member.fullName.toLowerCase().trim() === lowerName) {
+            foundMember = member;
+            memberId = id;
+            break;
+        }
+    }
+
+    if (!foundMember) return null;
+
+    let totalSIP = 0, totalLoan = 0, totalPayment = 0;
+    let lastLoanDate = null, latestLoanAmount = 0;
+    
+    const transactions = foundMember.transactions ? Object.values(foundMember.transactions) : [];
+    transactions.sort((a, b) => new Date(a.Date) - new Date(b.Date)); // लेन-देन को तारीख के अनुसार क्रमबद्ध करें
+
+    transactions.forEach(tx => {
+        totalSIP += parseFloat(tx['SIP Payment']) || 0;
+        totalLoan += parseFloat(tx.Loan) || 0;
+        totalPayment += parseFloat(tx['Loan Payment']) || 0;
+
+        const txDate = new Date(tx.Date);
+        if ((parseFloat(tx.Loan) || 0) > 0) {
+            if (!lastLoanDate || txDate > lastLoanDate) {
+                lastLoanDate = txDate;
+                latestLoanAmount = parseFloat(tx.Loan);
+            }
+        }
+    });
+    
+    // हालिया बकाया लोन की जाँच करें
+    let hasUnclearedLoan = false;
+    if (lastLoanDate) {
+        const paymentExistsAfterLoan = transactions.some(tx => 
+            (parseFloat(tx['Loan Payment']) || 0) > 0 && new Date(tx.Date) > lastLoanDate
+        );
+        hasUnclearedLoan = !paymentExistsAfterLoan;
+    }
+    if (!hasUnclearedLoan) { latestLoanAmount = 0; }
+
+    const overallBalance = (totalSIP + totalPayment) - totalLoan;
+    const netLoanOutstanding = Math.max(0, totalLoan - totalPayment);
+    const sipStatusInfo = getSipStatus(transactions);
+    const isPrime = primeMembers.some(pm => pm.toLowerCase() === foundMember.fullName.toLowerCase());
+
+    return {
+        name: foundMember.fullName,
+        totalSIP,
+        totalLoan,
+        totalPayment,
+        overallBalance,
+        netLoanOutstanding,
+        imageUrl: foundMember.profilePicUrl || defaultProfilePic,
+        joinDate: formatDate(new Date(foundMember.joiningDate)),
+        sipStatusText: sipStatusInfo.statusText,
+        sipStatusClass: sipStatusInfo.statusClass,
+        hasUnclearedLoan,
+        latestUnclearedLoanAmount: hasUnclearedLoan ? latestLoanAmount : 0,
+        isPrimeMember: isPrime
+    };
+}
+
+function getSipStatus(transactions) {
+    if (!transactions || transactions.length === 0) return { statusText: "N/A", statusClass: "" };
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const paidThisMonth = transactions.some(tx => {
+        const txDate = new Date(tx.Date);
+        return (parseFloat(tx['SIP Payment']) || 0) > 0 &&
+               txDate.getMonth() === currentMonth &&
+               txDate.getFullYear() === currentYear;
+    });
+
+    if (paidThisMonth) return { statusText: "Paid", statusClass: "paid" };
+    if (now.getDate() > 10) return { statusText: "Pending", statusClass: "pending" };
+    return { statusText: "Due", statusClass: "due" };
+}
+
+function calculateEligibility(userName, userBalance) {
+    if (!cachedMembersData) return { isEligible: false, approvedAmount: 0, reason: "डेटा लोड नहीं हुआ" };
+
+    // समुदाय का कुल बैलेंस सभी सदस्यों के लेन-देन से गणना करें
+    let communityBalance = 0;
+    Object.values(cachedMembersData).forEach(member => {
+        if (member.transactions) {
+            Object.values(member.transactions).forEach(tx => {
+                communityBalance += (parseFloat(tx['SIP Payment']) || 0) + (parseFloat(tx['Loan Payment']) || 0) - (parseFloat(tx.Loan) || 0);
+            });
+        }
+    });
+
+    const isEligible = userBalance > 0 && communityBalance > 0;
+    let approvedAmount = 0, reason = "";
+    if (isEligible) {
+        const potentialAmount = userBalance * 1.5;
+        approvedAmount = Math.floor(Math.min(potentialAmount, communityBalance));
+        reason = approvedAmount > 0 ? "" : "(समुदाय में पर्याप्त फंड नहीं है)";
+    } else {
+        if (userBalance <= 0) reason = `(आपका बैलेंस शून्य या ऋणात्मक है: ₹${userBalance.toFixed(0)})`;
+        else reason = "(समुदाय में फंड उपलब्ध नहीं है)";
+    }
+    return { isEligible: isEligible && approvedAmount > 0, approvedAmount, reason };
+}
+
+
+// --- 4. MAIN SEND FUNCTION (Adapted for Firebase) ---
+async function send() {
+    const query = inputBox.value.trim();
+    if (!query) return;
+
+    appendMessage(query, "user");
+    inputBox.value = '';
+    autoGrow(inputBox);
+    suggestionsBox.style.display = 'none';
+    chatBox.querySelectorAll('.suggestion-bubble').forEach(el => el.remove());
+
+    const typingIndicator = appendMessage("सोच रहा हूँ...", "bot typing");
+
+    // --- Step 1: Ensure Firebase data is loaded ---
+    const dataReady = await fetchFirebaseData();
+    if (!dataReady) {
+        typingIndicator?.remove();
+        // fetchFirebaseData function already shows an error message.
+        return;
+    }
+
+    // --- Step 2: Prepare context for Gemini ---
+    const memberNamesList = cachedMembersData ? Object.values(cachedMembersData).map(m => m.fullName).filter(Boolean) : [];
+    
+    // नोट: नियम अब cachedRulesData से आ रहे हैं, जो 'admin/faqs' से आता है।
+    // सुनिश्चित करें कि आपके Firebase में इस पथ पर डेटा है।
+    // डेटा का प्रारूप: [{ question: "...", answer: "..." }, ...]
+    let allRulesAndFaqsContext = "कोई नियम या FAQ उपलब्ध नहीं है।";
+    if (cachedRulesData && cachedRulesData.length > 0) {
+        allRulesAndFaqsContext = cachedRulesData.map((seg, index) => {
+            return `${index + 1}. प्रश्न: ${seg.question}\n   उत्तर: ${seg.answer}`;
+        }).join('\n\n');
+    }
+
+    const knownNamesString = memberNamesList.length > 0 ? memberNamesList.join(', ') : "कोई सदस्य लोड नहीं हुआ";
+    const possibleIntents = ["get_rule", "get_member_specific_data", "list_all_members", "get_member_count", "greet", "thank_you", "general_query"];
+    const possibleDetailTypes = ["full_details", "balance", "loan_eligibility", "sip_status", "outstanding_loan"];
+
+    const prompt = `
+आप 'बैंक कम्युनिटी चैटबॉट' हैं। आपका कार्य उपयोगकर्ता के हिंदी या अंग्रेजी प्रश्नों का विश्लेषण करना और सटीक, संक्षिप्त, और सहायक जानकारी प्रदान करना है।
+
+नियम/FAQ डेटा:
+--- RULES START ---
+${allRulesAndFaqsContext}
+--- RULES END ---
+
+ज्ञात सदस्य: ${knownNamesString}
+
+उपयोगकर्ता का प्रश्न: "${query}"
+
+विश्लेषण कार्य:
+1.  प्रश्न का मुख्य इरादा (intent) पहचानें। संभावित इरादे: ${possibleIntents.join(', ')}.
+2.  यदि प्रश्न किसी सदस्य से संबंधित है, तो सदस्य का नाम (member_name) निकालें। यदि उपयोगकर्ता स्वयं के बारे में पूछ रहा है (जैसे 'मेरा बैलेंस'), तो member_name को "self" सेट करें।
+3.  यदि इरादा 'get_member_specific_data' है, तो पहचानें कि उपयोगकर्ता सदस्य के बारे में कौन सी विशिष्ट जानकारी (detail_type) चाहता है। संभावित प्रकार: ${possibleDetailTypes.join(', ')}. यदि सामान्य है ('विवरण दिखाओ'), तो 'full_details' का प्रयोग करें।
+4.  JSON ऑब्जेक्ट लौटाएं:
+    {
+      "intent": "[intent]",
+      "member_name": "[name / 'self' / null]",
+      "detail_type": "[detail_type / 'full_details' / null]",
+      "answer": "[rule_answer_rephrased_by_you / general_answer_rephrased_by_you / null]",
+      "confidence": "[high/medium/low]"
+    }
+
+केवल JSON ऑब्जेक्ट प्रदान करें:
+`;
+
+    // --- Step 3: Call Gemini API ---
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    let analysisResult = null;
+
+    try {
+        console.log("Gemini को प्रश्न भेजा जा रहा है:", query);
+        const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.2, maxOutputTokens: 700, responseMimeType: "application/json" },
+                safetySettings: [ { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" } ]
+            }),
+        });
+        typingIndicator?.remove();
+
+        if (!response.ok) throw new Error(`API Error ${response.status}`);
+        const js = await response.json();
+        
+        if (!js.candidates?.[0]?.content?.parts?.[0]?.text) {
+            if (js.promptFeedback?.blockReason) throw new Error(`Content Blocked (${js.promptFeedback.blockReason})`);
+            throw new Error("API से कोई मान्य प्रतिक्रिया नहीं मिली।");
+        }
+        
+        const rawJsonText = js.candidates[0].content.parts[0].text;
+        console.log("Gemini से प्राप्त Raw JSON:", rawJsonText);
+        analysisResult = JSON.parse(rawJsonText.replace(/^```json\s*/, '').replace(/\s*```$/, ''));
+        console.log("Parsed Analysis Result:", analysisResult);
+
+    } catch (error) {
+        typingIndicator?.remove();
+        console.error("Gemini प्रोसेसिंग में त्रुटि:", error);
+        appendMessage(`क्षमा करें, आपके प्रश्न का विश्लेषण करने में त्रुटि हुई। (${error.message})`, "bot");
+        appendInlineSuggestions(["कोई दूसरा सवाल पूछें", "नियम दिखाओ"]);
+        return;
+    }
+
+    // --- Step 4: Handle Based on Intent ---
+    handleIntent(analysisResult, memberNamesList, allRulesAndFaqsContext);
+}
+
+/**
+ * Gemini से प्राप्त इरादे को संभालता है और उचित कार्रवाई करता है।
+ */
+function handleIntent(analysisResult, memberNamesList, rulesContext) {
+    if (!analysisResult || !analysisResult.intent) {
+        appendMessage("क्षमा करें, मैं आपके अनुरोध को समझ नहीं पाया।", "bot");
+        appendInlineSuggestions(["दोबारा पूछें", "सहायता"]);
+        return;
+    }
+
+    const { intent, member_name, detail_type, answer, confidence } = analysisResult;
+    let followupSuggestions = [];
+
+    if (confidence === 'low' && !['general_query', 'greet', 'thank_you'].includes(intent)) {
+        appendMessage("मैं पूरी तरह से निश्चित नहीं हूँ कि आप क्या पूछ रहे हैं। क्या आप कृपया अपना प्रश्न थोड़ा और स्पष्ट कर सकते हैं?", "bot");
+        appendInlineSuggestions(["हाँ", "नहीं", "मुख्य मेनू दिखाओ"]);
+        return;
+    }
+
+    try {
+        if (member_name === "self" && intent === "get_member_specific_data") {
+            appendMessage("कृपया अपना नाम बताएं ताकि मैं आपकी जानकारी देख सकूं। (उदा: 'अमित कुमार का बैलेंस')", "bot");
+            followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी नियम दिखाओ"];
+            appendInlineSuggestions(followupSuggestions);
+            return;
+        }
+
+        switch (intent) {
+            case "greet":
+                appendMessage("नमस्ते! मैं आपकी कैसे मदद कर सकता हूँ?", "bot");
+                appendInlineSuggestions(["नियम क्या हैं?", "सदस्य सूची दिखाओ", "मेरा बैलेंस कितना है?"]);
+                break;
+
+            case "thank_you":
+                appendMessage("कोई बात नहीं! आपकी सहायता करके खुशी हुई!", "bot");
+                appendInlineSuggestions(["मुख्य मेनू", "सभी नियम", "सदस्य सूची"]);
+                break;
+
+            case "get_rule":
+                if (answer) {
+                    const msgEl = appendMessage("", "bot");
+                    typeEffect(answer, msgEl, () => appendInlineSuggestions(["कोई और नियम?", "लोन पात्रता?", "सभी सदस्य दिखाओ"]));
+                } else {
+                    appendMessage("क्षमा करें, मुझे आपके प्रश्न से संबंधित कोई विशिष्ट नियम नहीं मिला।", "bot");
+                    appendInlineSuggestions(["सभी नियम दिखाओ", "लोन कैसे मिलता है?"]);
+                }
+                break;
+
+            case "get_member_specific_data":
+                if (!member_name) {
+                    appendMessage("कृपया सदस्य का नाम बताएं। (उदाहरण: 'अमित कुमार का विवरण')", "bot");
+                    followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी नियम दिखाओ"];
+                    appendInlineSuggestions(followupSuggestions);
+                } else {
+                    const userData = getUserDataAggregated(member_name);
+                    if (!userData) {
+                        appendMessage(`माफ़ कीजिए, "${member_name}" नाम का सदस्य रिकॉर्ड नहीं मिला।`, "bot");
+                        followupSuggestions = memberNamesList.length > 0 ? memberNamesList.slice(0, 3).map(n => `${n} का विवरण?`) : ["सभी सदस्य दिखाओ"];
+                        appendInlineSuggestions(followupSuggestions);
+                    } else {
+                        let responseText = "";
+                        let isHtml = false;
+                        switch (detail_type) {
+                            case "balance":
+                                responseText = `${userData.name} का वर्तमान बैलेंस ₹${userData.overallBalance.toLocaleString('en-IN')} है।`;
+                                followupSuggestions = [`${userData.name} का पूरा विवरण?`, `${userData.name} लोन ले सकता है?`];
+                                break;
+                            case "loan_eligibility":
+                                const eligibility = calculateEligibility(userData.name, userData.overallBalance);
+                                responseText = eligibility.isEligible
+                                    ? `✅ हाँ, ${userData.name} लोन के लिए पात्र हैं। वे अधिकतम ₹${eligibility.approvedAmount.toLocaleString('en-IN')} तक का लोन ले सकते हैं।`
+                                    : `❌ नहीं, ${userData.name} वर्तमान में लोन के लिए पात्र नहीं हैं। ${eligibility.reason || ''}`;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, "लोन नियम क्या हैं?"];
+                                break;
+                            case "sip_status":
+                                responseText = `${userData.name} की इस महीने की SIP स्थिति: <span class="sip-status ${userData.sipStatusClass}">${userData.sipStatusText}</span>`;
+                                isHtml = true;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, "SIP नियम क्या हैं?"];
+                                break;
+                            case "outstanding_loan":
+                                responseText = `${userData.name} की वर्तमान बकाया लोन राशि ₹${userData.netLoanOutstanding.toLocaleString('en-IN')} है।`;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, `${userData.name} का भुगतान?`];
+                                break;
+                            case "full_details":
+                            default:
+                                const primeTag = userData.isPrimeMember ? `<span class='prime-tag-on-photo'>⭐ Prime</span>` : '';
+                                const unclearedLoan = userData.hasUnclearedLoan ? `<p><span class="label"><i class="fas fa-exclamation-triangle icon"></i> हालिया बकाया लोन:</span> <span class='value loan-highlight'>₹${userData.latestUnclearedLoanAmount.toLocaleString('en-IN')}</span></p>` : '';
+                                responseText = `
+                                    <div class='user-details-card'>
+                                        <div class="user-details-header"> <div class="profile-pic-container"> <img src="${userData.imageUrl}" alt="${userData.name}" class="profile-pic" onclick="openImageModal('${userData.imageUrl}')"> ${primeTag} </div> <div class="user-info"> <h3>${userData.name}</h3> <p><span class="label"><i class="fas fa-calendar-alt icon"></i> ज्वाइन तिथि:</span> ${userData.joinDate}</p> </div> </div>
+                                        <div class="user-stats">
+                                            <p><span class="label"><i class="fas fa-piggy-bank icon"></i> कुल SIP जमा:</span> <span class="value">₹${userData.totalSIP.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-hand-holding-usd icon"></i> कुल लोन लिया:</span> <span class="value">₹${userData.totalLoan.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-receipt icon"></i> कुल नियमित भुगतान:</span> <span class="value">₹${userData.totalPayment.toLocaleString('en-IN')}</span></p>
+                                            <p><span class="label"><i class="fas fa-wallet icon"></i> वर्तमान बैलेंस:</span> <strong class="value">₹${userData.overallBalance.toLocaleString('en-IN')}</strong></p>
+                                            <p><span class="label"><i class="fas fa-chart-line icon"></i> बकाया लोन राशि:</span> <span class="value ${userData.netLoanOutstanding > 0 ? 'loan-highlight' : ''}">₹${userData.netLoanOutstanding.toLocaleString('en-IN')}</span></p>
+                                            ${unclearedLoan}
+                                            <p><span class="label"><i class="fas fa-bell icon"></i> मासिक SIP स्थिति:</span> <span class="value"><span class="sip-status ${userData.sipStatusClass}">${userData.sipStatusText}</span></span></p>
+                                        </div>
+                                    </div>`;
+                                isHtml = true;
+                                followupSuggestions = [`${userData.name} का बैलेंस?`, `${userData.name} लोन ले सकता है?`];
+                                break;
+                        }
+                        if (isHtml) {
+                            appendMessage(responseText, "bot", true);
+                            appendInlineSuggestions(followupSuggestions);
+                        } else {
+                            const msgEl = appendMessage("", "bot");
+                            typeEffect(responseText, msgEl, () => appendInlineSuggestions(followupSuggestions));
+                        }
+                    }
+                }
+                break;
+            
+            case "list_all_members":
+                const names = memberNamesList.sort((a, b) => a.localeCompare(b));
+                if (names.length > 0) {
+                    let html = `<p><strong>सभी सदस्य (${names.length}):</strong></p><div class='member-list-container'>`;
+                    names.forEach(name => {
+                        html += `<div class='clickable-member' onclick="triggerSend('${name.replace(/'/g, "\\'")}')">${name}</div>`;
+                    });
+                    html += "</div>";
+                    appendMessage(html, 'bot', true);
+                    followupSuggestions = names.slice(0, 2).map(n => `${n} का विवरण?`).concat(["कुल सदस्य कितने हैं?"]);
+                    appendInlineSuggestions(followupSuggestions);
+                } else {
+                    appendMessage("अभी कोई सदस्य डेटा उपलब्ध नहीं है।", "bot");
+                }
+                break;
+
+            case "get_member_count":
+                appendMessage(`वर्तमान में समुदाय में कुल ${memberNamesList.length} सदस्य हैं।`, "bot");
+                appendInlineSuggestions(["सदस्य सूची दिखाओ", "सभी नियम दिखाओ"]);
+                break;
+
+            case "general_query":
+            default:
+                if (answer) {
+                    const msgEl = appendMessage("", "bot");
+                    typeEffect(answer, msgEl, () => appendInlineSuggestions(["और सवाल पूछें?", "सभी नियम दिखाओ"]));
+                } else {
+                    appendMessage("मैं अभी भी सीख रहा हूँ। क्या आप अपना प्रश्न दूसरी तरह से पूछ सकते हैं?", "bot");
+                    appendInlineSuggestions(["सभी नियम दिखाओ", "सदस्य सूची दिखाओ"]);
+                }
+                break;
+        }
+    } catch (error) {
+        console.error("इरादे को संभालने में त्रुटि:", intent, error);
+        appendMessage("क्षमा करें, आपके अनुरोध को संसाधित करने में एक अप्रत्याशित त्रुटि हुई।", "bot");
+    } finally {
+        scrollToBottom();
+    }
+}
+
+// --- 5. EVENT LISTENERS & INITIALIZATION ---
+function handleKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        send();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM लोड हो गया। प्रारंभिक डेटा प्राप्त करना शुरू कर रहा है...");
+    fetchFirebaseData().then(() => {
+        console.log("प्रारंभिक डेटा प्राप्त करने का प्रयास पूरा हुआ।");
+    });
+});
+
+imageModal.addEventListener('click', (event) => {
+    if (event.target === imageModal) closeImageModal();
+});
+</script>
+</body>
+</html>
+
